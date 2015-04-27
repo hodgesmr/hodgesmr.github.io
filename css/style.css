@@ -3,6 +3,7 @@ body {
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
+  -ms-background-size: cover;
   background-size: cover;
 }
 
@@ -78,8 +79,16 @@ a.social {
 
 .grow {
   transition: all .2s ease-in-out;
+  -webkit-transition: all .2s ease-in-out;
+  -moz-transitition: all .2s ease-in-out;
+  -o-transition: all .2s ease-in-out;
+  -ms-transition: all .2s ease-in-out;
 }
 
 .grow:hover {
   transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -o-transform: scale(1.5);
+  -ms-transform: scale(1.5)
 }
