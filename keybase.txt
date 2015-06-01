@@ -1,0 +1,76 @@
+==================================================================
+https://keybase.io/hodgesmr
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://matthodges.com
+  * I am hodgesmr (https://keybase.io/hodgesmr) on keybase.
+  * I have a public key with fingerprint 0811 0F3B CAF8 8427 5E48  26A7 085E BEBD 1A07 CE65
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "client": {
+            "name": "keybase.io node.js client",
+            "version": "0.7.9"
+        },
+        "key": {
+            "fingerprint": "08110f3bcaf884275e4826a7085ebebd1a07ce65",
+            "host": "keybase.io",
+            "key_id": "085EBEBD1A07CE65",
+            "uid": "eef0258c5b1152108da05aa4ab323f00",
+            "username": "hodgesmr"
+        },
+        "merkle_root": {
+            "ctime": 1433171803,
+            "hash": "f2dcdf23986ac42cb66aaf3e8755d1c7b1fb9be8e38a85b202a1b6223810f36f3b41d046bcbad7612e6267fbc420fb6ea36ab25e82c7c8e6e900ccd80d361bc9",
+            "seqno": 233541
+        },
+        "service": {
+            "hostname": "matthodges.com",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1433171824,
+    "expire_in": 157680000,
+    "prev": "533523b10554f9e63db79da9844ba5b11cec78e2f7c194e16798579b8794a9de",
+    "seqno": 5,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1
+
+owFdkl1sFUUYhs+pCGhAMJEYFQksCpg0x5nZmdnZo15IaZs2atI0oIjJyfx8e7py
+zu5xd1to4KhEbTQGMRTTxEggQCzegIDReGP9STQGJNXGELlRsVxgqqQJ1osS406t
+8WeuZjLv937vM9+8vvSGQktxw4HRWs8Hzy4rnr2iCptrOxq7HBWbQae8y9G1EKLM
+7iJZB6fsbIdBJVMohfHqKDZQejpdPa9pdQYgScM4ylWo5JV8p9lq5bY4CKMqJI0k
+tF4OEhijwFVaBkJQ4jGggnDpIcFAgTJYIk8DZ7llX5xm/+nqzHlWQjPnw9o3tm/c
+hB9GXlv7nL5/7gIgQIQJzRTGjGAkjERMSiqVS9wAIStMIZlH6otNFdJ6YvPWIdle
+g0oSx3PQOgutBFPXxR4WyM0TybQvLwqI0SYgri+41JRoxbmUgQvCY8xg7SkcKF+B
+AFdIwRRBRGLFCXGFRec5PcUGUa60ksbjmAAn3AtU7oUCxUG6XCrCQBDtaQEcfIS0
+NgIZl2Ol/RwhhWei2CkT12UUN+05GQg12Nz22ebp6jLL/iIs6bielzWSOIt1XLPk
+WdYoW+xssGG1O+CkqszbVFQYmXxs/56r7fK/JyG01YGdjTCBSmgVzOMC5cv2gYHc
+k+XxiKswYowGPnDXKM830heUKmkHpEF7AkjgaexTwNzzBfN8JTyfSt/AP6Aszymr
+uWUaViOZ9SfgNF8prlxQKLYUFt7YYj9u4eablv/9m5/niwvDK8Y6Fo/hrfTntqP4
++8dOnXih+7J/z+Tt0Wv03KLa1iO/3PnSht+qv7ctee/N0axzYu+0rr/x8tB3j56e
+XDPeOz1+HmaWXjjdFfVURzqHuw7pqd1n9vsnp2odxzoG9+3ZXfjj2IL7VpzYNzHh
+jrwoDn/8013l5pbp+z/d9uSwmWodeoB+W7hanJ2dKXeugoOL0qfQ7B0j7zpfbn7r
+h9uWt/Ws7dr0zp7q5LWL9NSHb48eVOnY3le7v3rkiYeGVj637Mfm8aLeVurdf6Tw
+ya/tV6+s7732/nkafMYP9919fXzt5+b6N+vGLl76+nF+tv+jNZdm1q265YuFx5c4
+leTo5QMXHuw+NzJz5t6dt/4J
+=Rmrw
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/hodgesmr
+
+==================================================================
