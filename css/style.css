@@ -62,25 +62,6 @@ body {
   font-size: 1.3em;
 }
 
-#footer {
-  background-color: #000000;
-  color: #f1f1f1;
-  text-decoration: none;
-  font-style: italic;
-  font-family: 'Cabin', sans-serif;
-  font-size: 0.7em;
-  opacity: 0.6;
-  padding-top: 4px;
-  padding-left: 4px;
-  padding-right: 4px;
-  padding-bottom: 4px;
-  position: fixed;
-  z-index: 10;
-  bottom: 0;
-  right: 0;
-  text-align: right;
-}
-
 a.social {
   font-size: 2em;
   margin-left: 8px;
