@@ -1,0 +1,35 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Matt Hodges"
+  description: "Matt Hodges is a political technologist who leverages over a decade of experience in campaigns and engineering to drive change."
+  image: "img/social.jpg"
+  twitter-card: true
+  site-url: https://matthodges.com
+  open-graph: true
+  search: false
+  page-footer: |
+     Copyright 2024, Matt Hodges
+  navbar:
+    right:
+      - href: https://www.linkedin.com/in/hodgesmr
+        text: LinkedIn
+        target: _blank
+      - href: https://github.com/hodgesmr
+        text: GitHub
+        target: _blank      
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles.scss
+    header-includes: |
+      <link href="https://fonts.googleapis.com/css?family=Overpass:300,900" rel="stylesheet">
+    mainfont: Overpass
+    fontsize: 1.3em
+    grid: 
+      body-width: 1000px
+    toc: true

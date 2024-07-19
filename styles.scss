@@ -1,0 +1,57 @@
+/*-- scss:rules --*/
+.title {
+    position: relative;
+    display: block;
+    text-align: center;
+    color: #080808;
+    text-decoration: none;
+    font-family: 'Overpass', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+  
+  h1 {
+    position: relative;
+    display: block;
+    margin: auto;
+    margin-bottom: 0.5rem;
+    color: #080808;
+    text-decoration: none;
+    font-family: 'Overpass', sans-serif;
+    font-size: calc(1.25rem + 0.9vw);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  
+  .about-contents {
+    border-left: none !important;
+  }
+  
+  div.quarto-about-trestles {
+    .about-entity {
+      flex: 0 0 0%;
+    }
+  }
+  
+  span.color-accent {
+    border-radius: 2px;
+    padding: 0.22rem 0.22rem 0 0.22rem;
+    font-weight: bold;
+    background-color: #3459e6;
+    color: #fff;
+  }
+  
+  dt {
+    font-size: calc(0.75rem + 0.25vw);
+  }
+  
+  dd {
+    margin-bottom: 0;
+    font-size: calc(0.7rem + 0.15vw);
+  }
+  
+  a {
+    color: #080808;
+    text-decoration-style: dotted;
+  }
+  
