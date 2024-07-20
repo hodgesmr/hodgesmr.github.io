@@ -6,6 +6,7 @@ website:
   title: "Matt Hodges"
   description: "Matt Hodges is a political technologist who leverages over a decade of experience in campaigns and engineering to drive change."
   image: "img/social.jpg"
+  favicon: "img/favicon.png"
   twitter-card: true
   site-url: https://matthodges.com
   open-graph: true
