@@ -2,7 +2,7 @@
 author: "Matt Hodges"
 reading-time: true
 title: "Amused Entirely To Death"
-subtitle: "What if the imminent danger to our democracy ins't just looming authoritarianism, but also our own insatiable appetite for distraction? Last week’s Republican National Convention provided a stark reminder of this unsettling threat."
+subtitle: "What if the imminent danger to our democracy isn't just looming authoritarianism, but also our own insatiable appetite for distraction? Last week’s Republican National Convention provided a stark reminder of this unsettling threat."
 image: amused-entirely-to-death.jpg
 date: 2024-07-20
 ---
