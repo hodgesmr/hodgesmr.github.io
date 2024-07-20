@@ -1,5 +1,6 @@
 ---
 title: "About"
+pagetitle: "Matt Hodges - About"
 about:
   template: trestles
   image: ./img/photo.jpg

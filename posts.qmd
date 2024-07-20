@@ -1,5 +1,6 @@
 ---
 title: "Posts"
+pagetitle: "Posts by Matt Hodges"
 listing:
     contents: posts
     type: default
