@@ -1,0 +1,11 @@
+---
+title: "Posts"
+listing:
+    contents: posts
+    type: default
+    feed: true
+    sort: "date desc"
+    fields: [image, date, title, subtitle, reading-time]
+    date-format: iso
+    filter-ui: true
+---
