@@ -8,7 +8,7 @@ about:
   image-width: 150px
 ---
 
-# Work
+## Work
 
 I am currently the **Executive Director** of **Zinc Labs**, a political innovation lab at [Zinc Collective]{.color-accent} that houses the organization's strategic work in Democratic technology and pilot programs. Through our network of campaigns, committees, vendors, donors, and subject matter experts, we incubate and invest in innovative new programs across the ecosystem. We prioritize investing in technology and people to enable collaborative experimentation, technical execution, and hypothesis testing.
 
@@ -32,7 +32,7 @@ I have been an **Election Night Reporter** for [Decision Desk HQ]{.color-accent}
 
 I have been a frequent **Open Source Contributor** to [OpenElections]{.color-accent}, which is creating the first free, comprehensive, standardized, linked set of election results data for the United States. 
 
-# Media & Appearances
+## Media & Appearances
 
 *   Big Tech Is Giving Campaigns Both the Venom and the Antidote for GenAI
 :   Wired, 2024

@@ -3,3 +3,4 @@ title-block-banner: true
 format:
   html:
     include-after-body: ./post-footer.html
+title-prefix: ""
