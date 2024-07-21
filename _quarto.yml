@@ -4,7 +4,7 @@ project:
 
 website:
   title: "Matt Hodges"
-  description: "Matt Hodges is a political technologist who leverages over a decade of experience in campaigns and engineering to drive change."
+  description: "Matt Hodges is a political technologist who leverages over a decade of experience in Democratic campaigns and engineering to drive change."
   image: "img/social.jpg"
   favicon: "img/favicon.png"
   twitter-card: true
@@ -37,3 +37,5 @@ format:
     grid: 
       body-width: 1000px
     toc: true
+    link-external-newwindow: true
+    title-prefix: ""

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Posts by Matt Hodges – Matt Hodges</title>
+<title>Posts by Matt Hodges</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -228,6 +228,31 @@ window.Quarto = {
 </a>
 </div>
 </div>
+<div class="quarto-post image-right" data-index="1" data-listing-date-sort="1658034000000" data-listing-file-modified-sort="1721575775975" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1458">
+<div class="thumbnail">
+<p><a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external"></a></p><a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external">
+<p><img loading="lazy" src="./posts/2022-07-17-exploring-lambda-calculus-python/lambda-calculus-python.jpeg" class="thumbnail-image"></p>
+</a><p><a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external">Exploring the Lambda Calculus with Python</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external">Some basic ideas of the Lambda Calculus, and how to use it to implement a computation system in Python</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external">
+<div class="listing-date">
+2022-07-17
+</div>
+<div class="listing-reading-time">
+8 min
+</div>
+</a>
+</div>
+</div>
 </div>
 <div class="listing-no-matching d-none">
 No matching items
@@ -339,6 +364,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         if (link.dataset.originalHref !== undefined) {
           link.href = link.dataset.originalHref;
         }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
       }
     }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {

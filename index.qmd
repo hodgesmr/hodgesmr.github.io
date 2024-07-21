@@ -36,79 +36,79 @@ I have been a frequent **Open Source Contributor** to [OpenElections]{.color-acc
 
 *   Big Tech Is Giving Campaigns Both the Venom and the Antidote for GenAI
 :   Wired, 2024
-:   [[Original](https://www.wired.com/story/big-tech-microsoft-google-gen-ai-campaigns/){target="_blank"}] [[Archive](https://web.archive.org/web/20240620113358/https://www.wired.com/story/big-tech-microsoft-google-gen-ai-campaigns/){target="_blank"}]
+:   [[Original](https://www.wired.com/story/big-tech-microsoft-google-gen-ai-campaigns/)] [[Archive](https://web.archive.org/web/20240620113358/https://www.wired.com/story/big-tech-microsoft-google-gen-ai-campaigns/)]
 *   AI Guidelines Earn Widespread Support Across the Democratic Political Community
 :   Zinc Labs, 2024
-:   [[Original](https://zcpage.com/just-released-quick-start-ai-guidelines-for-democratic-campaigns-2){target="_blank"}] [[Archive](https://web.archive.org/web/20240603182708/https://zcpage.com/just-released-quick-start-ai-guidelines-for-democratic-campaigns-2){target="_blank"}]
+:   [[Original](https://zcpage.com/just-released-quick-start-ai-guidelines-for-democratic-campaigns-2)] [[Archive](https://web.archive.org/web/20240603182708/https://zcpage.com/just-released-quick-start-ai-guidelines-for-democratic-campaigns-2)]
 *   Podcast: AI's do's and dont's in politics
 :   The Chuck Todd Podcast (Chuck ToddCast) | NBC News, 2024
-:   [[Original](https://overcast.fm/+q9QytcZTs/){target="_blank"}] [[Archive](https://archive.org/details/chuck_todd_matt_hodges){target="_blank"}]
+:   [[Original](https://overcast.fm/+q9QytcZTs/)] [[Archive](https://archive.org/details/chuck_todd_matt_hodges)]
 *   Panel: A Responsible and Secure Approach to AI in Democratic Campaigns
 :   Defending Digital Campaigns & Microsoft, 2024
-:   [[Original](https://www.bigmarker.com/defending-digital-campaigns1/A-Responsible-and-Secure-Approach-to-Unlocking-AI-s-Potential-for-Democratic-Political-Campaigns){target="_blank"}] [[Archive](https://web.archive.org/web/20240514202500/https://www.bigmarker.com/defending-digital-campaigns1/A-Responsible-and-Secure-Approach-to-Unlocking-AI-s-Potential-for-Democratic-Political-Campaigns){target="_blank"}]
+:   [[Original](https://www.bigmarker.com/defending-digital-campaigns1/A-Responsible-and-Secure-Approach-to-Unlocking-AI-s-Potential-for-Democratic-Political-Campaigns)] [[Archive](https://web.archive.org/web/20240514202500/https://www.bigmarker.com/defending-digital-campaigns1/A-Responsible-and-Secure-Approach-to-Unlocking-AI-s-Potential-for-Democratic-Political-Campaigns)]
 *   The dos and don'ts of campaigning with AI
 :   The Washington Post, 2024
-:   [[Original](https://www.washingtonpost.com/politics/2024/05/02/dos-donts-campaigning-with-ai/){target="_blank"}] [[Archive](https://archive.is/gHgd2){target="_blank"}]
+:   [[Original](https://www.washingtonpost.com/politics/2024/05/02/dos-donts-campaigning-with-ai/)] [[Archive](https://archive.is/gHgd2)]
 *   Quick-Start AI Guidelines for Democratic CampaignsI
 :   Zinc Labs, 2024
-:   [[Original](https://AICampaignGuide.com){target="_blank"}] [[Archive](https://archive.org/details/quick-start-ai-guidelinesfor-democratic-campaigns-may-2024){target="_blank"}]
+:   [[Original](https://AICampaignGuide.com)] [[Archive](https://archive.org/details/quick-start-ai-guidelinesfor-democratic-campaigns-may-2024)]
 *   Panel: Threats vs Practicality - Realistic Solutions for Securing Campaigns
 :   Google and Defending Digital Campaigns Security Summit, 2024
-:   [[Original](https://rsvp.withgoogle.com/events/civics-summit-atx){target="_blank"}] [[Archive](https://archive.is/BVqoB){target="_blank"}]
+:   [[Original](https://rsvp.withgoogle.com/events/civics-summit-atx)] [[Archive](https://archive.is/BVqoB)]
 *   Podcast: Can AI Help Meet Voters Where They Are?
 :   Politics Is Everything, 2023
-:   [[Original](https://overcast.fm/+7oLT5vJ0I){target="_blank"}] [[Archive](https://archive.org/details/politics-is-everything-can-ai-help-meet-voters-where-they-are-ft.-matt-hodges){target="_blank"}]
+:   [[Original](https://overcast.fm/+7oLT5vJ0I)] [[Archive](https://archive.org/details/politics-is-everything-can-ai-help-meet-voters-where-they-are-ft.-matt-hodges)]
 *   AI will change American elections, but not in the obvious way
 :   The Economist, 2023
-:   [[Original](https://www.economist.com/united-states/2023/08/31/ai-will-change-american-elections-but-not-in-the-obvious-way){target="_blank"}] [[Archive](https://web.archive.org/web/20230901164344/https://www.economist.com/united-states/2023/08/31/ai-will-change-american-elections-but-not-in-the-obvious-way){target="_blank"}]
+:   [[Original](https://www.economist.com/united-states/2023/08/31/ai-will-change-american-elections-but-not-in-the-obvious-way)] [[Archive](https://web.archive.org/web/20230901164344/https://www.economist.com/united-states/2023/08/31/ai-will-change-american-elections-but-not-in-the-obvious-way)]
 *   1 big thing: Democratic tech vendors go under the cyber microscope
 :   Axios, 2023
-:   [[Original](https://www.axios.com/newsletters/axios-codebook-4fc742bf-ba2d-40ff-9035-3e5b6ce57c7f.html){target="_blank"}] [[Archive](https://web.archive.org/web/20230704122619/https://www.axios.com/newsletters/axios-codebook-4fc742bf-ba2d-40ff-9035-3e5b6ce57c7f.html){target="_blank"}]
+:   [[Original](https://www.axios.com/newsletters/axios-codebook-4fc742bf-ba2d-40ff-9035-3e5b6ce57c7f.html)] [[Archive](https://web.archive.org/web/20230704122619/https://www.axios.com/newsletters/axios-codebook-4fc742bf-ba2d-40ff-9035-3e5b6ce57c7f.html)]
 *   Generative artificial intelligence tools 'threaten democracy, reality'
 :   The Courier-Mail, 2023
-:   [[Original](https://www.couriermail.com.au/news/world/generative-artificial-intelligence-tools-threaten-democracy-reality/news-story/e22ae3edfe6df70a00d89f2338f590cf){target="_blank"}] [[Archive](https://archive.is/KNQO6){target="_blank"}]
+:   [[Original](https://www.couriermail.com.au/news/world/generative-artificial-intelligence-tools-threaten-democracy-reality/news-story/e22ae3edfe6df70a00d89f2338f590cf)] [[Archive](https://archive.is/KNQO6)]
 *   Matt Hodges, Political Technologist
 :   Uses This, 2023
-:   [[Original](https://usesthis.com/interviews/matt.hodges/){target="_blank"}] [[Archive](https://web.archive.org/web/20230514023613/https://usesthis.com/interviews/matt.hodges/){target="_blank"}]
+:   [[Original](https://usesthis.com/interviews/matt.hodges/)] [[Archive](https://web.archive.org/web/20230514023613/https://usesthis.com/interviews/matt.hodges/)]
 *   A Campaign Aide Didn't Write That Email. A.I. Did.
 :   The New York Times, 2023
-:   [[Original](https://www.nytimes.com/2023/03/28/us/politics/artificial-intelligence-2024-campaigns.html){target="_blank"}] [[Archive](https://web.archive.org/web/20230328171142/https://www.nytimes.com/2023/03/28/us/politics/artificial-intelligence-2024-campaigns.html){target="_blank"}]
+:   [[Original](https://www.nytimes.com/2023/03/28/us/politics/artificial-intelligence-2024-campaigns.html)] [[Archive](https://web.archive.org/web/20230328171142/https://www.nytimes.com/2023/03/28/us/politics/artificial-intelligence-2024-campaigns.html)]
 *   Welcome Keynote
 :   2022 Election Tech Debrief, 2023
-:   [[Original](https://highergroundlabs.com/2022-election-tech-debrief-recap/){target="_blank"}] [[Archive](https://web.archive.org/web/20230131223348/https://highergroundlabs.com/2022-election-tech-debrief-recap/){target="_blank"}]
+:   [[Original](https://highergroundlabs.com/2022-election-tech-debrief-recap/)] [[Archive](https://web.archive.org/web/20230131223348/https://highergroundlabs.com/2022-election-tech-debrief-recap/)]
 *   Keynote: Tech Innovation Comes From Those Who Build It
 :   CampaignTech Innovation Summit, 2022
-:   [[Original](https://github.com/hodgesmr/2022-campaign-tech-keynote-talent){target="_blank"}]
+:   [[Original](https://github.com/hodgesmr/2022-campaign-tech-keynote-talent)]
 *   Panel: Tech For Good
 :   Unified Jam SXSW, 2022
-:   [[Original](https://www.youtube.com/watch?v=0oaOG1840Gs){target="_blank"}] [[Archive](https://archive.org/details/tech-for-good-unified-jam-2022){target="_blank"}]
+:   [[Original](https://www.youtube.com/watch?v=0oaOG1840Gs)] [[Archive](https://archive.org/details/tech-for-good-unified-jam-2022)]
 *   Building Campaign Tech For Early Adoption
 :   Higher Ground Labs, 2021
-:   [[Original](https://highergroundlabs.com/creating-campaign-tech/){target="_blank"}] [[Archive](https://web.archive.org/web/20220809224417/https://highergroundlabs.com/creating-campaign-tech/){target="_blank"}]
+:   [[Original](https://highergroundlabs.com/creating-campaign-tech/)] [[Archive](https://web.archive.org/web/20220809224417/https://highergroundlabs.com/creating-campaign-tech/)]
 *   Panel: Securing the 2020 Presidential Campaign
 :   BSides Las Vegas, 2021
-:   [[Original](https://www.youtube.com/watch?v=sbVwssCBJ5Q){target="_blank"}] [[Archive](https://archive.org/details/securing-the-2020-presidential-campaign-threats-challenges-and-a-global-pandemic-bsides-lv-2021){target="_blank"}]
+:   [[Original](https://www.youtube.com/watch?v=sbVwssCBJ5Q)] [[Archive](https://archive.org/details/securing-the-2020-presidential-campaign-threats-challenges-and-a-global-pandemic-bsides-lv-2021)]
 *   The Urgent Need For Democratic Tech Talent
 :   Campaigns and Elections, 2021
-:   [[Original](https://campaignsandelections.com/campaigntech/the-urgent-need-for-democratic-tech-talent/){target="_blank"}] [[Archive](https://web.archive.org/web/20230101172355/https://campaignsandelections.com/campaigntech/the-urgent-need-for-democratic-tech-talent/){target="_blank"}]
+:   [[Original](https://campaignsandelections.com/campaigntech/the-urgent-need-for-democratic-tech-talent/)] [[Archive](https://web.archive.org/web/20230101172355/https://campaignsandelections.com/campaigntech/the-urgent-need-for-democratic-tech-talent/)]
 *   Podcast: Building Political Technology
 :   The Great Battlefield, 2021
-:   [[Original](https://greatbattlefield.com/episode/building-political-technology-with-matt-hodges-of-biden-for-president/){target="_blank"}] [[Archive](https://archive.org/details/building-political-technology-with-matt-hodges-of-biden-for-president_202301){target="_blank"}]
+:   [[Original](https://greatbattlefield.com/episode/building-political-technology-with-matt-hodges-of-biden-for-president/)] [[Archive](https://archive.org/details/building-political-technology-with-matt-hodges-of-biden-for-president_202301)]
 *   "Wear a Mask" In The Source Code
 :   The Rachel Maddow Show | MSNBC, 2021
-:   [[Archive](https://archive.org/details/maddow-biden-website-code){target="_blank"}]
+:   [[Archive](https://archive.org/details/maddow-biden-website-code)]
 *   The Biden administration quickly revamped the White House website. Here's how.
 :   The New York Times, 2021
-:   [[Original](https://www.nytimes.com/2021/01/20/us/politics/biden-white-house-website.html){target="_blank"}] [[Archive](https://web.archive.org/web/20230716155230/https://www.nytimes.com/2021/01/20/us/politics/biden-white-house-website.html){target="_blank"}]
+:   [[Original](https://www.nytimes.com/2021/01/20/us/politics/biden-white-house-website.html)] [[Archive](https://web.archive.org/web/20230716155230/https://www.nytimes.com/2021/01/20/us/politics/biden-white-house-website.html)]
 *   Butler County native, Miami grad played significant role in Biden campaign
 :   The Journal-News, 2021
-:   [[Original](https://www.journal-news.com/news/butler-county-native-miami-grad-played-significant-role-in-biden-campaign/IPECO4K5LFGK7MSMVLCUU2FDZE/){target="_blank"}] [[Archive](https://web.archive.org/web/20210120220953/https://www.journal-news.com/news/butler-county-native-miami-grad-played-significant-role-in-biden-campaign/IPECO4K5LFGK7MSMVLCUU2FDZE/){target="_blank"}]
+:   [[Original](https://www.journal-news.com/news/butler-county-native-miami-grad-played-significant-role-in-biden-campaign/IPECO4K5LFGK7MSMVLCUU2FDZE/)] [[Archive](https://web.archive.org/web/20210120220953/https://www.journal-news.com/news/butler-county-native-miami-grad-played-significant-role-in-biden-campaign/IPECO4K5LFGK7MSMVLCUU2FDZE/)]
 *   2018 Profile of Ohio's 1st District
 :   Decision Desk HQ, 2018
-:   [[Original](https://decisiondeskhq.com/guest-post-2018-profile-ohios-1st-district/){target="_blank"}] [[Archive](https://web.archive.org/web/20220807215603/https://decisiondeskhq.com/guest-post-2018-profile-ohios-1st-district/){target="_blank"}]
+:   [[Original](https://decisiondeskhq.com/guest-post-2018-profile-ohios-1st-district/)] [[Archive](https://web.archive.org/web/20220807215603/https://decisiondeskhq.com/guest-post-2018-profile-ohios-1st-district/)]
 *   The other major hurdle for the Parkland teens: Turning out their peers
 :   The Washington Post, 2018
-:   [[Original](https://www.washingtonpost.com/news/politics/wp/2018/06/04/the-other-major-hurdle-for-the-parkland-teens-turning-out-their-peers/){target="_blank"}] [[Archive](https://web.archive.org/web/20180605080213/https://www.washingtonpost.com/news/politics/wp/2018/06/04/the-other-major-hurdle-for-the-parkland-teens-turning-out-their-peers/){target="_blank"}]
+:   [[Original](https://www.washingtonpost.com/news/politics/wp/2018/06/04/the-other-major-hurdle-for-the-parkland-teens-turning-out-their-peers/)] [[Archive](https://web.archive.org/web/20180605080213/https://www.washingtonpost.com/news/politics/wp/2018/06/04/the-other-major-hurdle-for-the-parkland-teens-turning-out-their-peers/)]
 *   Podcast: Can Zuck be trusted?
 :   TechieBytes, 2018
-:   [[Original](https://www.besttechie.com/can-zuck-be-trusted/){target="_blank"}] [[Archive](https://archive.org/details/httpswww.besttechie.comcan-zuck-be-trusted){target="_blank"}]
+:   [[Original](https://www.besttechie.com/can-zuck-be-trusted/)] [[Archive](https://archive.org/details/httpswww.besttechie.comcan-zuck-be-trusted)]

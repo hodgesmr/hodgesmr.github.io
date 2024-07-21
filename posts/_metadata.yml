@@ -2,5 +2,9 @@ freeze: auto
 title-block-banner: true
 format:
   html:
+    link-external-newwindow: true 
     include-after-body: ./post-footer.html
+    code-block-bg: true
+    code-block-border-left: "#3459e6"
+    highlight-style: github
 title-prefix: ""
