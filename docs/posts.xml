@@ -146,6 +146,1394 @@
   <media:content url="https://matthodges.com/posts/2024-07-20-amused-entirely-to-death/amused-entirely-to-death.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
+  <title>BIDEN: Binary Inference Dictionaries for Electoral NLP</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p><strong>BIDEN</strong>: <strong>B</strong>inary <strong>I</strong>nference <strong>D</strong>ictionaries for <strong>E</strong>lectoral <strong>N</strong>LP demonstrates a compression-based binary classification technique that is fast at both training and inference on common CPU hardware in Python. It is largely built on the strategies presented by <a href="https://github.com/cyrilou242/ftcc">FTCC</a>, which in turn, was a reaction to <a href="https://github.com/bazingagin/npc_gzip">Low-Resource Text Classification: A Parameter-Free Classification Method with Compressors</a> (the gzip method). Like FTCC, <strong>BIDEN</strong> is built atop of <a href="https://facebook.github.io/zstd/">Zstandard</a> (Zstd), which leverages <a href="https://facebook.github.io/zstd/#small-data">dictionary compression</a>. Zstd dictionary compression seeds a compressor with sample data, so that it can efficiently compress <em>small data</em> (~1 KB) of similar composition. Seeding the compressor dictionaries acts as our “training” method for the model.</p>
+<p>The <strong>BIDEN</strong> model was trained on the <a href="https://electionemails2020.org">ElectionEmails 2020</a> data set — a database of over 900,000 political campaign emails from the 2020 US election cycle. <strong>In compliance with the data set’s <a href="https://electionemails2020.org/downloads/corpus_documentation_v1.0.pdf">terms</a>, the training data is NOT provided with this repository.</strong> If you would like to train the <strong>BIDEN</strong> model yourself, you can <a href="https://docs.google.com/forms/d/e/1FAIpQLSdcgjZo-D1nNON4d90H2j0VLtTdxiHK6Y8HPJSpdRu4w5YILw/viewform">request a copy of the data for free</a>. The <strong>BIDEN</strong> model was trained on <code>corpus_v1.0</code>.</p>
+<section id="training-and-classification" class="level3">
+<h3 class="anchored" data-anchor-id="training-and-classification">Training and Classification</h3>
+<p>Both training and inference for <strong>BIDEN</strong> are fast and simple.</p>
+<p>The model consists of two Zstd compressors, one optimized for Democratic emails and one optimzed for Republican emails. Each is built upon a compression dictionary. Each compression dictionary is seeded with training sample emails from its respective party.</p>
+<p>Classification (inference) is achieved by compressing a test sample with both the Democratic and Republican compressors. Whichever compressor achieves a higher compression ratio on the test sample text is considered the inferred label.</p>
+</section>
+<section id="cleaning-the-training-data" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-the-training-data">Cleaning the Training Data</h3>
+<p>The ElectionEmails 2020 data set is a CSV. The model consideres <a href="https://electionemails2020.org/downloads/corpus_documentation_v1.0.pdf">two columns</a>: <code>party_affiliation</code> and <code>body_text</code>. <strong>BIDEN</strong> is only concerned with binary classification for Democratic and Republican labeling.</p>
+<p>The two requirements defined in <code>requirements.txt</code> are <a href="https://pypi.org/project/pandas/">Pandas</a> and <a href="https://pypi.org/project/zstandard/">zstandard</a>:</p>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode txt code-with-copy"><code class="sourceCode default"><span id="cb1-1">pandas==2.1.*</span>
+<span id="cb1-2">zstandard==0.21.* </span></code></pre></div>
+<p>Start by reading in the data. Since the model is only working with two columns, drop any record that doesn’t contain both. Also filter the data to only consider Democratic or Republican emails for the binary classificaiton.</p>
+<p><strong>Note</strong>: this assumes you have the ElectionEmails 2020 data saved at the relative path <code>data/corpus_v1.0.csv</code>.</p>
+<div id="a8127153-8f5a-460c-a5d5-da2fcc7c8d8c" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> enum <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Enum</span>
+<span id="cb2-2"></span>
+<span id="cb2-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb2-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> zstandard</span>
+<span id="cb2-5"></span>
+<span id="cb2-6">fields <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb2-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'body_text'</span>: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>,</span>
+<span id="cb2-8">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'party_affiliation'</span>: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>,</span>
+<span id="cb2-9">}</span>
+<span id="cb2-10"></span>
+<span id="cb2-11">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(</span>
+<span id="cb2-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'data/corpus_v1.0.csv'</span>,</span>
+<span id="cb2-13">    sep<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">','</span>,</span>
+<span id="cb2-14">    usecols<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>(fields.keys()),</span>
+<span id="cb2-15">    dtype<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>fields,</span>
+<span id="cb2-16">)</span>
+<span id="cb2-17"></span>
+<span id="cb2-18">df.drop_duplicates(inplace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb2-19"></span>
+<span id="cb2-20">d_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df[df.party_affiliation <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Democratic Party"</span>].dropna()</span>
+<span id="cb2-21">r_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df[df.party_affiliation <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Republican Party"</span>].dropna()</span>
+<span id="cb2-22"></span>
+<span id="cb2-23"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'D Samples: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(d_df.index)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb2-24"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'R Samples: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(r_df.index)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>D Samples: 127194
+R Samples: 36788</code></pre>
+</div>
+</div>
+<p>There are significantly more Democratic samples than Republican samples, so take a random subset of the former.</p>
+<div id="54b8fe57-dae5-47dd-af3c-aa7c9d28d853" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">max_data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">min</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(d_df.index), <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(r_df.index))</span>
+<span id="cb4-2">d_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> d_df.sample(</span>
+<span id="cb4-3">    n<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>max_data,</span>
+<span id="cb4-4">    random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9001</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># random seed set for reproducibility </span></span>
+<span id="cb4-5">).reset_index(drop<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb4-6"></span>
+<span id="cb4-7">r_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> r_df.sample(</span>
+<span id="cb4-8">    n<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>max_data,</span>
+<span id="cb4-9">    random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9001</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># random seed set for reproducibility </span></span>
+<span id="cb4-10">).reset_index(drop<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb4-11"></span>
+<span id="cb4-12"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'D Samples: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(d_df.index)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb4-13"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'R Samples: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(r_df.index)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>D Samples: 36788
+R Samples: 36788</code></pre>
+</div>
+</div>
+<p>Now divide the data into training and test subsets, at an 80/20 split.</p>
+<div id="7f3c0940-4013-4e03-b361-bdf5886f9954" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1">d_train_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> d_df.sample(frac<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>, random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9001</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># random seed set for reproducibility </span></span>
+<span id="cb6-2">d_test_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> d_df.drop(d_train_df.index)</span>
+<span id="cb6-3"></span>
+<span id="cb6-4">r_train_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> r_df.sample(frac<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>, random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9001</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># random seed set for reproducibility </span></span>
+<span id="cb6-5">r_test_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> r_df.drop(r_train_df.index)</span>
+<span id="cb6-6"></span>
+<span id="cb6-7"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'Democratic Training Samples: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(d_train_df.index)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb6-8"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'Democratic Test Samples: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(d_test_df.index)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb6-9"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'Republican Training Samples: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(r_train_df.index)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb6-10"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'Republican Test Samples: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(r_test_df.index)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Democratic Training Samples: 29430
+Democratic Test Samples: 7358
+Republican Training Samples: 29430
+Republican Test Samples: 7358</code></pre>
+</div>
+</div>
+</section>
+<section id="the-biden-model" class="level3">
+<h3 class="anchored" data-anchor-id="the-biden-model">The BIDEN model</h3>
+<p>The model consistes of two core methods: <code>train()</code> and <code>classify()</code> :</p>
+<div id="53a77efa-3809-4bfe-9afb-42ca058943fb" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> BIDEN():</span>
+<span id="cb8-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb8-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Binary Inference Dictionaries for Electoral NLP (BIDEN)</span></span>
+<span id="cb8-4"></span>
+<span id="cb8-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    This class allows you to train a model for classifying political content into</span></span>
+<span id="cb8-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Democratic or Republican categories based on compression ratios.</span></span>
+<span id="cb8-7"></span>
+<span id="cb8-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Attributes:</span></span>
+<span id="cb8-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Classification (enum): An enumeration of political classifications (DEMOCRATIC, REPUBLICAN).</span></span>
+<span id="cb8-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb8-11">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> Classification(Enum):</span>
+<span id="cb8-12">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb8-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Enumeration of political classifications.</span></span>
+<span id="cb8-14"></span>
+<span id="cb8-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Attributes:</span></span>
+<span id="cb8-16"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            DEMOCRATIC (int): Represents Democratic political content.</span></span>
+<span id="cb8-17"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            REPUBLICAN (int): Represents Republican political content.</span></span>
+<span id="cb8-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        """</span></span>
+<span id="cb8-19">        DEMOCRATIC <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb8-20">        REPUBLICAN <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb8-21">        </span>
+<span id="cb8-22">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">__init__</span>(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>, encoding: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'utf-8'</span>):</span>
+<span id="cb8-23">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb8-24"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Initialize the BIDEN model.</span></span>
+<span id="cb8-25"></span>
+<span id="cb8-26"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        This constructor initializes the BIDEN model with empty compressors.</span></span>
+<span id="cb8-27"></span>
+<span id="cb8-28"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Args:</span></span>
+<span id="cb8-29"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            encoding (str, optional): The character encoding of the input data. Defaults to 'utf-8'.</span></span>
+<span id="cb8-30"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            </span></span>
+<span id="cb8-31"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Returns:</span></span>
+<span id="cb8-32"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            BIDEN: An instance of the BIDEN class.</span></span>
+<span id="cb8-33"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        """</span></span>
+<span id="cb8-34">        <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.d_compressor <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span></span>
+<span id="cb8-35">        <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.d_compressor <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span></span>
+<span id="cb8-36">        <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.encoding <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> encoding</span>
+<span id="cb8-37"></span>
+<span id="cb8-38">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">@property</span></span>
+<span id="cb8-39">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> trained(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">bool</span>:</span>
+<span id="cb8-40">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb8-41"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Check if the BIDEN model is trained.</span></span>
+<span id="cb8-42"></span>
+<span id="cb8-43"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Returns:</span></span>
+<span id="cb8-44"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            bool: True if both Democratic and Republican compressors are trained, False otherwise.</span></span>
+<span id="cb8-45"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        """</span></span>
+<span id="cb8-46">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">bool</span>(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.d_compressor <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">and</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.r_compressor)</span>
+<span id="cb8-47"></span>
+<span id="cb8-48">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> train(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>,</span>
+<span id="cb8-49">              d_training_data: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>,</span>
+<span id="cb8-50">              r_training_data: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>,</span>
+<span id="cb8-51">              compression_level: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>,</span>
+<span id="cb8-52">             ) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">bool</span>:</span>
+<span id="cb8-53">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb8-54"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Train the BIDEN model.</span></span>
+<span id="cb8-55"></span>
+<span id="cb8-56"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Args:</span></span>
+<span id="cb8-57"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            d_training_data (str): Democratic training data.</span></span>
+<span id="cb8-58"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            r_training_data (str): Republican training data.</span></span>
+<span id="cb8-59"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            compression_level (int, optional): The compression level. Defaults to 15.</span></span>
+<span id="cb8-60"></span>
+<span id="cb8-61"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Returns:</span></span>
+<span id="cb8-62"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            bool: True if training is successful, False otherwise.</span></span>
+<span id="cb8-63"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        """</span>        </span>
+<span id="cb8-64">        d_dictionary <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> zstandard.ZstdCompressionDict(</span>
+<span id="cb8-65">            d_training_data.encode(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.encoding),</span>
+<span id="cb8-66">            dict_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>zstandard.DICT_TYPE_RAWCONTENT</span>
+<span id="cb8-67">        )</span>
+<span id="cb8-68">        d_dictionary.precompute_compress(level<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>compression_level)</span>
+<span id="cb8-69">        <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.d_compressor <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> zstandard.ZstdCompressor(dict_data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>d_dictionary)</span>
+<span id="cb8-70"></span>
+<span id="cb8-71">        r_dictionary <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> zstandard.ZstdCompressionDict(</span>
+<span id="cb8-72">            r_training_data.encode(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.encoding),</span>
+<span id="cb8-73">            dict_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>zstandard.DICT_TYPE_RAWCONTENT</span>
+<span id="cb8-74">        )</span>
+<span id="cb8-75">        r_dictionary.precompute_compress(level<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>compression_level)</span>
+<span id="cb8-76">        <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.r_compressor <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> zstandard.ZstdCompressor(dict_data<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>r_dictionary)</span>
+<span id="cb8-77"></span>
+<span id="cb8-78">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.trained</span>
+<span id="cb8-79"></span>
+<span id="cb8-80">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> classify(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>, sample: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> Classification:</span>
+<span id="cb8-81">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb8-82"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Classify a sample based on compression ratios.</span></span>
+<span id="cb8-83"></span>
+<span id="cb8-84"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Args:</span></span>
+<span id="cb8-85"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            sample (str): The sample text to classify.</span></span>
+<span id="cb8-86"></span>
+<span id="cb8-87"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Returns:</span></span>
+<span id="cb8-88"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            Classification: The classification (DEMOCRATIC or REPUBLICAN).</span></span>
+<span id="cb8-89"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        </span></span>
+<span id="cb8-90"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        Raises:</span></span>
+<span id="cb8-91"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">            RuntimeError: If the model is not trained.</span></span>
+<span id="cb8-92"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        """</span></span>
+<span id="cb8-93">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">not</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.trained:</span>
+<span id="cb8-94">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">raise</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">RuntimeError</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Attempted to classify with a model that is not yet trained."</span>)</span>
+<span id="cb8-95">        </span>
+<span id="cb8-96">        encoded_sample <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> sample.encode(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.encoding)</span>
+<span id="cb8-97">        original_length <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(encoded_sample)</span>
+<span id="cb8-98">        d_compressed_length <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.d_compressor.compress(encoded_sample))</span>
+<span id="cb8-99">        d_ratio <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> d_compressed_length <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> original_length</span>
+<span id="cb8-100">        r_compressed_length <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.r_compressor.compress(encoded_sample))</span>
+<span id="cb8-101">        r_ratio <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> r_compressed_length <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> original_length</span>
+<span id="cb8-102"></span>
+<span id="cb8-103">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> r_ratio <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> d_ratio:</span>
+<span id="cb8-104">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> BIDEN.Classification.REPUBLICAN</span>
+<span id="cb8-105"></span>
+<span id="cb8-106">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> BIDEN.Classification.DEMOCRATIC</span></code></pre></div>
+</div>
+</section>
+<section id="train-the-model" class="level3">
+<h3 class="anchored" data-anchor-id="train-the-model">Train the Model</h3>
+<p>To train the model, we pass the entirety of the Democratic and Republican texts to construct <a href="https://python-zstandard.readthedocs.io/en/latest/dictionaries.html">prefix dictionaries</a>. Prefix dictionaries allow compression operations to reference raw data within the <a href="https://python-zstandard.readthedocs.io/en/latest/concepts.html#dictionaries">dictionary</a>. Once we have two compressors instantiated and pre-seeded with our training data, the model is trained. This is <em>fast</em>. On my 2.6 GHz 6-Core Intel Core i7, this takes roughly <strong>30 seconds</strong>.</p>
+<div id="cfa1300f-0ca7-4030-942f-7ea780e6db4e" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">d_combined_text <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>.join(d_train_df.body_text)</span>
+<span id="cb9-2">r_combined_text <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>.join(r_train_df.body_text)</span>
+<span id="cb9-3"></span>
+<span id="cb9-4">model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> BIDEN()</span>
+<span id="cb9-5">model.train(d_combined_text, r_combined_text)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>True</code></pre>
+</div>
+</div>
+</section>
+<section id="classification" class="level3">
+<h3 class="anchored" data-anchor-id="classification">Classification</h3>
+<p>Now, we can classify our test data. We could loop through each set, but let’s combine and shuffle them together first, and loop in one go. We’ll also convert the party affiliation strings <code>'Democratic Party'</code>, and <code>'Republican Party'</code> into our model’s enum values:</p>
+<div id="8179375a-26b8-46f9-8de0-8f44eef4b141" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1">combined_test_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.concat(</span>
+<span id="cb11-2">    [d_test_df, r_test_df],</span>
+<span id="cb11-3">    ignore_index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb11-4">    sort<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span></span>
+<span id="cb11-5">).sample(</span>
+<span id="cb11-6">    frac<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb11-7">    random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9001</span>,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># random seed set for reproducibility</span></span>
+<span id="cb11-8">).reset_index(drop<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb11-9"></span>
+<span id="cb11-10">combined_test_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'party_affiliation'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> combined_test_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'party_affiliation'</span>].replace(</span>
+<span id="cb11-11">    to_replace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Democratic Party'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Republican Party'</span>],</span>
+<span id="cb11-12">    value<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[BIDEN.Classification.DEMOCRATIC, BIDEN.Classification.REPUBLICAN]</span>
+<span id="cb11-13">)</span>
+<span id="cb11-14"></span>
+<span id="cb11-15">num_correct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb11-16"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> combined_test_df.itertuples():</span>
+<span id="cb11-17">    actual_label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> row.party_affiliation</span>
+<span id="cb11-18">    inferred_label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> model.classify(row.body_text)</span>
+<span id="cb11-19"></span>
+<span id="cb11-20">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> inferred_label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> actual_label:</span>
+<span id="cb11-21">        num_correct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb11-22"></span>
+<span id="cb11-23"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'Classification Success Rate: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>((num_correct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(combined_test_df.index))<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%'</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Classification Success Rate: 98.9%</code></pre>
+</div>
+</div>
+<p>98.9% is a <em>shockingly</em> high success rate for such a simple classification method!</p>
+</section>
+<section id="another-email-data-set" class="level3">
+<h3 class="anchored" data-anchor-id="another-email-data-set">Another Email Data Set</h3>
+<p>Let’s see how it performs with emails from another data set. <a href="https://www.thescoop.org">Derek Willis</a> maintains a <a href="https://datasette.io/">Datasette</a> of <a href="https://political-emails.herokuapp.com/emails">over 150,000 campaign emails</a>. Let’s grab 100 samples of each party from that collection, and see how they perform:</p>
+<div id="95f0a04c-a454-44e9-b189-c45a9d17cb0c" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">base_url <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'https://political-emails.herokuapp.com/emails.csv?sql='</span></span>
+<span id="cb13-2">d_query <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'select body, party from emails where party = "D" limit 100;'</span></span>
+<span id="cb13-3">r_query <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'select body, party from emails where party = "R" limit 100;'</span></span>
+<span id="cb13-4"></span>
+<span id="cb13-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">map</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb13-6">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">' '</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'+'</span>,</span>
+<span id="cb13-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">','</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'%2C'</span>,</span>
+<span id="cb13-8">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'='</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'%3D'</span>,</span>
+<span id="cb13-9">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'"'</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'%22'</span>,</span>
+<span id="cb13-10">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">';'</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'%3B'</span>,</span>
+<span id="cb13-11">}</span>
+<span id="cb13-12"></span>
+<span id="cb13-13"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> symbol, code <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">map</span>.items():</span>
+<span id="cb13-14">    d_query <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> d_query.replace(symbol, code)</span>
+<span id="cb13-15">    r_query <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> r_query.replace(symbol, code)</span>
+<span id="cb13-16"></span>
+<span id="cb13-17">d_url <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> base_url <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> d_query</span>
+<span id="cb13-18">r_url <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> base_url <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> r_query</span>
+<span id="cb13-19"></span>
+<span id="cb13-20">d_dw_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(d_url)</span>
+<span id="cb13-21">r_dw_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(r_url)</span>
+<span id="cb13-22"></span>
+<span id="cb13-23">combined_dw_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.concat(</span>
+<span id="cb13-24">    [d_dw_df, r_dw_df],</span>
+<span id="cb13-25">    ignore_index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb13-26">    sort<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span></span>
+<span id="cb13-27">).sample(</span>
+<span id="cb13-28">    frac<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb13-29">    random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9001</span>,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># random seed set for reproducibility</span></span>
+<span id="cb13-30">).reset_index(drop<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb13-31"></span>
+<span id="cb13-32">combined_dw_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'party'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> combined_dw_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'party'</span>].replace(</span>
+<span id="cb13-33">    to_replace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'D'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'R'</span>],</span>
+<span id="cb13-34">    value<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[BIDEN.Classification.DEMOCRATIC, BIDEN.Classification.REPUBLICAN]</span>
+<span id="cb13-35">)</span>
+<span id="cb13-36"></span>
+<span id="cb13-37"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'DW Sample:'</span>)</span>
+<span id="cb13-38">combined_dw_df.head(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DW Sample:</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">body</th>
+<th data-quarto-table-cell-role="th">party</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Hey Peter!!! You know our campaign is made by,...</td>
+<td>Classification.DEMOCRATIC</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>https://www.jahanahayes.com/ [https://www.jaha...</td>
+<td>Classification.DEMOCRATIC</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Hi there, it’s storytime: I developed a keen n...</td>
+<td>Classification.DEMOCRATIC</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>We’re contacting a select group of patriots fo...</td>
+<td>Classification.REPUBLICAN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Peter – You need to watch this. CLICK HERE OR ...</td>
+<td>Classification.REPUBLICAN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>Peter, you may have seen me asking for your ol...</td>
+<td>Classification.DEMOCRATIC</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>Do you want an Official Mugshot Mug? (24-hour ...</td>
+<td>Classification.REPUBLICAN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>https://secure.actblue.com/donate/cdp-footer?r...</td>
+<td>Classification.DEMOCRATIC</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>[ https://act.katieporter.com/go/14559?t=1001&amp;...</td>
+<td>Classification.DEMOCRATIC</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>I hope I made you proud fighting for you at th...</td>
+<td>Classification.REPUBLICAN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="e8cc55d0-fba3-4a6a-ad2f-5e5db9da3016" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1">num_correct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb15-2"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> combined_dw_df.itertuples():</span>
+<span id="cb15-3">    actual_label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> row.party</span>
+<span id="cb15-4">    inferred_label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> model.classify(row.body)</span>
+<span id="cb15-5"></span>
+<span id="cb15-6">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> inferred_label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> actual_label:</span>
+<span id="cb15-7">        num_correct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb15-8"></span>
+<span id="cb15-9"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'Classification Success Rate: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>((num_correct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(combined_dw_df.index))<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%'</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Classification Success Rate: 93.0%</code></pre>
+</div>
+</div>
+<p>93% is still <em>quite good</em> considering that all we’re doing is compression!</p>
+</section>
+<section id="classifying-tweets" class="level3">
+<h3 class="anchored" data-anchor-id="classifying-tweets">Classifying Tweets</h3>
+<p>The Twitter API is basically useless these days, so I scrolled the timelines of <a href="https://twitter.com/Mike_Pence">Mike Pence</a> (R) and <a href="https://twitter.com/GavinNewsom">Gavin Newsom</a> (D), and copy+paste’d 5 tweets from each. It’s a tiny sample, and not really random, but it’s neat to see how well it does:</p>
+<div id="5839d1f1-3b63-41da-a131-d594b0fb2b00" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1">pence_tweets <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb17-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://twitter.com/Mike_Pence/status/1707882018258751915</span></span>
+<span id="cb17-3">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Today, we applaud the Eighth Circuit's decision, "</span> \</span>
+<span id="cb17-4">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"which is an important step in the fight to uphold and protect "</span> \</span>
+<span id="cb17-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"the rights of parents and families in Linn-Mar. A family is the "</span> \</span>
+<span id="cb17-6">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"single best unit to protect children, and we must continue to do "</span> \</span>
+<span id="cb17-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"everything we can to empower parents over bureaucrats. The strength "</span> \</span>
+<span id="cb17-8">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"of our nation is tied to the strength of our families, and we will "</span> \</span>
+<span id="cb17-9">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"not stand idly by as the Radical Left attempts to indoctrinate our "</span> \</span>
+<span id="cb17-10">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"children behind parents’ backs."</span>,</span>
+<span id="cb17-11">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://twitter.com/Mike_Pence/status/1707472823269392643</span></span>
+<span id="cb17-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"The cause of Life is the calling of our time "</span> \</span>
+<span id="cb17-13">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"and I couldn’t be more proud to have played a role in the administration "</span> \</span>
+<span id="cb17-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"that appointed three of the justices that overturned Roe v. Wade and "</span> \</span>
+<span id="cb17-15">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"returned the question of abortion to the states and the American people."</span>,</span>
+<span id="cb17-16">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Republicans are facing a Time for Choosing. "</span> \</span>
+<span id="cb17-17">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://twitter.com/Mike_Pence/status/1707241587460186214</span></span>
+<span id="cb17-18">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"We have to choose whether or not we’re going to stay on the path "</span> \</span>
+<span id="cb17-19">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"that has defined our movement since the days of Ronald Reagan and "</span> \</span>
+<span id="cb17-20">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"through the Trump-Pence years or whether we’re going to follow "</span> \</span>
+<span id="cb17-21">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"the siren song of populism unmoored to Conservative principles."</span>,</span>
+<span id="cb17-22">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://twitter.com/Mike_Pence/status/1704132623617122719</span></span>
+<span id="cb17-23">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"I am for working Americans and free enterprise. These businesses "</span> \</span>
+<span id="cb17-24">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"make their decisions, but at the end the of the day these businesses "</span> \</span>
+<span id="cb17-25">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"are responding to the heavy hand of the green new deal agenda of "</span> \</span>
+<span id="cb17-26">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Joe Biden and the Democrats in Washington, DC."</span>,</span>
+<span id="cb17-27">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://twitter.com/Mike_Pence/status/1703887286641873137</span></span>
+<span id="cb17-28">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"We were the first country to sanction Chinese leaders for building "</span> \</span>
+<span id="cb17-29">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"concentration camps in Xinjiang and for undermining democracy in Hong Kong. "</span> \</span>
+<span id="cb17-30">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"And we stood up to years of trade abuses, and imposed historic tariffs "</span> \</span>
+<span id="cb17-31">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"to bring China to the negotiating table."</span></span>
+<span id="cb17-32">]</span>
+<span id="cb17-33"></span>
+<span id="cb17-34">[model.classify(t) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> t <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> pence_tweets]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<pre><code>[&lt;Classification.REPUBLICAN: 2&gt;,
+ &lt;Classification.REPUBLICAN: 2&gt;,
+ &lt;Classification.REPUBLICAN: 2&gt;,
+ &lt;Classification.REPUBLICAN: 2&gt;,
+ &lt;Classification.REPUBLICAN: 2&gt;]</code></pre>
+</div>
+</div>
+<div id="9d56a846-ff42-4744-ad85-98842226edfa" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1">newsom_tweets <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb19-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://twitter.com/GavinNewsom/status/1700615276667294035</span></span>
+<span id="cb19-3">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"When people ask why I am introducing a Constitutional Amendment "</span> \</span>
+<span id="cb19-4">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"on gun safety this is why. Not only has Congress stalled for YEARS on passing "</span> \</span>
+<span id="cb19-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"common sense reforms -- judges across the country are tearing down laws that "</span> \</span>
+<span id="cb19-6">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Americans overwhelmingly support. Laws that keep us SAFE and keep guns out of "</span> \</span>
+<span id="cb19-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"the hands of dangerous criminals. We have to push back"</span>,</span>
+<span id="cb19-8">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># # https://twitter.com/GavinNewsom/status/1689743766733877248</span></span>
+<span id="cb19-9">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"California will be sending search and rescue "</span> \</span>
+<span id="cb19-10">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"teams to assist in Hawaii's recovery efforts. The wildfires and "</span> \</span>
+<span id="cb19-11">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"devastation that Maui is experiencing is all too familiar and all "</span> \</span>
+<span id="cb19-12">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"too horrifying. We stand at the ready to aid Hawaii in its time of need."</span>,</span>
+<span id="cb19-13">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://twitter.com/GavinNewsom/status/1679579172690329601</span></span>
+<span id="cb19-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A school board in Temecula decided to reject a "</span> \</span>
+<span id="cb19-15">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"textbook because it mentioned Harvey Milk. CA is stepping in. "</span> \</span>
+<span id="cb19-16">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"We’re going to purchase the book for these students—the same "</span> \</span>
+<span id="cb19-17">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"one that hundreds of thousands of kids are already using. "</span> \</span>
+<span id="cb19-18">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"If these extremist school board members won’t do their job, "</span> \</span>
+<span id="cb19-19">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"we will — and fine them for their incompetence."</span>,</span>
+<span id="cb19-20">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://twitter.com/GavinNewsom/status/1650634702271942656</span></span>
+<span id="cb19-21">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"North Dakota GOP have decided to force women to give birth. Even victims of rape. "</span> \</span>
+<span id="cb19-22">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Meanwhile, they voted against providing school meals because child hunger isn't "</span> \</span>
+<span id="cb19-23">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">the responsibility of the state.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\"</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span> \</span>
+<span id="cb19-24">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mandating birth is state responsibility. Helping feed those kids is not. Got it."</span>,</span>
+<span id="cb19-25">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://twitter.com/GavinNewsom/status/1643745476662132737</span></span>
+<span id="cb19-26">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Met with some librarians today while in Florida. "</span> \</span>
+<span id="cb19-27">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"They shared with me the rich, diverse background of the "</span> \</span>
+<span id="cb19-28">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"town and what's at stake if we ban our kids from learning our real history."</span></span>
+<span id="cb19-29">]</span>
+<span id="cb19-30"></span>
+<span id="cb19-31">[model.classify(t) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> t <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> newsom_tweets]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>[&lt;Classification.DEMOCRATIC: 1&gt;,
+ &lt;Classification.DEMOCRATIC: 1&gt;,
+ &lt;Classification.DEMOCRATIC: 1&gt;,
+ &lt;Classification.DEMOCRATIC: 1&gt;,
+ &lt;Classification.REPUBLICAN: 2&gt;]</code></pre>
+</div>
+</div>
+<p>Neat! This small set classified 90% correctly. Further exploration with more robust Twitter data sets is warranted.</p>
+</section>
+<section id="closing-thoughts" class="level3">
+<h3 class="anchored" data-anchor-id="closing-thoughts">Closing Thoughts</h3>
+<p>Even after seeing the results, I still have a hard time believing that this works so well! It feels like it <em>shouldn’t</em> work at all. But, zooming out, there are a lot of relevant factors to consider. First, there just aren’t that many people writing campaign materials. It makes sense that word-choice and writing style would exhibit predictible patterns. Second, campaign emails have been A/B tested into oblivion, so there’s a systematic process that cranks out similar-sounding copy. Third, the recipients of these emails have largely self-sorted. This likely bolsters the expected structure and copy uniquely for each label. Ultimately, compression algorithms optimize on patterns and predictibility. What this shows us is that the two parties are uniquely <em>predictible</em> in their written communications.</p>
+<p>The idea of classification by compression is not new; Russell and Norvig wrote about it in 1995 in the venerable <a href="https://aima.cs.berkeley.edu/3rd-ed/">Artificial Intelligence: A Modern Approach</a>:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/aiama.png" class="img-fluid figure-img"></p>
+<figcaption>Classification by data compression</figcaption>
+</figure>
+</div>
+<p>More recently, the <a href="https://aclanthology.org/2023.findings-acl.426/">“gzip beats BERT” paper</a> got a lot of attention. What the <strong>BIDEN</strong> model demonstrates is that this technique is effective and likely generalizable on modern partisan texts.</p>
+<p>It’s worth articulating again how fast and simple this method is. No GPUs. No Neural Networks. No N-grams. No transformers. No kNN.</p>
+<p>I think that’s pretty cool!</p>
+</section>
+<section id="license" class="level3">
+<h3 class="anchored" data-anchor-id="license">License</h3>
+<pre><code>Copyright (c) 2023, Matt Hodges
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of BIDEN: Binary Inference Dictionaries for Electoral NLP nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</code></pre>
+
+
+</section>
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/</guid>
+  <pubDate>Sun, 01 Oct 2023 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/BIDEN.png" medium="image" type="image/png" height="81" width="144"/>
+</item>
+<item>
   <title>Exploring the Lambda Calculus with Python</title>
   <dc:creator>Matt Hodges</dc:creator>
   <link>https://matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/</link>
