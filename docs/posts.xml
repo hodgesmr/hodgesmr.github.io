@@ -155,6 +155,8 @@
 
 
 
+<p><img src="https://matthodges.com/posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/BIDEN.png" class="img-fluid"></p>
+<p>This post is adapted from a Jupyter <a href="https://github.com/hodgesmr/biden_nlp">Notebook found on GitHub</a>.</p>
 <p><strong>BIDEN</strong>: <strong>B</strong>inary <strong>I</strong>nference <strong>D</strong>ictionaries for <strong>E</strong>lectoral <strong>N</strong>LP demonstrates a compression-based binary classification technique that is fast at both training and inference on common CPU hardware in Python. It is largely built on the strategies presented by <a href="https://github.com/cyrilou242/ftcc">FTCC</a>, which in turn, was a reaction to <a href="https://github.com/bazingagin/npc_gzip">Low-Resource Text Classification: A Parameter-Free Classification Method with Compressors</a> (the gzip method). Like FTCC, <strong>BIDEN</strong> is built atop of <a href="https://facebook.github.io/zstd/">Zstandard</a> (Zstd), which leverages <a href="https://facebook.github.io/zstd/#small-data">dictionary compression</a>. Zstd dictionary compression seeds a compressor with sample data, so that it can efficiently compress <em>small data</em> (~1 KB) of similar composition. Seeding the compressor dictionaries acts as our “training” method for the model.</p>
 <p>The <strong>BIDEN</strong> model was trained on the <a href="https://electionemails2020.org">ElectionEmails 2020</a> data set — a database of over 900,000 political campaign emails from the 2020 US election cycle. <strong>In compliance with the data set’s <a href="https://electionemails2020.org/downloads/corpus_documentation_v1.0.pdf">terms</a>, the training data is NOT provided with this repository.</strong> If you would like to train the <strong>BIDEN</strong> model yourself, you can <a href="https://docs.google.com/forms/d/e/1FAIpQLSdcgjZo-D1nNON4d90H2j0VLtTdxiHK6Y8HPJSpdRu4w5YILw/viewform">request a copy of the data for free</a>. The <strong>BIDEN</strong> model was trained on <code>corpus_v1.0</code>.</p>
 <section id="training-and-classification" class="level3">
@@ -1544,6 +1546,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</code></pre
 
 
 <p><img src="https://matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/lambda-calculus-python.jpeg" class="img-fluid"></p>
+<p>This post is adapted from a Jupyter <a href="https://github.com/hodgesmr/python_lambda_calculus">Notebook found on GitHub</a>.</p>
 <p>This post explores some basic ideas of the Lambda Calculus, and how to use it to implement a computation system with it. We will define numbers and operators from scratch, and use that to implement the <code>square_sum</code> function.</p>
 <p>If you’re new to the Lambda Calculus, or functional programming in general, you may wish to start with some of these resources:</p>
 <ul>
