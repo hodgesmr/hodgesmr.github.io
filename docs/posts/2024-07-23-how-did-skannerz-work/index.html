@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Matt Hodges">
+<meta name="dcterms.date" content="2024-07-23">
 
-<title>Posts by Matt Hodges</title>
+<title>How Did Skannerz Work?</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,21 +25,19 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<link href="./img/favicon.png" rel="icon" type="image/png">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<link href="../../img/favicon.png" rel="icon" type="image/png">
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "language": {
     "search-no-results-text": "No results",
@@ -53,35 +53,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-image','listing-date','listing-title','listing-subtitle','listing-reading-time',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-subtitle","listing-image","listing-description"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 <link href="https://fonts.googleapis.com/css?family=Overpass:300,900" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
@@ -114,22 +85,24 @@ window.Quarto = {
 };
 </script>
 
-<link rel="alternate" type="application/rss+xml" title="Matt Hodges" href="posts.xml" data-external="1"><meta property="og:title" content="Posts by Matt Hodges">
-<meta property="og:image" content="https://matthodges.com/img/social.jpg">
+<meta property="og:title" content="How Did Skannerz Work?">
+<meta property="og:description" content="Only 90s kids are now adults who dig through patent filings to understand how their toys worked.">
+<meta property="og:image" content="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/three-skannerz.jpg">
 <meta property="og:site_name" content="Matt Hodges">
-<meta name="twitter:title" content="Posts by Matt Hodges">
-<meta name="twitter:image" content="https://matthodges.com/img/social.jpg">
+<meta name="twitter:title" content="How Did Skannerz Work?">
+<meta name="twitter:description" content="Only 90s kids are now adults who dig through patent filings to understand how their toys worked.">
+<meta name="twitter:image" content="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/three-skannerz.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Matt Hodges</span>
     </a>
   </div>
@@ -147,11 +120,11 @@ window.Quarto = {
 <span class="menu-text">GitHub</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./posts.html" aria-current="page"> 
+    <a class="nav-link" href="../../posts.html"> 
 <span class="menu-text">Posts</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./posts.xml"> <i class="bi bi-rss" role="img">
+    <a class="nav-link" href="../../posts.xml"> <i class="bi bi-rss" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -163,151 +136,120 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">How Did Skannerz Work?</h1>
+            <p class="subtitle lead">Only 90s kids are now adults who dig through patent filings to understand how their toys worked.</p>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Matt Hodges </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">July 23, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Posts</h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
 
+<p>This post is a redux from a now-deleted social media thread. It felt too important to let bit rot.</p>
+<p>If you’re a Millennial of a certain age, or perhaps a Baby Boomer who raised Millennials,<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> you might remember the 2001 toy Skannerz by <a href="https://en.wikipedia.org/wiki/Radica_Games">Radica</a>. It was a gotta-catch-em-all game that involved scanning real-world barcodes to collect monsters and objects, and to battle other Skannerz. It was a hand-held gadget toy back when consumer electronics were still weird and fun and we had more products than just iPhone. I had a blue one. It looked like this:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="skannerz-zendra.jpg" class="img-fluid figure-img"></p>
+<figcaption>A Zendra Skanner</figcaption>
+</figure>
+</div>
+<p>The toy/game had an A+ premise: alien monsters transported down to earth and decided to hide inside of the barcodes on products all around your home (or, more annoyingly to your parents, all around the grocery store). Your job was to scan every barcode you could get your hands on, fight and capture the alien monsters, and then fight the monsters your friends collected. And to make the weirdest Pokémon ripoff complete: the Skannerz came in three colors — red, blue, and green — that could only collect monsters of their associated “tribes”. This really good commercial explains:</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/eXt6YihygTw" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>Because I was already a major dork at 11 years old, I was intrigued by how the device worked. How did it go from barcode to monster? There was no way it was talking to a server (although I did imagine the world’s greatest PHPMyAdmin at the time). I guessed that it had every possible barcode referenced internally. But that’s not quite correct. It was a little more clever than that.</p>
+<p>But frirst, a quick primer on barcodes. There are many variations; this is a <a href="https://en.wikipedia.org/wiki/Universal_Product_Code">UPC Version A</a> — very common in the United States. It has a basic specification: that first digit way to the left is the product type (sometimes called a number system). The next five digits identify the manufacturer. The next five identify the product. And at the end is a checksum digit. The details of how to implement the spec aren’t all too important for our Skannerz exploration.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="barcode.png" class="img-fluid figure-img"></p>
+<figcaption>An example UPC - A bar code</figcaption>
+</figure>
+</div>
+<p>Okay, back to the Skannerz game. As mentioned above, there were 3 different “tribes”, identified by which color scanning device you had. And there were 126 total monsters. So each tribe could capture 42 monsters. If you wanted to catch ’em all you needed to buy all three. Business!</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="three-skannerz.jpg" class="img-fluid figure-img"></p>
+<figcaption>The three original Skannerz: Ujalu (red), Pataak (green), and Zendra (blue)</figcaption>
+</figure>
+</div>
+<p>You could also collect non-monster items from barcodes. And some barcodes healed your injured monsters. Again, these toys had no wireless communication (it was 2001!) so all of the logic for item or monster identification was baked right into the device. But how?</p>
+<p>The Skannerz <a href="https://patentimages.storage.googleapis.com/05/ca/8a/0c25f67d6c06a3/US20080139309A1.pdf">patent</a> is conveniently revealing!<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> The device only cares about the “product” section (denoted below as 1315). If the first digit is 0-5, you’ve scanned a monster. 6-9, you’ve scanned an item. Digits 3, 4, and 5 identify the item/monster.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="skannerz-barcode-reference.png" class="img-fluid figure-img"></p>
+<figcaption>FIG. 13 from the Skannerz patent illustrates one method of correlating a UPC code to a feature of the game.</figcaption>
+</figure>
+</div>
+<p>If the first digit in the barcode’s product code is 0 - 5, we’re in Monster Mode.</p>
+<p>We’ve got 1000 possible values (000-999 across digits 3, 4, and 5 in our product code) to identify 126 monsters. The patent goes on to explain how the magic of division solves this problem:</p>
+<p><span class="math display">\[
+\frac{1000}{126} = 7.94
+\]</span></p>
+<p>And there was much rejoicing.</p>
+<p>The range of numbers from 000 to 007 correspond to the first monster in Tribe 1, 008 to 015 correspond to the first monster in Tribe 2, and so on.</p>
+<p>The patent then goes on to address the fact that 126 doesn’t divide well into 1000, and that 7.94 is not an integer. We only follow this eight-stepping until we get through the 124th monster, and then:</p>
+<blockquote class="blockquote">
+<p>Because 1,000 is not a multiple of 126, the last 2 monsters each have a range of 4 numbers. In other words, the last monster in Tribe 2 would correspond to the range of numbers 992 through 995 and the last monster in Tribe 3 would correspond to the range of numbers 996 through 999.</p>
+</blockquote>
+<p>Now, if the first digit in the barcode’s produt code is 6 - 9, we’re in Item Mode.</p>
+<p>Similarly, there were 24 items in the game + 1 for healing. So 25 items. Again, we’ve got 1000 values to work with:</p>
+<p><span class="math display">\[
+\frac{1000}{25} = 40
+\]</span></p>
+<p>So a range of 40 numbers can be used to define each item. Item 1 corresponds to the range of numbers from 000 through 039, Item 2 corresponds to the range of numbers from 040 through 079, and so on. And great news: 40 <em>is</em> an integer.</p>
+<p>Quick aside: the UPC Version A codec above is the the only format outlined in the Skannerz patent. But the patent also burries this little nugget:</p>
+<blockquote class="blockquote">
+<p>Many other encoding techniques are within the scope of the present invention. In some such embodiments, Global Location Number (“GLN’) codes and similar codes used, e.g.&nbsp;for identifying parcels, are assigned secondary meanings which correspond with elements of a game. In still other embodiments, codes used for entirely different purposes, for example, audio or video data compression, data encryption, etc., are assigned secondary meanings which correspond with elements of a game.</p>
+</blockquote>
+<p>What does that mean? It literally says nothing else about what invention is being claimed there, but good on the Radica lawyers for planting a flag I guess? Maybe the <a href="https://skannerz.fandom.com/wiki/Skannerz_Commander">Skannerz Commander</a>, which I never had, rolled its own encryption algorithm?</p>
+<p>But that’s really it! If you knew this encoding scheme, and had access to a printer, you could collect all the monsters and items pretty quickly. Anyone else remember <a href="https://web.archive.org/web/20010201163900/http://www.barcodemill.com/">Barcode Mill</a>? Of course people knew; there were unofficial barcode books you could buy to help you complete your collection. But where’s the fun in that?</p>
+<p>Thanks for indulging my dork nostalgia. I look forward to the Greta Gerwig adaptation.</p>
 
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="listing-actions-group">
-    <div class="input-group input-group-sm quarto-listing-filter">
-      <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="search form-control" placeholder="Filter">
-    </div>
+
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Generational cohort discourse is stupid.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>You don’t need to be a lawyer to read a patent. They can be very interesting! This one had cartoon drawings!<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<div>
+    <hr>
+    <p class="post-footer">🖤 Thank you for reading a personal blog. This post was written in a specific time and place. I reserve the right to learn new things and to change my mind. This site has no traffic analytics, social trackers, or ads. If you enjoyed this post, please consider sharing it however you like to share posts.</p>
 </div>
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-listing-date-sort="1721710800000" data-listing-file-modified-sort="1721782508345" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1004">
-<div class="thumbnail">
-<p><a href="./posts/2024-07-23-how-did-skannerz-work/index.html" class="no-external"></a></p><a href="./posts/2024-07-23-how-did-skannerz-work/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/2024-07-23-how-did-skannerz-work/three-skannerz.jpg" class="thumbnail-image"></p>
-</a><p><a href="./posts/2024-07-23-how-did-skannerz-work/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2024-07-23-how-did-skannerz-work/index.html" class="no-external">How Did Skannerz Work?</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2024-07-23-how-did-skannerz-work/index.html" class="no-external">Only 90s kids are now adults who dig through patent filings to understand how their toys worked.</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/2024-07-23-how-did-skannerz-work/index.html" class="no-external">
-<div class="listing-date">
-2024-07-23
-</div>
-<div class="listing-reading-time">
-6 min
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-listing-date-sort="1721451600000" data-listing-file-modified-sort="1721669256030" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1018">
-<div class="thumbnail">
-<p><a href="./posts/2024-07-20-amused-entirely-to-death/index.html" class="no-external"></a></p><a href="./posts/2024-07-20-amused-entirely-to-death/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/2024-07-20-amused-entirely-to-death/amused-entirely-to-death.jpg" class="thumbnail-image"></p>
-</a><p><a href="./posts/2024-07-20-amused-entirely-to-death/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2024-07-20-amused-entirely-to-death/index.html" class="no-external">Amused Entirely To Death</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2024-07-20-amused-entirely-to-death/index.html" class="no-external">What if the imminent danger to our democracy isn’t just looming authoritarianism, but also our own insatiable appetite for distraction? Last week’s Republican National Convention provided a stark reminder of this unsettling threat.</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/2024-07-20-amused-entirely-to-death/index.html" class="no-external">
-<div class="listing-date">
-2024-07-20
-</div>
-<div class="listing-reading-time">
-6 min
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-listing-date-sort="1658034000000" data-listing-file-modified-sort="1721576930983" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1458">
-<div class="thumbnail">
-<p><a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external"></a></p><a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/2022-07-17-exploring-lambda-calculus-python/lambda-calculus-python.jpeg" class="thumbnail-image"></p>
-</a><p><a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external">Exploring the Lambda Calculus with Python</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external">Some basic ideas of the Lambda Calculus, and how to use it to implement a computation system in Python</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/2022-07-17-exploring-lambda-calculus-python/index.html" class="no-external">
-<div class="listing-date">
-2022-07-17
-</div>
-<div class="listing-reading-time">
-8 min
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-listing-date-sort="1604988000000" data-listing-file-modified-sort="1721587788104" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="143">
-<div class="thumbnail">
-<p><a href="./posts/2020-11-10-thank-you/index.html" class="no-external"></a></p><a href="./posts/2020-11-10-thank-you/index.html" class="no-external">
-<p><img loading="lazy" src="./posts/2020-11-10-thank-you/thank-you-social.jpg" class="thumbnail-image"></p>
-</a><p><a href="./posts/2020-11-10-thank-you/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/2020-11-10-thank-you/index.html" class="no-external">Thank you.</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/2020-11-10-thank-you/index.html" class="no-external">Working on the Biden Campaign was the opportunity of a lifetime.</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/2020-11-10-thank-you/index.html" class="no-external">
-<div class="listing-date">
-2020-11-10
-</div>
-<div class="listing-reading-time">
-1 min
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

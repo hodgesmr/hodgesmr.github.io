@@ -15,7 +15,85 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.5.55</generator>
-<lastBuildDate>Sat, 20 Jul 2024 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 23 Jul 2024 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>How Did Skannerz Work?</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>This post is a redux from a now-deleted social media thread. It felt too important to let bit rot.</p>
+<p>If you’re a Millennial of a certain age, or perhaps a Baby Boomer who raised Millennials,<sup>1</sup> you might remember the 2001 toy Skannerz by <a href="https://en.wikipedia.org/wiki/Radica_Games">Radica</a>. It was a gotta-catch-em-all game that involved scanning real-world barcodes to collect monsters and objects, and to battle other Skannerz. It was a hand-held gadget toy back when consumer electronics were still weird and fun and we had more products than just iPhone. I had a blue one. It looked like this:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/skannerz-zendra.jpg" class="img-fluid figure-img"></p>
+<figcaption>A Zendra Skanner</figcaption>
+</figure>
+</div>
+<p>The toy/game had an A+ premise: alien monsters transported down to earth and decided to hide inside of the barcodes on products all around your home (or, more annoyingly to your parents, all around the grocery store). Your job was to scan every barcode you could get your hands on, fight and capture the alien monsters, and then fight the monsters your friends collected. And to make the weirdest Pokémon ripoff complete: the Skannerz came in three colors — red, blue, and green — that could only collect monsters of their associated “tribes”. This really good commercial explains:</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/eXt6YihygTw" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>Because I was already a major dork at 11 years old, I was intrigued by how the device worked. How did it go from barcode to monster? There was no way it was talking to a server (although I did imagine the world’s greatest PHPMyAdmin at the time). I guessed that it had every possible barcode referenced internally. But that’s not quite correct. It was a little more clever than that.</p>
+<p>But frirst, a quick primer on barcodes. There are many variations; this is a <a href="https://en.wikipedia.org/wiki/Universal_Product_Code">UPC Version A</a> — very common in the United States. It has a basic specification: that first digit way to the left is the product type (sometimes called a number system). The next five digits identify the manufacturer. The next five identify the product. And at the end is a checksum digit. The details of how to implement the spec aren’t all too important for our Skannerz exploration.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/barcode.png" class="img-fluid figure-img"></p>
+<figcaption>An example UPC - A bar code</figcaption>
+</figure>
+</div>
+<p>Okay, back to the Skannerz game. As mentioned above, there were 3 different “tribes”, identified by which color scanning device you had. And there were 126 total monsters. So each tribe could capture 42 monsters. If you wanted to catch ’em all you needed to buy all three. Business!</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/three-skannerz.jpg" class="img-fluid figure-img"></p>
+<figcaption>The three original Skannerz: Ujalu (red), Pataak (green), and Zendra (blue)</figcaption>
+</figure>
+</div>
+<p>You could also collect non-monster items from barcodes. And some barcodes healed your injured monsters. Again, these toys had no wireless communication (it was 2001!) so all of the logic for item or monster identification was baked right into the device. But how?</p>
+<p>The Skannerz <a href="https://patentimages.storage.googleapis.com/05/ca/8a/0c25f67d6c06a3/US20080139309A1.pdf">patent</a> is conveniently revealing!<sup>2</sup> The device only cares about the “product” section (denoted below as 1315). If the first digit is 0-5, you’ve scanned a monster. 6-9, you’ve scanned an item. Digits 3, 4, and 5 identify the item/monster.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/skannerz-barcode-reference.png" class="img-fluid figure-img"></p>
+<figcaption>FIG. 13 from the Skannerz patent illustrates one method of correlating a UPC code to a feature of the game.</figcaption>
+</figure>
+</div>
+<p>If the first digit in the barcode’s product code is 0 - 5, we’re in Monster Mode.</p>
+<p>We’ve got 1000 possible values (000-999 across digits 3, 4, and 5 in our product code) to identify 126 monsters. The patent goes on to explain how the magic of division solves this problem:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B1000%7D%7B126%7D%20=%207.94%0A"></p>
+<p>And there was much rejoicing.</p>
+<p>The range of numbers from 000 to 007 correspond to the first monster in Tribe 1, 008 to 015 correspond to the first monster in Tribe 2, and so on.</p>
+<p>The patent then goes on to address the fact that 126 doesn’t divide well into 1000, and that 7.94 is not an integer. We only follow this eight-stepping until we get through the 124th monster, and then:</p>
+<blockquote class="blockquote">
+<p>Because 1,000 is not a multiple of 126, the last 2 monsters each have a range of 4 numbers. In other words, the last monster in Tribe 2 would correspond to the range of numbers 992 through 995 and the last monster in Tribe 3 would correspond to the range of numbers 996 through 999.</p>
+</blockquote>
+<p>Now, if the first digit in the barcode’s produt code is 6 - 9, we’re in Item Mode.</p>
+<p>Similarly, there were 24 items in the game + 1 for healing. So 25 items. Again, we’ve got 1000 values to work with:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B1000%7D%7B25%7D%20=%2040%0A"></p>
+<p>So a range of 40 numbers can be used to define each item. Item 1 corresponds to the range of numbers from 000 through 039, Item 2 corresponds to the range of numbers from 040 through 079, and so on. And great news: 40 <em>is</em> an integer.</p>
+<p>Quick aside: the UPC Version A codec above is the the only format outlined in the Skannerz patent. But the patent also burries this little nugget:</p>
+<blockquote class="blockquote">
+<p>Many other encoding techniques are within the scope of the present invention. In some such embodiments, Global Location Number (“GLN’) codes and similar codes used, e.g.&nbsp;for identifying parcels, are assigned secondary meanings which correspond with elements of a game. In still other embodiments, codes used for entirely different purposes, for example, audio or video data compression, data encryption, etc., are assigned secondary meanings which correspond with elements of a game.</p>
+</blockquote>
+<p>What does that mean? It literally says nothing else about what invention is being claimed there, but good on the Radica lawyers for planting a flag I guess? Maybe the <a href="https://skannerz.fandom.com/wiki/Skannerz_Commander">Skannerz Commander</a>, which I never had, rolled its own encryption algorithm?</p>
+<p>But that’s really it! If you knew this encoding scheme, and had access to a printer, you could collect all the monsters and items pretty quickly. Anyone else remember <a href="https://web.archive.org/web/20010201163900/http://www.barcodemill.com/">Barcode Mill</a>? Of course people knew; there were unofficial barcode books you could buy to help you complete your collection. But where’s the fun in that?</p>
+<p>Thanks for indulging my dork nostalgia. I look forward to the Greta Gerwig adaptation.</p>
+
+
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Generational cohort discourse is stupid.↩︎</p></li>
+<li id="fn2"><p>You don’t need to be a lawyer to read a patent. They can be very interesting! This one had cartoon drawings!↩︎</p></li>
+</ol>
+</section></div> ]]></description>
+  <guid>https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/</guid>
+  <pubDate>Tue, 23 Jul 2024 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/three-skannerz.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>Amused Entirely To Death</title>
   <dc:creator>Matt Hodges</dc:creator>
