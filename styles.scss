@@ -41,6 +41,9 @@ div.quarto-about-trestles {
   margin-top: 1em;
   .about-entity {
     flex: 0 0 0%;
+    .description {
+      display: none;
+    }
   }
 }
 

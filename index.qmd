@@ -1,6 +1,7 @@
 ---
 title: "About"
 pagetitle: "Matt Hodges - About"
+description: "Matt Hodges is a political technologist who leverages over a decade of experience in Democratic campaigns and software engineering to drive change. He is currently the Executive Director of Zinc Labs, and sits on the advisory boards of Quiller and Higher Ground Labs."
 about:
   template: trestles
   image: ./img/photo.jpg
