@@ -15,14 +15,16 @@ website:
      Copyright 2024, Matt Hodges
   navbar:
     right:
-      - href: https://www.linkedin.com/in/hodgesmr
-        text: LinkedIn
+      - icon: linkedin
+        href: https://www.linkedin.com/in/hodgesmr
         target: _blank
-      - href: https://github.com/hodgesmr
-        text: GitHub
+      - icon: github
+        href: https://github.com/hodgesmr
         target: _blank 
-      - posts.qmd
-      - icon: rss
+      - icon: pen-fill
+        text: " "
+        href: posts.qmd
+      - icon: rss-fill
         href: posts.xml
 
 format:

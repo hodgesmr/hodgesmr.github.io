@@ -1,6 +1,7 @@
 ---
 title: "Posts"
 pagetitle: "Posts by Matt Hodges"
+description: "My writing, largely focussed on United States politics and software engineering"
 listing:
     contents: posts
     type: default
