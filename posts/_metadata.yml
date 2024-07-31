@@ -1,4 +1,5 @@
-freeze: auto
+execute:
+  freeze: true
 title-block-banner: true
 format:
   html:

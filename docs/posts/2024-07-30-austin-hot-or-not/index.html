@@ -202,7 +202,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Year-vs-year location based time series temperature data absolutely seems like a thing that should exist. Every month or so someone posts the updated <a href="https://www.nytimes.com/2023/09/07/learning/whats-going-on-in-this-graph-sept-13-2023.html">doom surface air temperature graph</a>, so surely I can just look that data up for my location, right?</p>
 <p>On <a href="https://weather.gov">weather.gov</a> you can get your <a href="https://www.weather.gov/ewx/climategraphs">own version of this graph</a>. Pretty cool! But only for the current year:</p>
 <p><img src="austin-bergstrom-temps-2024.png" class="img-fluid" alt="Austin/San Antonio WFO Climate Graphs"></p>
-<p>You can also get tabular historic data within montly windows that sometimes come as html and sometimes come as PDF. Also cool. But not convenient:</p>
+<p>You can also get tabular historic data within monthly windows that sometimes come as html and sometimes come as PDF. Also cool. But not convenient:</p>
 <p><img src="austin-tabular-weather.png" class="img-fluid" alt="Climatological Data for Austin-Bergstrom Airport Area, TX - June 2024"></p>
 <p>After about 15 minutes of clicking, I couldn’t find a great way to generate the viz I was looking for; and I couldn’t get an easy data export. Maybe there’s a one-click way to get CSVs, but I didn’t find it. But after about 5 more minutes of googling, I did find the National Oceanic and Atmostpheric Administration’s <a href="https://www.ncei.noaa.gov/cdo-web/">Climate Data Online</a> portal, which has an <a href="https://www.ncdc.noaa.gov/cdo-web/webservices/v2">API</a>.</p>
 <blockquote class="blockquote">
@@ -216,9 +216,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </blockquote>
 <p>That sounds like it might contain what I’m looking for.</p>
 <p>Next, there are a lot of ways to filter this data by location, but <code>stationid</code> caught my attention. I found <a href="https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt">this list of GHCND stations</a> and decided to go with <code>AUSTIN BERGSTROM INTL AP</code> because it’s the same location from the tabular data above. It has the identifier <code>USW00013904</code>.</p>
-<p>After a quick <code>pip install requests pandas matplotlib</code> and tossing my token into a <code>NCDC_CDO_TOKEN</code> environment variable, and we’re ready to jam.</p>
+<p>After a quick <code>pip install requests pandas matplotlib</code> and tossing my token into a <code>NCDC_CDO_TOKEN</code> environment variable, we’re ready to jam.</p>
 <p>First let’s get a function to grab some data. I’m intersted in comparing year over year, so let’s grab a year at a time.</p>
-<div id="774721b4" class="cell" data-execution_count="1">
+<div id="1b1947dc" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.patches <span class="im">as</span> mpatches</span>
@@ -283,7 +283,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Great! We can pull from the <code>date</code> and the <code>value</code> fields. Let’s grab all of 2024 and shove it into a DataFrame.</p>
-<div id="d607ec93" class="cell" data-execution_count="2">
+<div id="6b48b882" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> to_df(data):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract date and truncate off the time part</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    dates <span class="op">=</span> [item[<span class="st">"date"</span>][:<span class="dv">10</span>] <span class="cf">for</span> item <span class="kw">in</span> data[<span class="st">"results"</span>]]</span>
@@ -301,7 +301,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Quick spot check:</p>
-<div id="64b9586a" class="cell" data-execution_count="3">
+<div id="3ead4ccd" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df_2024 <span class="op">=</span> to_df(get_max_temps(<span class="dv">2024</span>))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Head:</span><span class="ch">\n</span><span class="sc">{</span>df_2024<span class="sc">.</span>head()<span class="sc">}</span><span class="ss">"</span>)</span>
@@ -331,7 +331,7 @@ dtype: object</code></pre>
 </div>
 <p>Awesome. I’m writing this on <code>2024-07-30</code> and it’s got data up through <code>2024-07-27</code>. Good enough for me!</p>
 <p>Now to actually get at what I was trying to do this whole time. I’m going to grab DataFrames for 2023 and 2024, and plot a time series of each.</p>
-<div id="bc6544d4" class="cell" data-execution_count="4">
+<div id="23460fda" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df_2023 <span class="op">=</span> to_df(get_max_temps(<span class="dv">2023</span>))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjust 2023 dates to match the 2024 index</span></span>
@@ -378,7 +378,7 @@ dtype: object</code></pre>
 </div>
 <p>So that’s pretty cool. Most of 2024 has tracked 2023 for daily high temperatures. But not July. July has been weirdly cooler than last year. Or last year was weirdly hotter than normal.</p>
 <p>Actually, let’s see if we can tease that out. Let’s grab the past 10 years.</p>
-<div id="57a392cf" class="cell" data-execution_count="5">
+<div id="45f5264e" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dictionary of year:DataFrame</span></span>
@@ -439,7 +439,7 @@ dtype: object</code></pre>
 </div>
 <p>Seems like Austin’s 2023 summer was on the hotter side, and so far the 2024 summer is on the cooler side.</p>
 <p>And was I correct that we haven’t cracked 100 yet this year?</p>
-<div id="a1368bfa" class="cell" data-execution_count="6">
+<div id="f253dff4" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df_2024[df_2024[<span class="st">"max_temp"</span>] <span class="op">&gt;=</span> <span class="dv">100</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>            max_temp

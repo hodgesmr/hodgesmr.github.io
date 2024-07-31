@@ -27,7 +27,7 @@ On [weather.gov](https://weather.gov) you can get your [own version of this grap
 
 ![](austin-bergstrom-temps-2024.png){fig-alt="Austin/San Antonio WFO Climate Graphs"}
 
-You can also get tabular historic data within montly windows that sometimes come as html and sometimes come as PDF. Also cool. But not convenient:
+You can also get tabular historic data within monthly windows that sometimes come as html and sometimes come as PDF. Also cool. But not convenient:
 
 ![](austin-tabular-weather.png){fig-alt="Climatological Data for Austin-Bergstrom Airport Area, TX - June 2024"}
 
@@ -47,7 +47,7 @@ That sounds like it might contain what I'm looking for.
 
 Next, there are a lot of ways to filter this data by location, but `stationid` caught my attention. I found [this list of GHCND stations](https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt) and decided to go with `AUSTIN BERGSTROM INTL AP` because it's the same location from the tabular data above. It has the identifier `USW00013904`.
 
-After a quick `pip install requests pandas matplotlib` and tossing my token into a `NCDC_CDO_TOKEN` environment variable, and we're ready to jam.
+After a quick `pip install requests pandas matplotlib` and tossing my token into a `NCDC_CDO_TOKEN` environment variable, we're ready to jam.
 
 First let's get a function to grab some data. I'm intersted in comparing year over year, so let's grab a year at a time.
 
