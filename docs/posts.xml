@@ -15,7 +15,952 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.5.55</generator>
-<lastBuildDate>Tue, 23 Jul 2024 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 30 Jul 2024 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>Austin, Texas: Hot or Not?</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2024-07-30-austin-hot-or-not/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>I live in Austin, Texas. And last summer I felt like:</p>
+<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/so-damn-hot.webp" class="img-fluid" alt="It's so damn hot"></p>
+<p>But this year, I’ve felt more like:</p>
+<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/white-claw.webp" class="img-fluid" alt="White Claw"></p>
+<p>And earlier today I thought aloud to the group chat:</p>
+<blockquote class="blockquote">
+<p>I need to look up if Austin is being weird this year. Last year we got to like 50 consecutive days over 100. I don’t think we’ve cracked 100 yet this year? Is there a website that answers this question?</p>
+</blockquote>
+<p>Last year the heat was so bad that local news outlets were keeping a <a href="https://www.kxan.com/weather/weather-blog/july-2023-100-degrees-streak/">running tally</a> of how many consecutive days we broke 100°F. It turns out we had 45 straight days of triple-digit heat in 2023, which began on July 8 and continued through August 22. I’m writing this on July 30, 2024 and I can’t recall a single day above 100°F yet this year.</p>
+<p>Year-vs-year location based time series temperature data absolutely seems like a thing that should exist. Every month or so someone posts the updated <a href="https://www.nytimes.com/2023/09/07/learning/whats-going-on-in-this-graph-sept-13-2023.html">doom surface air temperature graph</a>, so surely I can just look that data up for my location, right?</p>
+<p>On <a href="https://weather.gov">weather.gov</a> you can get your <a href="https://www.weather.gov/ewx/climategraphs">own version of this graph</a>. Pretty cool! But only for the current year:</p>
+<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/austin-bergstrom-temps-2024.png" class="img-fluid" alt="Austin/San Antonio WFO Climate Graphs"></p>
+<p>You can also get tabular historic data within montly windows that sometimes come as html and sometimes come as PDF. Also cool. But not convenient:</p>
+<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/austin-tabular-weather.png" class="img-fluid" alt="Climatological Data for Austin-Bergstrom Airport Area, TX - June 2024"></p>
+<p>After about 15 minutes of clicking, I couldn’t find a great way to generate the viz I was looking for; and I couldn’t get an easy data export. Maybe there’s a one-click way to get CSVs, but I didn’t find it. But after about 5 more minutes of googling, I did find the National Oceanic and Atmostpheric Administration’s <a href="https://www.ncei.noaa.gov/cdo-web/">Climate Data Online</a> portal, which has an <a href="https://www.ncdc.noaa.gov/cdo-web/webservices/v2">API</a>.</p>
+<blockquote class="blockquote">
+<p>NCDC’s Climate Data Online (CDO) offers web services that provide access to current data. This API is for developers looking to create their own scripts or programs that use the CDO database of weather and climate data.</p>
+</blockquote>
+<p>Hey, that sounds like me!</p>
+<p>The API needs an <a href="https://www.ncdc.noaa.gov/cdo-web/token">access token</a>. Wonderfully, all I needed to do was type in my email address and roughly one second later an access token landed in my inbox. LFG.</p>
+<p>From here it took a bit more reading to grok what data is available and in what formats, but I eventually found out about GHCND, or the <a href="https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily">Global Historical Climatology Network daily</a>:</p>
+<blockquote class="blockquote">
+<p>The Global Historical Climatology Network daily (GHCNd) is an integrated database of daily climate summaries from land surface stations across the globe. GHCNd is made up of daily climate records from numerous sources that have been integrated and subjected to a common suite of quality assurance reviews.</p>
+</blockquote>
+<p>That sounds like it might contain what I’m looking for.</p>
+<p>Next, there are a lot of ways to filter this data by location, but <code>stationid</code> caught my attention. I found <a href="https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt">this list of GHCND stations</a> and decided to go with <code>AUSTIN BERGSTROM INTL AP</code> because it’s the same location from the tabular data above. It has the identifier <code>USW00013904</code>.</p>
+<p>After a quick <code>pip install requests pandas matplotlib</code> and tossing my token into a <code>NCDC_CDO_TOKEN</code> environment variable, and we’re ready to jam.</p>
+<p>First let’s get a function to grab some data. I’m intersted in comparing year over year, so let’s grab a year at a time.</p>
+<div id="774721b4" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> os</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> matplotlib.patches <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> mpatches</span>
+<span id="cb1-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> matplotlib <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pyplot <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> plt</span>
+<span id="cb1-5"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb1-6"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> requests</span>
+<span id="cb1-7"></span>
+<span id="cb1-8"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> get_max_temps(year, limit<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">366</span>):</span>
+<span id="cb1-9">    token <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> os.getenv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NCDC_CDO_TOKEN"</span>)</span>
+<span id="cb1-10">    start_date <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>year<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">-01-01"</span></span>
+<span id="cb1-11">    end_date <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>year<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">-12-31"</span></span>
+<span id="cb1-12">    url <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.ncdc.noaa.gov/cdo-web/api/v2/data"</span></span>
+<span id="cb1-13">    params <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb1-14">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"datasetid"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GHCND"</span>,</span>
+<span id="cb1-15">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"stationid"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GHCND:USW00013904"</span>,</span>
+<span id="cb1-16">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"startdate"</span>: start_date,</span>
+<span id="cb1-17">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"enddate"</span>: end_date,</span>
+<span id="cb1-18">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"datatypeid"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TMAX"</span>,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># max temp</span></span>
+<span id="cb1-19">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"units"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"standard"</span>,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 🇺🇸</span></span>
+<span id="cb1-20">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"limit"</span>: limit,  </span>
+<span id="cb1-21">    }</span>
+<span id="cb1-22">    headers <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb1-23">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"token"</span>: token  </span>
+<span id="cb1-24">    }</span>
+<span id="cb1-25"></span>
+<span id="cb1-26">    response <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> requests.get(url, headers<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>headers, params<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>params)</span>
+<span id="cb1-27">    data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> response.json()</span>
+<span id="cb1-28">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> data</span></code></pre></div>
+</div>
+<p>Let’s look at the first three:</p>
+<div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">get_max_temps(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2024</span>, limit<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">{</span></span>
+<span id="cb3-2">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"metadata"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">{</span></span>
+<span id="cb3-3">        <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"resultset"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">{</span></span>
+<span id="cb3-4">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"offset"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-5">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"count"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">209</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-6">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"limit"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb3-7">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">}</span></span>
+<span id="cb3-8">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">},</span></span>
+<span id="cb3-9">    <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"results"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">[</span></span>
+<span id="cb3-10">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">{</span></span>
+<span id="cb3-11">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"date"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-01-01T00:00:00"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-12">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"datatype"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TMAX"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-13">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"station"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GHCND:USW00013904"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-14">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"attributes"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">",,W,2400"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-15">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"value"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">58.0</span></span>
+<span id="cb3-16">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">}</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-17">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">{</span></span>
+<span id="cb3-18">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"date"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-01-02T00:00:00"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-19">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"datatype"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TMAX"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-20">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"station"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GHCND:USW00013904"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-21">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"attributes"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">",,W,2400"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-22">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"value"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">53.0</span></span>
+<span id="cb3-23">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">}</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-24">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">{</span></span>
+<span id="cb3-25">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"date"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-01-03T00:00:00"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-26">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"datatype"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TMAX"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-27">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"station"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GHCND:USW00013904"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-28">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"attributes"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">",,W,2400"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">,</span></span>
+<span id="cb3-29">            <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">"value"</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">51.0</span></span>
+<span id="cb3-30">        <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">}</span></span>
+<span id="cb3-31">    <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">]</span></span>
+<span id="cb3-32"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">}</span></span></code></pre></div>
+<p>Great! We can pull from the <code>date</code> and the <code>value</code> fields. Let’s grab all of 2024 and shove it into a DataFrame.</p>
+<div id="d607ec93" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> to_df(data):</span>
+<span id="cb4-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extract date and truncate off the time part</span></span>
+<span id="cb4-3">    dates <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [item[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"date"</span>][:<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> item <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> data[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"results"</span>]]</span>
+<span id="cb4-4"></span>
+<span id="cb4-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Grab the max temp value for each date</span></span>
+<span id="cb4-6">    max_temps <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [item[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value"</span>] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> item <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> data[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"results"</span>]]</span>
+<span id="cb4-7"></span>
+<span id="cb4-8">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a DataFrame</span></span>
+<span id="cb4-9">    df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame({<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"date"</span>: dates,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"max_temp"</span>: max_temps})</span>
+<span id="cb4-10"></span>
+<span id="cb4-11">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Set the `date` col as a datetime and make it the index</span></span>
+<span id="cb4-12">    df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"date"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.to_datetime(df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"date"</span>])</span>
+<span id="cb4-13">    df.set_index(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"date"</span>, inplace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb4-14">    </span>
+<span id="cb4-15">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> df</span></code></pre></div>
+</div>
+<p>Quick spot check:</p>
+<div id="64b9586a" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">df_2024 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> to_df(get_max_temps(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2024</span>))</span>
+<span id="cb5-2"></span>
+<span id="cb5-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Head:</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>df_2024<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>head()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb5-4"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Tail:</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>df_2024<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>tail()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb5-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Format:</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>df_2024<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>dtypes<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Head:
+            max_temp
+date                
+2024-01-01      58.0
+2024-01-02      53.0
+2024-01-03      51.0
+2024-01-04      58.0
+2024-01-05      67.0
+Tail:
+            max_temp
+date                
+2024-07-23      82.0
+2024-07-24      89.0
+2024-07-25      88.0
+2024-07-26      89.0
+2024-07-27      86.0
+Format:
+max_temp    float64
+dtype: object</code></pre>
+</div>
+</div>
+<p>Awesome. I’m writing this on <code>2024-07-30</code> and it’s got data up through <code>2024-07-27</code>. Good enough for me!</p>
+<p>Now to actually get at what I was trying to do this whole time. I’m going to grab DataFrames for 2023 and 2024, and plot a time series of each.</p>
+<div id="bc6544d4" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">df_2023 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> to_df(get_max_temps(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2023</span>))</span>
+<span id="cb7-2"></span>
+<span id="cb7-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Adjust 2023 dates to match the 2024 index</span></span>
+<span id="cb7-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># This is how we shift the graph to overlap</span></span>
+<span id="cb7-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If you don't do this, 2024 comes after, not on top of, 2023</span></span>
+<span id="cb7-6">df_2023.index <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df_2023.index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">map</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: x.replace(year<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2024</span>))</span>
+<span id="cb7-7"></span>
+<span id="cb7-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plot the data</span></span>
+<span id="cb7-9">fig, ax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plt.subplots(figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>))</span>
+<span id="cb7-10">df_2023.plot(ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>, legend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023"</span>)</span>
+<span id="cb7-11">df_2024.plot(ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, legend<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024"</span>)</span>
+<span id="cb7-12"></span>
+<span id="cb7-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sett x-axis to display month labels</span></span>
+<span id="cb7-14">ax.set_xticks(</span>
+<span id="cb7-15">    pd.date_range(</span>
+<span id="cb7-16">        start<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df_2023.index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">min</span>(),</span>
+<span id="cb7-17">        end<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df_2023.index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(),</span>
+<span id="cb7-18">        freq<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'MS'</span>,</span>
+<span id="cb7-19">    )</span>
+<span id="cb7-20">)</span>
+<span id="cb7-21">ax.set_xticklabels(</span>
+<span id="cb7-22">    pd.date_range(</span>
+<span id="cb7-23">        start<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df_2023.index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">min</span>(),</span>
+<span id="cb7-24">        end<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df_2023.index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(),</span>
+<span id="cb7-25">        freq<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'MS'</span>,</span>
+<span id="cb7-26">    ).strftime(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'%B'</span>)</span>
+<span id="cb7-27">)</span>
+<span id="cb7-28"></span>
+<span id="cb7-29"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Formatting</span></span>
+<span id="cb7-30">black_patch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mpatches.Patch(color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023"</span>)</span>
+<span id="cb7-31">red_patch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mpatches.Patch(color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024"</span>)</span>
+<span id="cb7-32">plt.legend(handles<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[black_patch, red_patch])</span>
+<span id="cb7-33">ax.set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Max Daily Temperatures Recorded in the Austin-Bergstrom Airport Area"</span>)</span>
+<span id="cb7-34">plt.xticks(rotation<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>)</span>
+<span id="cb7-35"></span>
+<span id="cb7-36">plt.show()</span></code></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/index_files/figure-html/cell-5-output-1.png" width="798" height="520" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>So that’s pretty cool. Most of 2024 has tracked 2023 for daily high temperatures. But not July. July has been weirdly cooler than last year. Or last year was weirdly hotter than normal.</p>
+<p>Actually, let’s see if we can tease that out. Let’s grab the past 10 years.</p>
+<div id="57a392cf" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> time</span>
+<span id="cb8-2"></span>
+<span id="cb8-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a dictionary of year:DataFrame</span></span>
+<span id="cb8-4">year_dfs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {}</span>
+<span id="cb8-5"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> year <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2014</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2024</span>):</span>
+<span id="cb8-6">    year_dfs[year] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> to_df(get_max_temps(year))</span>
+<span id="cb8-7">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Be a nice internet citizen and wait between requests</span></span>
+<span id="cb8-8">    time.sleep(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb8-9"></span>
+<span id="cb8-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Adjust pre-2024 dates to match the 2024 index</span></span>
+<span id="cb8-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># This is how we shift the graph to overlap</span></span>
+<span id="cb8-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If you don't do this, 2024 comes after, not on top of, 2023</span></span>
+<span id="cb8-13"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> df <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> year_dfs.values():</span>
+<span id="cb8-14">    df.index <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df.index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">map</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: x.replace(year<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2024</span>))</span>
+<span id="cb8-15"></span>
+<span id="cb8-16"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plot the data</span></span>
+<span id="cb8-17">fig, ax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plt.subplots(figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>))</span>
+<span id="cb8-18"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> year, df <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> year_dfs.items():</span>
+<span id="cb8-19">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> year <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2023</span>:</span>
+<span id="cb8-20">         df.plot(ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023"</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"gold"</span>)</span>
+<span id="cb8-21">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb8-22">        df.plot(ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"gray"</span>)</span>
+<span id="cb8-23">df_2024.plot(ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024"</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>)</span>
+<span id="cb8-24"></span>
+<span id="cb8-25"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sett x-axis to display month labels</span></span>
+<span id="cb8-26">ax.set_xticks(</span>
+<span id="cb8-27">    pd.date_range(</span>
+<span id="cb8-28">        start<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>year_dfs[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2023</span>].index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">min</span>(),</span>
+<span id="cb8-29">        end<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>year_dfs[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2023</span>].index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(),</span>
+<span id="cb8-30">        freq<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'MS'</span></span>
+<span id="cb8-31">    )</span>
+<span id="cb8-32">)</span>
+<span id="cb8-33">ax.set_xticklabels(</span>
+<span id="cb8-34">    pd.date_range(</span>
+<span id="cb8-35">        start<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>year_dfs[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2023</span>].index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">min</span>(),</span>
+<span id="cb8-36">        end<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>year_dfs[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2023</span>].index.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(),</span>
+<span id="cb8-37">        freq<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'MS'</span>,</span>
+<span id="cb8-38">    ).strftime(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'%B'</span>)</span>
+<span id="cb8-39">)</span>
+<span id="cb8-40"></span>
+<span id="cb8-41"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Formatting</span></span>
+<span id="cb8-42">ax.set_title(</span>
+<span id="cb8-43">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Max Daily Temperatures Recorded in the Austin-Bergstrom Airport Area 2014 - 2024"</span></span>
+<span id="cb8-44">)</span>
+<span id="cb8-45">plt.xticks(rotation<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">45</span>)</span>
+<span id="cb8-46">gold_patch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mpatches.Patch(color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"gold"</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2023"</span>)</span>
+<span id="cb8-47">red_patch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mpatches.Patch(color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024"</span>)</span>
+<span id="cb8-48">plt.legend(handles<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[gold_patch, red_patch])</span>
+<span id="cb8-49"></span>
+<span id="cb8-50">plt.show()</span></code></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/index_files/figure-html/cell-6-output-1.png" width="798" height="520" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Seems like Austin’s 2023 summer was on the hotter side, and so far the 2024 summer is on the cooler side.</p>
+<p>And was I correct that we haven’t cracked 100 yet this year?</p>
+<div id="a1368bfa" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(df_2024[df_2024[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"max_temp"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            max_temp
+date                
+2024-07-02     100.0
+2024-07-05     100.0</code></pre>
+</div>
+</div>
+<p>Computers!</p>
+
+
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2024-07-30-austin-hot-or-not/</guid>
+  <pubDate>Tue, 30 Jul 2024 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/austin-temperatures-2014-2024.png" medium="image" type="image/png" height="94" width="144"/>
+</item>
 <item>
   <title>How Did Skannerz Work?</title>
   <dc:creator>Matt Hodges</dc:creator>
