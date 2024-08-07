@@ -1,5 +1,6 @@
 execute:
   freeze: true
+  cache: true
 title-block-banner: true
 format:
   html:
