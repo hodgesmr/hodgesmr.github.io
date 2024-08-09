@@ -42,6 +42,8 @@ format:
     toc: true
     link-external-newwindow: true
     title-prefix: ""
+    fig-responsive: true
+    fig-format: svg
 
 language: 
   search-box-placeholder: "Search"
