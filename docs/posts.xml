@@ -17,7 +17,7 @@
 <generator>quarto-1.5.56</generator>
 <lastBuildDate>Thu, 08 Aug 2024 05:00:00 GMT</lastBuildDate>
 <item>
-  <title>Connecting the Dots With Spline and PCHIP</title>
+  <title>Spline Versus PCHIP</title>
   <dc:creator>Matt Hodges</dc:creator>
   <link>https://matthodges.com/posts/2024-08-08-spline-pchip/</link>
   <description><![CDATA[ 
@@ -26,8 +26,8 @@
 
 
 
-<p>Let’s say you’ve got some data points and you want to plot them:</p>
-<div id="f76b981a" class="cell" data-execution_count="2">
+<p>Let’s say you’ve got some data points and you make a scatterplot:</p>
+<div id="d66f46a9" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -37,7 +37,7 @@
 </div>
 </div>
 <p>You might say <em>great!</em> and call it a day. But what if we want to see the behavior of the data between these points? Linear interpolation is a simple way to connect the dots:</p>
-<div id="43d2226a" class="cell" data-execution_count="3">
+<div id="fc1efcb8" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -47,7 +47,7 @@
 </div>
 </div>
 <p>And now at this point you might say <em>great!</em> and call it a day. Or, you might decide that you can do better than linear interpolation. That sure does look like a sine curve. But you’re working with a collection of discrete points, and you wouldn’t want to erroneously just plot a sine function. Instead, you can reach for a smoother interpolation function, such as a spline:</p>
-<div id="7cabf09d" class="cell" data-execution_count="4">
+<div id="8b393c02" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -57,7 +57,7 @@
 </div>
 </div>
 <p>The term “spline” refers to a wide class of functions involving interpolation and smoothing. In data viz, we often see the basis spline (or, B-spline). Think of spline interpolation like a flexible ruler that bends to pass smoothly through all your data points, but in doing so, it might sometimes bend too much or too little. Sometimes the spline overshoots, introducing peaks or valleys that weren’t there in the original data.</p>
-<div id="7d89d1b6" class="cell" data-execution_count="5">
+<div id="81f91b84" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -68,7 +68,7 @@
 </div>
 <p>Sometimes this is okay! Depending on your data, a spline may be ideal for generating a very smooth curve, especially when smoothness is more critical than accurately interpolating between every data point. And when the underlying function is oscillatory, a spline can capture the movement between points quite accurately. But real-world data is often not oscillatory.</p>
 <p>Let’s say you’ve got a month’s worth of <a href="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/">observed temperatures recorded in the Austin area</a>:</p>
-<div id="5a445d02" class="cell" data-execution_count="6">
+<div id="b84d1d73" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -78,7 +78,7 @@
 </div>
 </div>
 <p>And because temperatures exist on a continuous distribution, we could do a simple linear interpolation to articulate the rates of change between points:</p>
-<div id="4908c756" class="cell" data-execution_count="7">
+<div id="04fe14ff" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -88,7 +88,7 @@
 </div>
 </div>
 <p>But temperatures are unlikely to ascend or descend on linear gradients, so we could also try a spline:</p>
-<div id="6aa76b69" class="cell" data-execution_count="8">
+<div id="da2c40fd" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -98,18 +98,18 @@
 </div>
 </div>
 <p>That’s a bit more natural, but it looks a bit weird, too. Unlike our sine wave sampling from before, the data points here are of real, observed, daily maximum temperatures. So it’s a little strange that the fit curve overshoots and undershoots those known values. The interpolation is smooth, but the shape of the data has not been preserved.</p>
-<div id="b17b4a3c" class="cell" data-execution_count="9">
+<div id="3a46d124" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-08-08-spline-pchip/index_files/figure-html/cell-9-output-1.png" width="843" height="431" class="figure-img"></p>
+<p><img src="https://matthodges.com/posts/2024-08-08-spline-pchip/index_files/figure-html/cell-9-output-1.png" width="641" height="431" class="figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>While a spline produces smooth curves, the artifacts of overshooting, undershooting, or unwanted oscillations between data points can misrepresent what the data actually says. Fortunately, we have another option: the PCHIP, or Piecewise Cubic Hermite Interpolating Polynomial. <a href="https://en.wikipedia.org/wiki/Charles_Hermite">Hermite</a> refers to a method of interpolating data points where both the function values and the derivatives at those points are matched.</p>
 <p>A PCHIP preserves the shape of the data and avoids oscillations. The monotonicity (increasing or decreasing trend) of the data is preserved, ensuring no overshoots between data points. I like to think of PCHIP as a hand that firmly (but not rigidly) guides a curve through the data points without allowing any unnecessary dips or rises.</p>
-<div id="d33da1a3" class="cell" data-execution_count="10">
+<div id="38904c36" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -120,7 +120,7 @@
 </div>
 <p>Looks good! This results in a curve that better captures the shape of the function, especially when the slope information is critical. In our case, the slope is critical. It makes no sense to have a positive slope (overshooting) between points, when the next value decreased.</p>
 <p>But PCHIP isn’t always better than Spline. Let’s apply a PCHIP interpolation to the oscillating data from before:</p>
-<div id="e11443a8" class="cell" data-execution_count="11">
+<div id="57c95970" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -139,7 +139,7 @@
  ]]></description>
   <guid>https://matthodges.com/posts/2024-08-08-spline-pchip/</guid>
   <pubDate>Thu, 08 Aug 2024 05:00:00 GMT</pubDate>
-  <media:content url="https://matthodges.com/posts/2024-08-08-spline-pchip/pchip-terminal.png" medium="image" type="image/png" height="82" width="144"/>
+  <media:content url="https://matthodges.com/posts/2024-08-08-spline-pchip/pchip-annotated.png" medium="image" type="image/png" height="97" width="144"/>
 </item>
 <item>
   <title>Austin, Texas: Hot or Not?</title>

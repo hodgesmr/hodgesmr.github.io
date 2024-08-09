@@ -1,15 +1,15 @@
 ---
 author: "Matt Hodges"
-title: "Connecting the Dots With Spline and PCHIP"
-pagetitle: "Connecting the Dots With Spline and PCHIP"
-subtitle: "Let's break down some pros and cons of different smoothing and iterpolation techniques"
-image: "pchip-terminal.png"
+title: "Spline Versus PCHIP"
+pagetitle: "Spline Versus PCHIP"
+subtitle: "Sometimes you want a smooth curve. Sometimes you want a shape-preserving curve."
+image: "pchip-annotated.png"
 date: 2024-08-08
 execute:
   echo: false
 ---
 
-Let's say you've got some data points and you want to plot them:
+Let's say you've got some data points and you make a scatterplot:
 
 ```{python}
 import numpy as np
@@ -158,14 +158,14 @@ selected_minima_y = y_smooth[selected_minima_index]
 selected_maxima_x = x_smooth[selected_maxima_index]
 selected_maxima_y = y_smooth[selected_maxima_index]
 
-plt.annotate('Undershot the known temperature value',
+plt.annotate('Undershot',
              xy=(selected_minima_x, selected_minima_y),
              xytext=(selected_minima_x + 1, selected_minima_y - 3),
              arrowprops=dict(facecolor='red', shrink=0.05),
              fontsize=10,
              color='red')
 
-plt.annotate('Overshot the known temperature value',
+plt.annotate('Overshot',
              xy=(selected_maxima_x, selected_maxima_y),
              xytext=(selected_maxima_x + 1, selected_maxima_y + 3),
              arrowprops=dict(facecolor='red', shrink=0.05),
