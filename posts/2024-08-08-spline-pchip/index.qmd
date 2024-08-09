@@ -215,6 +215,6 @@ It's not wrong, it's just a little weird and lumpy. It's a curve that connects t
 
 PCHIP can aggressively flattened near local extrema. When you need to capture those local extrema — as we did in our temperature plots — PCHIP works well. When you need to capture the smooth movements of oscillatory data, Spline works well. Sometimes it's fairly intuitive what you need. Sometimes you need to plot it to really see which works better. Other times it takes more thought.
 
-Consider the nature of your data. If your data is smooth and continuous, like a waveform or a gradient, spline interpolation might work well. If your data has sharp changes or you need to preserve the natural shape of the data without introducing artifacts, PCHIP might be the better choice. In practical applications like climate modeling, financial forecasting, or engineering metrics, the choice can have significant implications.
+Consider the nature of your data. If your data is smooth and continuous, like a waveform or a gradient, spline interpolation might work well. If your data has sharp changes or you need to preserve the natural shape of the data without introducing artifacts, PCHIP might be the better choice. In practical applications like election modeling, financial forecasting, or engineering metrics, the choice can have significant implications.
 
 Graphs!
