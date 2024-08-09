@@ -191,8 +191,7 @@ y_pchip = pchip(x_smooth)
 plt.plot(x_smooth, y_pchip)
 plt.scatter(df["day"], df["max_temp"])  # original points
 plt.title('Observed Temperatures with PCHIP Interpolation')
-plt.xlabel('x')
-plt.ylabel('sin(x)')
+
 plt.show()
 ```
 
