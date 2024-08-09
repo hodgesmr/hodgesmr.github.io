@@ -10,7 +10,6 @@ website:
   twitter-card: true
   site-url: https://matthodges.com
   open-graph: true
-  # search: false
   page-footer: |
      Copyright 2024, Matt Hodges
   navbar:
@@ -23,11 +22,11 @@ website:
         target: _blank 
       - text: "Posts"
         href: posts.qmd
-      - text: "Feed"
+      - icon: rss
         href: posts.xml
   search: 
     location: navbar
-    type: textbox
+    type: overlay
 
 format:
   html:
@@ -43,3 +42,6 @@ format:
     toc: true
     link-external-newwindow: true
     title-prefix: ""
+
+language: 
+  search-box-placeholder: "Search"

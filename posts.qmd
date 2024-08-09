@@ -9,5 +9,5 @@ listing:
     sort: "date desc"
     fields: [image, date, title, subtitle, reading-time]
     date-format: iso
-    filter-ui: true
+search: false
 ---

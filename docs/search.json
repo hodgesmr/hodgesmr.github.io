@@ -1,12 +1,5 @@
 [
   {
-    "objectID": "posts.html",
-    "href": "posts.html",
-    "title": "Posts",
-    "section": "",
-    "text": "Spline Versus PCHIP\n\n\nSometimes you want a smooth curve. Sometimes you want a shape-preserving curve.\n\n\n\n\n\n2024-08-08\n\n\n7 min\n\n\n\n\n\n\n\n\n\n\n\n\nAustin, Texas: Hot or Not?\n\n\nThis summer hasn’t felt as hot as last summer. I decided to find out if that was actually true.\n\n\n\n\n\n2024-07-30\n\n\n9 min\n\n\n\n\n\n\n\n\n\n\n\n\nHow Did Skannerz Work?\n\n\nOnly 90s kids are now adults who dig through patent filings to understand how their toys worked.\n\n\n\n\n\n2024-07-23\n\n\n6 min\n\n\n\n\n\n\n\n\n\n\n\n\nAmused Entirely To Death\n\n\nWhat if the imminent danger to our democracy isn’t just looming authoritarianism, but also our own insatiable appetite for distraction? Last week’s Republican National Convention provided a stark reminder of this unsettling threat.\n\n\n\n\n\n2024-07-20\n\n\n6 min\n\n\n\n\n\n\n\n\n\n\n\n\nBIDEN: Binary Inference Dictionaries for Electoral NLP\n\n\nA compression-based binary classification technique that is fast at both training and inference on common CPU hardware in Python\n\n\n\n\n\n2023-10-01\n\n\n5 min\n\n\n\n\n\n\n\n\n\n\n\n\nExploring the Lambda Calculus with Python\n\n\nSome basic ideas of the Lambda Calculus, and how to use it to implement a computation system in Python\n\n\n\n\n\n2022-07-17\n\n\n8 min\n\n\n\n\n\n\n\n\n\n\n\n\nThank you.\n\n\nWorking on the Biden Campaign was the opportunity of a lifetime.\n\n\n\n\n\n2020-11-10\n\n\n1 min\n\n\n\n\n\n\nNo matching items"
-  },
-  {
     "objectID": "posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/index.html",
     "href": "posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/index.html",
     "title": "BIDEN: Binary Inference Dictionaries for Electoral NLP",
