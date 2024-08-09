@@ -10,22 +10,24 @@ website:
   twitter-card: true
   site-url: https://matthodges.com
   open-graph: true
-  search: false
+  # search: false
   page-footer: |
      Copyright 2024, Matt Hodges
   navbar:
     right:
-      - icon: linkedin
+      - text: "LinkedIn"
         href: https://www.linkedin.com/in/hodgesmr
         target: _blank
-      - icon: github
+      - text: "GitHub"
         href: https://github.com/hodgesmr
         target: _blank 
-      - icon: pen-fill
-        text: " "
+      - text: "Posts"
         href: posts.qmd
-      - icon: rss-fill
+      - text: "Feed"
         href: posts.xml
+  search: 
+    location: navbar
+    type: textbox
 
 format:
   html:
