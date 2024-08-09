@@ -1,0 +1,220 @@
+---
+author: "Matt Hodges"
+title: "Connecting the Dots With Spline and PCHIP"
+pagetitle: "Connecting the Dots With Spline and PCHIP"
+subtitle: "Let's break down some pros and cons of different smoothing and iterpolation techniques"
+image: "pchip-terminal.png"
+date: 2024-08-08
+execute:
+  echo: false
+---
+
+Let's say you've got some data points and you want to plot them:
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 4 * np.pi, 20)
+y = np.sin(x)
+
+plt.scatter(x, y)
+plt.title('Oscillating Data')
+plt.show()
+```
+
+You might say _great!_ and call it a day. But what if we want to see the behavior of the data between these points? Linear interpolation is a simple way to connect the dots:
+
+```{python}
+plt.plot(x, y, marker='o')
+plt.title('Oscillating Data With Linear Interpolation')
+plt.show()
+```
+
+And now at this point you might say _great!_ and call it a day. Or, you might decide that you can do better than linear interpolation. That sure does look like a sine curve. But you're working with a collection of discrete points, and you wouldn't want to erroneously just plot a sine function. Instead, you can reach for a smoother interpolation function, such as a spline:
+
+```{python}
+from scipy.interpolate import make_interp_spline
+
+# Generate more points for a smooth spline curve
+x_smooth = np.linspace(0, 4 * np.pi, 600)
+spline = make_interp_spline(x, y)
+y_smooth = spline(x_smooth)
+
+plt.plot(x_smooth, y_smooth)
+plt.scatter(x, y)  # original points
+plt.title('Oscillating Data With Spline Interpolation')
+plt.show()
+```
+
+The term "spline" refers to a wide class of functions involving interpolation and smoothing. In data viz, we often see the basis spline (or, B-spline). Think of spline interpolation like a flexible ruler that bends to pass smoothly through all your data points, but in doing so, it might sometimes bend too much or too little. Sometimes the spline overshoots, introducing peaks or valleys that weren't there in the original data.
+
+```{python}
+from scipy.signal import argrelextrema
+
+# Get indices of local maxima
+local_maxima_indices = argrelextrema(y_smooth, np.greater)[0]
+
+# First local maxima
+first_local_maxima_index = local_maxima_indices[0]
+first_local_maxima_x = x_smooth[first_local_maxima_index]
+first_local_maxima_y = y_smooth[first_local_maxima_index]
+
+plt.plot(x_smooth, y_smooth)
+plt.scatter(x, y)  # original points
+
+plt.annotate('The curve overshot the known data',
+             xy=(first_local_maxima_x, first_local_maxima_y),
+             xytext=(first_local_maxima_x + 2, first_local_maxima_y +0.035),
+             arrowprops=dict(facecolor='red', shrink=0.05),
+             fontsize=10,
+             color='red')
+
+plt.title('Oscillating Data With Spline Interpolation')
+plt.show()
+```
+
+Sometimes this is okay! Depending on your data, a spline may be ideal for generating a very smooth curve, especially when smoothness is more critical than accurately interpolating between every data point. And when the underlying function is oscillatory, a spline can capture the movement between points quite accurately. But real-world data is often not oscillatory.
+
+Let's say you've got a month's worth of [observed temperatures recorded in the Austin area](https://matthodges.com/posts/2024-07-30-austin-hot-or-not/):
+
+```{python}
+import os
+import pandas as pd
+import requests
+
+token = os.getenv("NCDC_CDO_TOKEN")
+url = "https://www.ncdc.noaa.gov/cdo-web/api/v2/data"
+params = {
+    "datasetid": "GHCND",
+    "stationid": "GHCND:USW00013904",
+    "startdate": "2024-07-01",
+    "enddate": "2024-07-31",
+    "datatypeid": "TMAX",  # max temp
+    "units": "standard",  # 🇺🇸
+    "limit": 31,  
+}
+headers = {
+    "token": token  
+}
+
+response = requests.get(url, headers=headers, params=params)
+data = response.json()
+
+# Extract date and truncate off the time part
+dates = [item["date"][:10] for item in data["results"]]
+
+# Grab the max temp value for each date
+max_temps = [item["value"] for item in data["results"]]
+
+# Create a DataFrame
+df = pd.DataFrame({"date": dates,"max_temp": max_temps})
+
+# Set the `date` col as a datetime and make it the index
+df["date"] = pd.to_datetime(df["date"])
+
+df['day'] = df['date'].rank(method='dense').astype(int)
+
+plt.scatter(df["day"], df["max_temp"])
+plt.title('Observed Temperatures')
+plt.show()
+```
+
+And because temperatures exist on a continuous distribution, we could do a simple linear interpolation to articulate the rates of change between points:
+
+```{python}
+plt.plot(df["day"], df["max_temp"], marker='o')
+plt.title('Observed Temperatures with Linear Interpolation')
+plt.show()
+```
+
+But temperatures are unlikely to ascend or descend on linear gradients, so we could also try a spline:
+
+```{python}
+x_smooth = np.linspace(df["day"].min(), df["day"].max(), 600)
+spline = make_interp_spline(df["day"], df["max_temp"])
+y_smooth = spline(x_smooth)
+
+plt.plot(x_smooth, y_smooth)
+plt.scatter(df["day"], df["max_temp"])
+plt.title('Observed Temperatures with Spline Interpolation')
+plt.show()
+```
+
+That's a bit more natural, but it looks a bit weird, too. Unlike our sine wave sampling from before, the data points here are of real, observed, daily maximum temperatures. So it's a little strange that the fit curve overshoots and undershoots those known values. The interpolation is smooth, but the shape of the data has not been preserved.
+
+```{python}
+# Find the indices of local minima and maxima
+local_minima_indices = argrelextrema(y_smooth, np.less)[0]
+local_maxima_indices = argrelextrema(y_smooth, np.greater)[0]
+
+# Identify the local minima and maxima
+selected_minima_index = local_minima_indices[-1]
+selected_maxima_index = local_maxima_indices[-1]
+
+# Extract the x and y coordinates of these points
+selected_minima_x = x_smooth[selected_minima_index]
+selected_minima_y = y_smooth[selected_minima_index]
+selected_maxima_x = x_smooth[selected_maxima_index]
+selected_maxima_y = y_smooth[selected_maxima_index]
+
+plt.annotate('Undershot the known temperature value',
+             xy=(selected_minima_x, selected_minima_y),
+             xytext=(selected_minima_x + 1, selected_minima_y - 3),
+             arrowprops=dict(facecolor='red', shrink=0.05),
+             fontsize=10,
+             color='red')
+
+plt.annotate('Overshot the known temperature value',
+             xy=(selected_maxima_x, selected_maxima_y),
+             xytext=(selected_maxima_x + 1, selected_maxima_y + 3),
+             arrowprops=dict(facecolor='red', shrink=0.05),
+             fontsize=10,
+             color='red')
+
+plt.plot(x_smooth, y_smooth)
+plt.scatter(df["day"], df["max_temp"])
+plt.title('Observed Temperatures with Spline Interpolation')
+plt.show()
+```
+
+While a spline produces smooth curves, the artifacts of overshooting, undershooting, or unwanted oscillations between data points can misrepresent what the data actually says. Fortunately, we have another option: the PCHIP, or Piecewise Cubic Hermite Interpolating Polynomial. [Hermite](https://en.wikipedia.org/wiki/Charles_Hermite) refers to a method of interpolating data points where both the function values and the derivatives at those points are matched.
+
+A PCHIP preserves the shape of the data and avoids oscillations. The monotonicity (increasing or decreasing trend) of the data is preserved, ensuring no overshoots between data points. I like to think of PCHIP as a hand that firmly (but not rigidly) guides a curve through the data points without allowing any unnecessary dips or rises.
+
+```{python}
+from scipy.interpolate import PchipInterpolator
+
+pchip = PchipInterpolator(df["day"], df["max_temp"])
+y_pchip = pchip(x_smooth)
+
+plt.plot(x_smooth, y_pchip)
+plt.scatter(df["day"], df["max_temp"])  # original points
+plt.title('Observed Temperatures with PCHIP Interpolation')
+plt.xlabel('x')
+plt.ylabel('sin(x)')
+plt.show()
+```
+
+Looks good! This results in a curve that better captures the shape of the function, especially when the slope information is critical. In our case, the slope is critical. It makes no sense to have a positive slope (overshooting) between points, when the next value decreased.
+
+But PCHIP isn't always better than Spline. Let's apply a PCHIP interpolation to the oscillating data from before:
+
+```{python}
+x_smooth = np.linspace(0, 4 * np.pi, 600)
+pchip = PchipInterpolator(x, y)
+y_pchip = pchip(x_smooth)
+
+plt.plot(x_smooth, y_pchip)
+plt.scatter(x, y)  # original points
+plt.title('Oscillating Data With PCHIP Interpolation')
+plt.show()
+```
+
+It's not wrong, it's just a little weird and lumpy. It's a curve that connects the dots, but it somewhat lost the true movement between points.
+
+PCHIP can aggressively flattened near local extrema. When you need to capture those local extrema — as we did in our temperature plots — PCHIP works well. When you need to capture the smooth movements of oscillatory data, Spline works well. Sometimes it's fairly intuitive what you need. Sometimes you need to plot it to really see which works better. Other times it takes more thought.
+
+Consider the nature of your data. If your data is smooth and continuous, like a waveform or a gradient, spline interpolation might work well. If your data has sharp changes or you need to preserve the natural shape of the data without introducing artifacts, PCHIP might be the better choice. In practical applications like climate modeling, financial forecasting, or engineering metrics, the choice can have significant implications.
+
+Graphs!

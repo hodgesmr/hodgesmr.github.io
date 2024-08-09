@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Matt Hodges">
-<meta name="dcterms.date" content="2024-07-23">
+<meta name="dcterms.date" content="2024-08-08">
 
-<title>How Did Skannerz Work?</title>
+<title>Connecting the Dots With Spline and PCHIP</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -55,43 +55,18 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <link href="https://fonts.googleapis.com/css?family=Overpass:300,900" rel="stylesheet">
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<meta property="og:title" content="How Did Skannerz Work?">
-<meta property="og:description" content="Only 90s kids are now adults who dig through patent filings to understand how their toys worked.">
-<meta property="og:image" content="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/three-skannerz.jpg">
+<meta property="og:title" content="Connecting the Dots With Spline and PCHIP">
+<meta property="og:description" content="Let’s break down some pros and cons of different smoothing and iterpolation techniques">
+<meta property="og:image" content="https://matthodges.com/posts/2024-08-08-spline-pchip/pchip-terminal.png">
 <meta property="og:site_name" content="Matt Hodges">
-<meta name="twitter:title" content="How Did Skannerz Work?">
-<meta name="twitter:description" content="Only 90s kids are now adults who dig through patent filings to understand how their toys worked.">
-<meta name="twitter:image" content="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/three-skannerz.jpg">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:width" content="1792">
+<meta name="twitter:title" content="Connecting the Dots With Spline and PCHIP">
+<meta name="twitter:description" content="Let’s break down some pros and cons of different smoothing and iterpolation techniques">
+<meta name="twitter:image" content="https://matthodges.com/posts/2024-08-08-spline-pchip/pchip-terminal.png">
+<meta name="twitter:image-height" content="1024">
+<meta name="twitter:image-width" content="1792">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -142,8 +117,8 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">How Did Skannerz Work?</h1>
-            <p class="subtitle lead">Only 90s kids are now adults who dig through patent filings to understand how their toys worked.</p>
+      <h1 class="title">Connecting the Dots With Spline and PCHIP</h1>
+            <p class="subtitle lead">Let’s break down some pros and cons of different smoothing and iterpolation techniques</p>
                       </div>
   </div>
     
@@ -160,7 +135,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">July 23, 2024</p>
+        <p class="date">August 8, 2024</p>
       </div>
     </div>
     
@@ -181,74 +156,117 @@ window.Quarto = {
 
 
 
-<p>This post is a redux from a now-deleted social media thread. It felt too important to let bit rot.</p>
-<p>If you’re a Millennial of a certain age, or perhaps a Baby Boomer who raised Millennials,<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> you might remember the 2001 toy Skannerz by <a href="https://en.wikipedia.org/wiki/Radica_Games">Radica</a>. It was a gotta-catch-em-all game that involved scanning real-world barcodes to collect monsters and objects, and to battle other Skannerz. It was a hand-held gadget toy back when consumer electronics were still weird and fun and we had more products than just iPhone. I had a blue one. It looked like this:</p>
-<div class="quarto-figure quarto-figure-center">
+<p>Let’s say you’ve got some data points and you want to plot them:</p>
+<div id="f76b981a" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div>
 <figure class="figure">
-<p><img src="skannerz-zendra.jpg" class="img-fluid figure-img"></p>
-<figcaption>A Zendra Skanner</figcaption>
+<p><img src="index_files/figure-html/cell-2-output-1.png" width="590" height="431" class="figure-img"></p>
 </figure>
 </div>
-<p>The toy/game had an A+ premise: alien monsters transported down to earth and decided to hide inside of the barcodes on products all around your home (or, more annoyingly to your parents, all around the grocery store). Your job was to scan every barcode you could get your hands on, fight and capture the alien monsters, and then fight the monsters your friends collected. And to make the weirdest Pokémon ripoff complete: the Skannerz came in three colors — red, blue, and green — that could only collect monsters of their associated “tribes”. This really good commercial explains:</p>
-<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/eXt6YihygTw" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
-<p>Because I was already a major dork at 11 years old, I was intrigued by how the device worked. How did it go from barcode to monster? There was no way it was talking to a server (although I did imagine the world’s greatest PHPMyAdmin at the time). I guessed that it had every possible barcode referenced internally. But that’s not quite correct. It was a little more clever than that.</p>
-<p>But frirst, a quick primer on barcodes. There are many variations; this is a <a href="https://en.wikipedia.org/wiki/Universal_Product_Code">UPC Version A</a> — very common in the United States. It has a basic specification: that first digit way to the left is the product type (sometimes called a number system). The next five digits identify the manufacturer. The next five identify the product. And at the end is a checksum digit. The details of how to implement the spec aren’t all too important for our Skannerz exploration.</p>
-<div class="quarto-figure quarto-figure-center">
+</div>
+</div>
+<p>You might say <em>great!</em> and call it a day. But what if we want to see the behavior of the data between these points? Linear interpolation is a simple way to connect the dots:</p>
+<div id="43d2226a" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div>
 <figure class="figure">
-<p><img src="barcode.png" class="img-fluid figure-img"></p>
-<figcaption>An example UPC - A bar code</figcaption>
+<p><img src="index_files/figure-html/cell-3-output-1.png" width="590" height="431" class="figure-img"></p>
 </figure>
 </div>
-<p>Okay, back to the Skannerz game. As mentioned above, there were 3 different “tribes”, identified by which color scanning device you had. And there were 126 total monsters. So each tribe could capture 42 monsters. If you wanted to catch ’em all you needed to buy all three. Business!</p>
-<div class="quarto-figure quarto-figure-center">
+</div>
+</div>
+<p>And now at this point you might say <em>great!</em> and call it a day. Or, you might decide that you can do better than linear interpolation. That sure does look like a sine curve. But you’re working with a collection of discrete points, and you wouldn’t want to erroneously just plot a sine function. Instead, you can reach for a smoother interpolation function, such as a spline:</p>
+<div id="7cabf09d" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div>
 <figure class="figure">
-<p><img src="three-skannerz.jpg" class="img-fluid figure-img"></p>
-<figcaption>The three original Skannerz: Ujalu (red), Pataak (green), and Zendra (blue)</figcaption>
+<p><img src="index_files/figure-html/cell-4-output-1.png" width="590" height="431" class="figure-img"></p>
 </figure>
 </div>
-<p>You could also collect non-monster items from barcodes. And some barcodes healed your injured monsters. Again, these toys had no wireless communication (it was 2001!) so all of the logic for item or monster identification was baked right into the device. But how?</p>
-<p>The Skannerz <a href="https://patentimages.storage.googleapis.com/05/ca/8a/0c25f67d6c06a3/US20080139309A1.pdf">patent</a> is conveniently revealing!<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> The device only cares about the “product” section (denoted below as 1315). If the first digit is 0-5, you’ve scanned a monster. 6-9, you’ve scanned an item. Digits 3, 4, and 5 identify the item/monster.</p>
-<div class="quarto-figure quarto-figure-center">
+</div>
+</div>
+<p>The term “spline” refers to a wide class of functions involving interpolation and smoothing. In data viz, we often see the basis spline (or, B-spline). Think of spline interpolation like a flexible ruler that bends to pass smoothly through all your data points, but in doing so, it might sometimes bend too much or too little. Sometimes the spline overshoots, introducing peaks or valleys that weren’t there in the original data.</p>
+<div id="7d89d1b6" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div>
 <figure class="figure">
-<p><img src="skannerz-barcode-reference.png" class="img-fluid figure-img"></p>
-<figcaption>FIG. 13 from the Skannerz patent illustrates one method of correlating a UPC code to a feature of the game.</figcaption>
+<p><img src="index_files/figure-html/cell-5-output-1.png" width="590" height="431" class="figure-img"></p>
 </figure>
 </div>
-<p>If the first digit in the barcode’s product code is 0 - 5, we’re in Monster Mode.</p>
-<p>We’ve got 1000 possible values (000-999 across digits 3, 4, and 5 in our product code) to identify 126 monsters. The patent goes on to explain how the magic of division solves this problem:</p>
-<p><span class="math display">\[
-\frac{1000}{126} = 7.94
-\]</span></p>
-<p>And there was much rejoicing.</p>
-<p>The range of numbers from 000 to 007 correspond to the first monster in Tribe 1, 008 to 015 correspond to the first monster in Tribe 2, and so on.</p>
-<p>The patent then goes on to address the fact that 126 doesn’t divide well into 1000, and that 7.94 is not an integer. We only follow this eight-stepping until we get through the 124th monster, and then:</p>
-<blockquote class="blockquote">
-<p>Because 1,000 is not a multiple of 126, the last 2 monsters each have a range of 4 numbers. In other words, the last monster in Tribe 2 would correspond to the range of numbers 992 through 995 and the last monster in Tribe 3 would correspond to the range of numbers 996 through 999.</p>
-</blockquote>
-<p>Now, if the first digit in the barcode’s produt code is 6 - 9, we’re in Item Mode.</p>
-<p>Similarly, there were 24 items in the game + 1 for healing. So 25 items. Again, we’ve got 1000 values to work with:</p>
-<p><span class="math display">\[
-\frac{1000}{25} = 40
-\]</span></p>
-<p>So a range of 40 numbers can be used to define each item. Item 1 corresponds to the range of numbers from 000 through 039, Item 2 corresponds to the range of numbers from 040 through 079, and so on. And great news: 40 <em>is</em> an integer.</p>
-<p>Quick aside: the UPC Version A codec above is the the only format outlined in the Skannerz patent. But the patent also burries this little nugget:</p>
-<blockquote class="blockquote">
-<p>Many other encoding techniques are within the scope of the present invention. In some such embodiments, Global Location Number (“GLN’) codes and similar codes used, e.g.&nbsp;for identifying parcels, are assigned secondary meanings which correspond with elements of a game. In still other embodiments, codes used for entirely different purposes, for example, audio or video data compression, data encryption, etc., are assigned secondary meanings which correspond with elements of a game.</p>
-</blockquote>
-<p>What does that mean? It literally says nothing else about what invention is being claimed there, but good on the Radica lawyers for planting a flag I guess? Maybe the <a href="https://skannerz.fandom.com/wiki/Skannerz_Commander">Skannerz Commander</a>, which I never had, rolled its own encryption algorithm?</p>
-<p>But that’s really it! If you knew this encoding scheme, and had access to a printer, you could collect all the monsters and items pretty quickly. Anyone else remember <a href="https://web.archive.org/web/20010201163900/http://www.barcodemill.com/">Barcode Mill</a>? Of course people knew; there were unofficial barcode books you could buy to help you complete your collection. But where’s the fun in that?</p>
-<p>Thanks for indulging my dork nostalgia. I look forward to the Greta Gerwig adaptation.</p>
+</div>
+</div>
+<p>Sometimes this is okay! Depending on your data, a spline may be ideal for generating a very smooth curve, especially when smoothness is more critical than accurately interpolating between every data point. And when the underlying function is oscillatory, a spline can capture the movement between points quite accurately. But real-world data is often not oscillatory.</p>
+<p>Let’s say you’ve got a month’s worth of <a href="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/">observed temperatures recorded in the Austin area</a>:</p>
+<div id="5a445d02" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-6-output-1.png" width="587" height="431" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>And because temperatures exist on a continuous distribution, we could do a simple linear interpolation to articulate the rates of change between points:</p>
+<div id="4908c756" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-7-output-1.png" width="587" height="431" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>But temperatures are unlikely to ascend or descend on linear gradients, so we could also try a spline:</p>
+<div id="6aa76b69" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-8-output-1.png" width="587" height="431" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>That’s a bit more natural, but it looks a bit weird, too. Unlike our sine wave sampling from before, the data points here are of real, observed, daily maximum temperatures. So it’s a little strange that the fit curve overshoots and undershoots those known values. The interpolation is smooth, but the shape of the data has not been preserved.</p>
+<div id="b17b4a3c" class="cell" data-execution_count="9">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-9-output-1.png" width="843" height="431" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>While a spline produces smooth curves, the artifacts of overshooting, undershooting, or unwanted oscillations between data points can misrepresent what the data actually says. Fortunately, we have another option: the PCHIP, or Piecewise Cubic Hermite Interpolating Polynomial. <a href="https://en.wikipedia.org/wiki/Charles_Hermite">Hermite</a> refers to a method of interpolating data points where both the function values and the derivatives at those points are matched.</p>
+<p>A PCHIP preserves the shape of the data and avoids oscillations. The monotonicity (increasing or decreasing trend) of the data is preserved, ensuring no overshoots between data points. I like to think of PCHIP as a hand that firmly (but not rigidly) guides a curve through the data points without allowing any unnecessary dips or rises.</p>
+<div id="d33da1a3" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-10-output-1.png" width="606" height="449" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Looks good! This results in a curve that better captures the shape of the function, especially when the slope information is critical. In our case, the slope is critical. It makes no sense to have a positive slope (overshooting) between points, when the next value decreased.</p>
+<p>But PCHIP isn’t always better than Spline. Let’s apply a PCHIP interpolation to the oscillating data from before:</p>
+<div id="e11443a8" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-11-output-1.png" width="590" height="431" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It’s not wrong, it’s just a little weird and lumpy. It’s a curve that connects the dots, but it somewhat lost the true movement between points.</p>
+<p>PCHIP can aggressively flattened near local extrema. When you need to capture those local extrema — as we did in our temperature plots — PCHIP works well. When you need to capture the smooth movements of oscillatory data, Spline works well. Sometimes it’s fairly intuitive what you need. Sometimes you need to plot it to really see which works better. Other times it takes more thought.</p>
+<p>Consider the nature of your data. If your data is smooth and continuous, like a waveform or a gradient, spline interpolation might work well. If your data has sharp changes or you need to preserve the natural shape of the data without introducing artifacts, PCHIP might be the better choice. In practical applications like climate modeling, financial forecasting, or engineering metrics, the choice can have significant implications.</p>
+<p>Graphs!</p>
 
 
 
-
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
-
-<ol>
-<li id="fn1"><p>Generational cohort discourse is stupid.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>You don’t need to be a lawyer to read a patent. They can be very interesting! This one had cartoon drawings!<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section></div></main> <!-- /main -->
+</main> <!-- /main -->
 <div>
     <hr>
     <p class="post-footer">🖤 Thank you for reading a personal blog. This post was written in a specific time and place. I reserve the right to learn new things and to change my mind. This site has no traffic analytics, social trackers, or ads. If you enjoyed this post, please consider sharing it however you like to share posts.</p>
