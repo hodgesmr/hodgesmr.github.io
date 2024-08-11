@@ -16,9 +16,13 @@ locs = document.getElementsByTagName('loc')
 urls = [l.firstChild.nodeValue for l in locs]
 
 for url in urls:
-    
+    index_loc = url.find('index.html')
+    if index_loc >= 0:
+        stripped_url = url[:index_loc]
+    else: stripped_url = url
+
     path = site_dir + urlparse(url).path
-    cannonical_tag = f'<link rel="canonical" href="{url}" />'
+    cannonical_tag = f'<link rel="canonical" href="{stripped_url}" />'
 
     # Read in the file
     with open(path, 'r') as file :
