@@ -15,7 +15,917 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.5.56</generator>
-<lastBuildDate>Thu, 08 Aug 2024 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 13 Aug 2024 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>CSVs Are Kinda Bad. DSVs Are Kinda Good.</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>CSVs are kinda bad. We know this, but sometimes it’s helpful to remember why they’re kinda bad. Maybe you need to work with CSVs and you’re using Python, because Python is kinda good. And someone else somewhere wrote a CSV:</p>
+<div id="cell-2" class="cell" data-execution_count="209">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> csv</span>
+<span id="cb1-2"></span>
+<span id="cb1-3">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb1-4">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Comment'</span>],</span>
+<span id="cb1-5">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'She said, "Hello" and waved.'</span>],</span>
+<span id="cb1-6">]</span>
+<span id="cb1-7"></span>
+<span id="cb1-8"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">''</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb1-9">    writer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>csv.QUOTE_MINIMAL)</span>
+<span id="cb1-10">    writer.writerows(data)</span></code></pre></div>
+</div>
+<p>And you read the CSV:</p>
+<div id="cell-4" class="cell" data-execution_count="210">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'r'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb2-2">    reader <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>csv.QUOTE_NONE)</span>
+<span id="cb2-3">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> reader:</span>
+<span id="cb2-4">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(row)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>['Name', 'Comment']
+['Alice', '"She said', ' ""Hello"" and waved."']</code></pre>
+</div>
+</div>
+<p>Oh darn, the data had a <code>"</code> character inside the comment field and it was escaped by doubling it <code>""</code> which is one way to do that but you didn’t know so your reader is broken.</p>
+<p>Or maybe they wrote it this way:</p>
+<div id="cell-6" class="cell" data-execution_count="211">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb4-2">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Comment'</span>],</span>
+<span id="cb4-3">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'She said, "Hello" and waved.'</span>],</span>
+<span id="cb4-4">]</span>
+<span id="cb4-5"></span>
+<span id="cb4-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">''</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb4-7">    writer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>csv.QUOTE_NONE, escapechar<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb4-8">    writer.writerows(data)</span></code></pre></div>
+</div>
+<p>And you read the CSV:</p>
+<div id="cell-8" class="cell" data-execution_count="212">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'r'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb5-2">    reader <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>csv.QUOTE_NONE,)</span>
+<span id="cb5-3">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> reader:</span>
+<span id="cb5-4">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(row)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>['Name', 'Comment']
+['Alice', 'She said\\', ' \\"Hello\\" and waved.']</code></pre>
+</div>
+</div>
+<p>Oh darn, you didn’t get the escape character correct so now your’ve got a bunch of malformed data.</p>
+<p>Or maybe they wrote this CSV with a <code>|</code> delimiter because people don’t type <code>|</code> very often:</p>
+<div id="cell-10" class="cell" data-execution_count="213">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb7-2">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Score'</span>],</span>
+<span id="cb7-3">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'100'</span>]</span>
+<span id="cb7-4">]</span>
+<span id="cb7-5"></span>
+<span id="cb7-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">''</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb7-7">    writer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>, delimiter<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'|'</span>)</span>
+<span id="cb7-8">    writer.writerows(data)</span></code></pre></div>
+</div>
+<p>And you read the CSV:</p>
+<div id="cell-12" class="cell" data-execution_count="214">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'r'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb8-2">    reader <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>, delimiter<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">','</span>)</span>
+<span id="cb8-3">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> reader:</span>
+<span id="cb8-4">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(row)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>['Name|Score']
+['Alice|100']</code></pre>
+</div>
+</div>
+<p>Oh darn, you didn’t know they were being clever with the delimiter so it didn’t break up the fields at all.</p>
+<p>Or maybe you got a CSV from someone who uses a Windows machine and so they tend to use <code>\r\n</code> for newlines:</p>
+<div id="cell-14" class="cell" data-execution_count="215">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb10-2">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Score'</span>],</span>
+<span id="cb10-3">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'100'</span>]</span>
+<span id="cb10-4">]</span>
+<span id="cb10-5"></span>
+<span id="cb10-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb10-7">    writer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>)</span>
+<span id="cb10-8">    writer.writerows(data)</span></code></pre></div>
+</div>
+<p>And you, on a not-Windows machine, read the CSV:</p>
+<div id="cell-16" class="cell" data-execution_count="216">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb11-2">    reader <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>)</span>
+<span id="cb11-3">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> reader:</span>
+<span id="cb11-4">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(row)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>['Name', 'Score']
+[]
+['Alice', '100']
+[]</code></pre>
+</div>
+</div>
+<p>Oh darn, you didn’t anticipate that newlines might be different across platforms, so now every other line in your data is blank.</p>
+<p>But then maybe you figure that out and you anticipate the <code>\r\n</code>, but then some newlines find their way into the input data:</p>
+<div id="cell-18" class="cell" data-execution_count="217">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb13-2">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Comment'</span>],</span>
+<span id="cb13-3">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Bob'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'This is a multi-line comment</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">spanning two lines.'</span>]</span>
+<span id="cb13-4">]</span>
+<span id="cb13-5"></span>
+<span id="cb13-6"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb13-7">    writer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>csv.QUOTE_NONE, escapechar<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb13-8">    writer.writerows(data)</span></code></pre></div>
+</div>
+<p>And you read the CSV:</p>
+<div id="cell-20" class="cell" data-execution_count="218">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'r'</span>, newline<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb14-2">    reader <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>csv.QUOTE_NONE, escapechar<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb14-3">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> reader:</span>
+<span id="cb14-4">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(row)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>['Name', 'Comment']
+['Bob', 'This is a multi-line comment\r\r']
+['spanning two lines.']</code></pre>
+</div>
+</div>
+<p>Oh darn, you’ve got <code>CR</code> and line breaks and it’s all a mess.</p>
+<p>But then maybe you find the Python documentation <a href="https://docs.python.org/3/library/csv.html#id4">says</a> there’s this one weird trick to handle newlines:</p>
+<blockquote class="blockquote">
+<p>If <code>newline=''</code> is not specified, newlines embedded inside quoted fields will not be interpreted correctly, and on platforms that use <code>\r\n</code> linendings on write an extra <code>\r</code> will be added. It should always be safe to specify <code>newline='</code>’, since the csv module does its own (universal) newline handling.</p>
+</blockquote>
+<p>And then you go look up what <a href="https://docs.python.org/3/glossary.html#term-universal-newlines">universal newlines</a> are.</p>
+<p>And then you find out that there are different <a href="https://docs.python.org/3/library/csv.html#csv.Dialect">Dialects</a> of CSVs.</p>
+<p>And then you learn that Python has a <a href="https://docs.python.org/3/library/csv.html#csv.Sniffer">Sniffer</a> that claims it can deduce the CSV format for you.</p>
+<p>And then you realize that the data format needs its format deduced and so now you have to become The Joker.</p>
+<p>The uninitiated reader might say, “hah, Python is kinda bad!” but actually Python is kinda good! The standard <code>csv</code> module <em>has</em> to handle all these formatting options because CSVs are all one big edge case. And CSVs are all one big edge case because the decision to use commas and tabs and pipes and quotes and newlines to structure the data directly conflict with possible values of the data itself. And so we have to do escaping nonsene and quoting nonsense and line terminator nonsense.</p>
+<p>We could skip all of this if we just used a proper delimiter. ASCII has this! Go pop open any ASCII character table and you’ll find these <a href="https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text">gems</a>:</p>
+<ul>
+<li><strong>28</strong> (FS) : file separator</li>
+<li><strong>29</strong> (GS) : group separator</li>
+<li><strong>30</strong> (RS) : record separator</li>
+<li><strong>31</strong> (US) : unit separator</li>
+</ul>
+<p>And we don’t even need all four of them. If we used <code>31</code> as a field delimiter and <code>30</code> instead of newlines, we solve every single edge case from above. Why? Because these are non-printing characters that should never appear in a text-stream data set.</p>
+<p>Let’s try it out. Writing delimiter-separated values (I made up that name and file extension) data is very easy:</p>
+<div id="cell-22" class="cell" data-execution_count="219">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> dataclasses <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> dataclass</span>
+<span id="cb16-2"></span>
+<span id="cb16-3"></span>
+<span id="cb16-4"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> DSV():</span>
+<span id="cb16-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">@property</span></span>
+<span id="cb16-6">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> delimiter(cls) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">bytes</span>:</span>
+<span id="cb16-7">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">b'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\x1F</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span></span>
+<span id="cb16-8">    </span>
+<span id="cb16-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">@property</span></span>
+<span id="cb16-10">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> record_separator(cls) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">bytes</span>:</span>
+<span id="cb16-11">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">b'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\x1E</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span></span>
+<span id="cb16-12">    </span>
+<span id="cb16-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">@property</span></span>
+<span id="cb16-14">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> encoding(cls) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>:</span>
+<span id="cb16-15">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'utf-8'</span></span>
+<span id="cb16-16"></span>
+<span id="cb16-17"></span>
+<span id="cb16-18"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">@dataclass</span></span>
+<span id="cb16-19"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> DSVWriter(DSV):</span>
+<span id="cb16-20">    output_file: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span></span>
+<span id="cb16-21"></span>
+<span id="cb16-22">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> write(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>, data: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>]) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>:</span>
+<span id="cb16-23">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.output_file, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'wb'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb16-24">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> data:</span>
+<span id="cb16-25">                encoded_row <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.delimiter.join(</span>
+<span id="cb16-26">                    field.encode(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.encoding) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> field <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> row</span>
+<span id="cb16-27">                )</span>
+<span id="cb16-28">                <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>.write(encoded_row <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.record_separator)</span>
+<span id="cb16-29"></span></code></pre></div>
+</div>
+<p>The reader takes a bit more work to implement, since we need to buffer our input and split on our control characters:</p>
+<div id="cell-24" class="cell" data-execution_count="220">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">@dataclass</span></span>
+<span id="cb17-2"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> DSVReader(DSV):</span>
+<span id="cb17-3">    input_file: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span></span>
+<span id="cb17-4">    chunk_size : <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1024</span></span>
+<span id="cb17-5">    _buffer: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">bytes</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">b""</span></span>
+<span id="cb17-6"></span>
+<span id="cb17-7">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> read(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>:</span>
+<span id="cb17-8">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.input_file, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'rb'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>:</span>
+<span id="cb17-9">            chunk <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>.read(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.chunk_size)</span>
+<span id="cb17-10">            </span>
+<span id="cb17-11">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">while</span> chunk:</span>
+<span id="cb17-12">                <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>._buffer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> chunk</span>
+<span id="cb17-13"></span>
+<span id="cb17-14">                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Process complete records in the buffer</span></span>
+<span id="cb17-15">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">while</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.record_separator <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>._buffer:</span>
+<span id="cb17-16">                    record, <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>._buffer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>._buffer.split(</span>
+<span id="cb17-17">                        <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.record_separator,</span>
+<span id="cb17-18">                        <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb17-19">                    )</span>
+<span id="cb17-20">                    fields <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> record.split(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.delimiter)</span>
+<span id="cb17-21">                    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>([field.decode(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.encoding) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> field <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> fields])</span>
+<span id="cb17-22">                </span>
+<span id="cb17-23">                chunk <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">file</span>.read(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.chunk_size)</span>
+<span id="cb17-24"></span>
+<span id="cb17-25">            <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Process any remaining data in the buffer</span></span>
+<span id="cb17-26">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>._buffer:</span>
+<span id="cb17-27">                fields <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>._buffer.split(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.delimiter)</span>
+<span id="cb17-28">                <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>([field.decode(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">self</span>.encoding) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> field <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> fields])</span></code></pre></div>
+</div>
+<p>And now we can interface by simply writing and reading the data. We don’t have to think about the delimiter because we’ve got a standard, non-conflicting delimiter. We don’t have to think about newlines because we aren’t using those for control characters. We also don’t have to think about quotes because we also aren’t using those for control characters. And we don’t have to think about escaping delimiters or newlines or quotes for all those same reasons.</p>
+<p>Writing:</p>
+<div id="cell-26" class="cell" data-execution_count="221">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1">data <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb18-2">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Comment'</span>],</span>
+<span id="cb18-3">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'She said, "Hello" and waved.'</span>],</span>
+<span id="cb18-4">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Bob'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'This is a multi-line comment</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">spanning two lines.'</span>],</span>
+<span id="cb18-5">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Charlie'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'More fun with</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">two lines.'</span>],</span>
+<span id="cb18-6">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Diana'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'How about some UTF-8: café, naïve, résumé. 📝'</span>],</span>
+<span id="cb18-7">    [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Edward'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'アップル'</span>],</span>
+<span id="cb18-8">]</span>
+<span id="cb18-9"></span>
+<span id="cb18-10">writer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> DSVWriter(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.dsv'</span>)</span>
+<span id="cb18-11">writer.write(data)</span></code></pre></div>
+</div>
+<p>And reading:</p>
+<div id="cell-28" class="cell" data-execution_count="222">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1">reader <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> DSVReader(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp/data.dsv'</span>)</span>
+<span id="cb19-2">reader.read()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>['Name', 'Comment']
+['Alice', 'She said, "Hello" and waved.']
+['Bob', 'This is a multi-line comment\r\nspanning two lines.']
+['Charlie', 'More fun with\ntwo lines.']
+['Diana', 'How about some UTF-8: café, naïve, résumé. 📝']
+['Edward', 'アップル']</code></pre>
+</div>
+</div>
+<p>🎉 And just like that, we’ve got data going in and out of our writer and reader that has a bunch of weird stuff like quotes and newlines and carriage returns and we don’t need to care! We didn’t have to escape anything because we don’t have any printable characters that would conflict with our control characters.</p>
+<p>You might have some different ideas about reader/writer functionality, or character encodings (as long as they’re supersets of ASCII) or why I should be morally scolded for not implementing this in Rust, but the point is you don’t have to think about the fagility of CSVs to go work on those ideas!</p>
+<p>💡 <strong>Quick aside:</strong> I first learned about these ASCII delimiters while <a href="https://www.fec.gov/help-candidates-and-committees/filing-reports/fecfile-software/">working with <code>.fec</code> files</a>. For whatever reason, the Federal Election Commission in the United States also decided that they needed to ditch the comma, but they landed on using ASCII character <code>28</code> which is supposed to be used as a file separator not a field saparator. I have no idea why they picked that one when <code>31</code> was right there. Anyway, the FEC also has a <a href="https://www.fec.gov/help-candidates-and-committees/filing-reports/data-conversion-tools/">tool called <code>fs2comma.exe</code></a> that turns it back into a CSV format, and a couple of years I filed a FOIA request and <a href="https://github.com/hodgesmr/fs2comma">got the source code</a>.</p>
+<p>So what’s the downside? This custom FEC tooling might give you a hint.</p>
+<p>For starters, it’s rather unreadable when opened in a text editor. But I bet you don’t really do that with your CSVs all that often anyway!</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/dsv-vim.png" class="img-fluid figure-img"></p>
+<figcaption>I opened a .dsv file in Vim</figcaption>
+</figure>
+</div>
+<p>And Google Sheets hates the <code>.dsv</code> file extension, but remember I made that up.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/dsv-google-sheets.png" class="img-fluid figure-img"></p>
+<figcaption>I tried to open a .dsv file in Google Sheets</figcaption>
+</figure>
+</div>
+<p>And if you change it to <code>.csv</code> but tell Google Sheets to “detect automatically” the delimiter, it can’t.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/dsv-fake-csv-google-sheets.png" class="img-fluid figure-img"></p>
+<figcaption>I tricked Google Sheets by changing the file extension</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/dsv-google-sheets-bad-parse.png" class="img-fluid figure-img"></p>
+<figcaption>Google Sheets couldn’t parse it</figcaption>
+</figure>
+</div>
+<p>And if you try to specify the delimiter yourself on the Google Sheets import it’s not entirely clear how you would type a non-printable character into the textbox.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/google-sheets-custom-separator.png" class="img-fluid figure-img"></p>
+<figcaption>How do I type ASCII code 31 here?</figcaption>
+</figure>
+</div>
+<p>And if you want to use Python’s <code>csv</code> module but just swap around the control characters, you can’t because opinions were <a href="https://docs.python.org/3/library/csv.html#csv.Dialect.lineterminator">hardcoded</a>:</p>
+<blockquote class="blockquote">
+<p><strong>Note:</strong> The reader is hard-coded to recognise either <code>'\r'</code> or <code>'\n'</code> as end-of-line, and ignores lineterminator. This behavior may change in the future.</p>
+</blockquote>
+<p>And all this is to say that the major downside is we have decades of tools built around handling the weirdness of CSVs but not so many tools built around using the delimiters the creators of ASCII gave us and so depending on what you’re doing it might be easier to just use the tools we have.</p>
+<p>But sometimes you’re writing software that produces data on one side and consumes data on the other side and sometimes that data comes from users who are hostile, intoxicated, or both, and you just want to pass that around and not think about it and maybe the beauty of a standard from the 1960s is a better choice.</p>
+<p>Data!</p>
+
+
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/</guid>
+  <pubDate>Tue, 13 Aug 2024 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/csvs-are-kinda-bad.png" medium="image" type="image/png" height="82" width="144"/>
+</item>
 <item>
   <title>Spline Versus PCHIP</title>
   <dc:creator>Matt Hodges</dc:creator>
