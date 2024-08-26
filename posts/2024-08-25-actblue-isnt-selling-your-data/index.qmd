@@ -5,6 +5,8 @@ pagetitle: "ActBlue Isn't Selling Your Data"
 subtitle: "The campaign you donated to might be sharing your data."
 image: "fec-list-purchase.jpeg"
 date: 2024-08-25
+aliases:
+  - ../2025-08-25-actblue-isnt-selling-your-data/index.html
 ---
 
 You constantly see posts among Democratic supporters that look something like this:
