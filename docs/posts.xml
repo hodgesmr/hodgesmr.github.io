@@ -15,7 +15,103 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.5.56</generator>
-<lastBuildDate>Sun, 25 Aug 2024 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 28 Aug 2024 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>I Cracked And Modded the DNC Bracelet</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p><strong>Heads up:</strong> This post has some videos that contain flashing lights.</p>
+<p><img src="https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/00-dnc-teardown.jpeg" class="img-fluid"></p>
+<p>If you managed to get a seat on the final night of the 2024 Democratic National Convention (I got there at 2:30 pm and still had to rely on seat-saving friends!) you probably also found an LED bracelet wrapped around your arm rest. I’m bad at remembering to take photos of things in the moment, so here’s mine over my kitchen counter:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/01-wristband.jpeg" class="img-fluid figure-img"></p>
+<figcaption>A photo of my LED DNC bracelet that I took later</figcaption>
+</figure>
+</div>
+<p>If you’ve been to a large concert in recent years, you may have seen this before. It’s designed to give the audience an “immersive” experience with the entertainment,<sup>1</sup> usually by activating the lights at key moments. At the 2024 DNC, that key moment of audience activation was when Vice President Kamala Harris walked out to deliver her speech. I didn’t take a photo of the crowd during that time, but everyone lit up in twinkling red, white, and blue lights. It was fun.</p>
+<p>I used to work on <a href="https://lisnr.com/">immersive audience engagement tech</a> (that has since pivoted to retail payment tech), so I was curious how this worked. Luckily, I took the bracelet home so I could find out!</p>
+<p>The first thing that caught my eye was <strong>PIXMOB</strong> engraved onto the back of the plastic case.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/02-pixmob.jpeg" class="img-fluid figure-img"></p>
+<figcaption>PIXMOB engraved on the back of the DNC bracelet case</figcaption>
+</figure>
+</div>
+<p>I had never heard of PIXMOB, but their <a href="https://pixmob.com/products/led-wristbands">website</a> gives some immediate answers. Apparently they offer three different wristband products. All of them look identical so I wasn’t sure which one I had. My first thought — as is often the case when I’m trying to learn something election-related — was to dig through some FEC filings. I spotted in the PIXMOB <a href="https://pixmob.com/terms-and-conditions">Terms and Conditions</a> that the company is actually called <strong>ESKI Inc.</strong> I spent only a few minutes clicking through the <a href="https://projects.propublica.org/itemizer/committee/C00827022/2024">Democratic National Convention Committee’s expenditures</a> without finding any mention of PIXMOB or ESKI. I suspect that the Convention Committee retained an events vendor that was a middleman to this hardware.</p>
+<p>So I grabbed my <a href="https://www.adafruit.com/product/2414">Jimmy</a> and cracked the thing open.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/03-open.jpeg" class="img-fluid figure-img"></p>
+<figcaption>Opened DNC bracelet</figcaption>
+</figure>
+</div>
+<p>Like most consumer electronics, the thing is mostly battery! I actually wasn’t expecting AAAs, but it’s helpful to know we’re working with 3 volts and I can easily swap some in if they die.</p>
+<p>At this point, I also had the <a href="https://en.wikipedia.org/wiki/PixMob">PixMob Wikipedia page open</a> (is it PIXMOB or PixMob?). It features <a href="https://en.wikipedia.org/wiki/PixMob#/media/File:PixMob_PCB_and_case,_used_in_Zurich_2024.jpg">another cracked PixMob wristband</a> that was apparently used at Taylor Swift shows. That one also sported a white PCB, but used button cell batteries.</p>
+<p>Besides the batteries, I also noticed that the Taylor Swift wristband listed a <code>Palm</code> (like palm tree) version number, while mine has a <code>Diamond</code> (like shiny carbon) version number:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/04-diamond.jpeg" class="img-fluid figure-img"></p>
+<figcaption>Opened DNC bracelet showing the Diamond version</figcaption>
+</figure>
+</div>
+<p>They both have a copyright on them, too, and at some point I want to ask an IP attorney whether you can actually copyright a PCB or if you can only copyright their <a href="https://en.wikipedia.org/wiki/Gerber_format">Gerber files</a>. I would have guessed the appropriate protection would be a patent. I also just learned about the <a href="https://en.wikipedia.org/wiki/Semiconductor_Chip_Protection_Act_of_1984">Semiconductor Chip Protection Act of 1984</a>. But that’s a topic for another time.</p>
+<p>I tried searching <a href="https://fccid.io/2ADS4">ESKI’s FCC filings</a> for some more hints about the <code>Diamond</code> board, but didn’t find anything specific. But I did find some <a href="https://fccid.io/2ADS4WASH">very interesting documents about an accompanying infrared transmitter</a>. I bet those, or something like those, were all over the the arena.</p>
+<p>Moving on, the next thing I noticed about my wristband is that it has four LEDs:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/05-four-LEDs.jpeg" class="img-fluid figure-img"></p>
+<figcaption>Opened DNC bracelet showing four LEDs</figcaption>
+</figure>
+</div>
+<p>This means I probably have the <a href="https://pixmob.com/products/led-wristbands/x4">PixMod X4</a>, dubbed “our brightest wristband”.</p>
+<p>Now that I knew what I was working with, I turned back to web search to see what prior work has happened with cracking and modding these things. Turns out, I’m not the first person to break one of these things open. <a href="https://www.youtube.com/watch?v=ziNF0seaw1k">There</a> <a href="https://www.youtube.com/watch?v=50LL-n7xZp8">are</a> <a href="https://www.youtube.com/watch?v=TuQImukbnRg">so</a> <a href="https://www.youtube.com/watch?v=TlK1jrO30PA">many</a> videos of people getting these things to obey. And there are some <a href="https://github.com/danielweidman/pixmob-ir-reverse-engineering?tab=readme-ov-file">really cool GitHub repos</a> demonstrating how to use <a href="https://www.arduino.cc/">Arduinos</a> or <a href="https://flipperzero.one/">Flipper Zeros</a> to replay actual IR instructions to the device.</p>
+<p>At this point, I realized I wasn’t about to break any news with my teardown. But I wasn’t doing this to break news. I was doing this to break into the device. Also, I didn’t find anyone doing this with a <code>Diamond</code> board device. I wasn’t invested enough to turn this into SBC or microcontroller project. I just wanted to do a minimal mod. So I pushed forward. And by that I mean I started poking around.</p>
+<p>That small, bulbous, semiconductor in the middle of the board is the Infrared Receiver. It can detect infrared signal, like those emitted from TV remotes. The PixMob website says that this wristband is, “infrared activated” so this seemed like a great entrypoint. I have no idea what kind of IR receiver it is, so I looked up <a href="https://www.sparkfun.com/products/10266">the first one I could find on Sparkfun</a> and consulted the <a href="https://www.sparkfun.com/datasheets/Sensors/Infrared/tsop382.pdf">datasheet</a>. I learned a couple things:</p>
+<ul>
+<li>the three pins are <img src="https://latex.codecogs.com/png.latex?V_%7Bout%7D">, <img src="https://latex.codecogs.com/png.latex?GND">, and <img src="https://latex.codecogs.com/png.latex?V_%7Bcc%7D"></li>
+<li>the <img src="https://latex.codecogs.com/png.latex?V_%7Bout%7D"> pin is active low, which means its voltage drops when activated</li>
+</ul>
+<p>There was no guarantee that my IR receiver also operated this way, but spoiler alert: it did!</p>
+<p>I grabbed a jumper cable and touched one end to the IR’s <img src="https://latex.codecogs.com/png.latex?GND"> pin and ran the other side across one of the LED’s cathodes:</p>
+<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="06-led-cathode.mp4"></video></div>
+<p>Great. So the batteries still have some juice (a lot of posts suggested this thing would be dead by the time I got it home) and I know the polarity and pinouts of the LEDs. And all the LEDs are in series, so that’s nice. I also learned that the LEDs are interrupted in their path to ground, not their path to positive voltage, which is extra nice since the IR <img src="https://latex.codecogs.com/png.latex?V_%7Bout%7D"> is active low. That means I can provide a voltage drop from the LED’s anode to the IR <img src="https://latex.codecogs.com/png.latex?V_%7Bout%7D"> when it receives a signal, which should light it up. And so I did! I grabbed the first remote I could find in my living room, and pointed it at the receiver:</p>
+<div class="quarto-video"><video id="video_shortcode_videojs_video2" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="07-led-ir.mp4"></video></div>
+<p>It blinks! You’ll notice that the LEDs aren’t as bright as when they had a direct jump to ground. That’s because <img src="https://latex.codecogs.com/png.latex?V_%7Bout%7D"> is still higher than <img src="https://latex.codecogs.com/png.latex?GND"> so the voltage difference is a lot smaller. Which means the light doesn’t get as bright.</p>
+<p>That’s okay! This is a cheap crack and mod, so onward. After a bit more poking on the board, I found a surface-mounted resistor in series with the blue pinout from the LEDs. I soldered the IR signal jumper to that resistor, because we’re Team Blue.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/08-soldered.jpeg" class="img-fluid figure-img"></p>
+<figcaption>My crude soldering from the IR signal pin to the blue LED resistor</figcaption>
+</figure>
+</div>
+<p>Not my best work. I’m better at through-hole soldering. But it works!</p>
+<div class="quarto-video"><video id="video_shortcode_videojs_video3" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="09-soldered-ir.mp4"></video></div>
+<p>I closed the case back up, shut myself in a windowless bathroom, turned off the lights,<sup>2</sup> and clicked my remote:</p>
+<div class="quarto-video"><video id="video_shortcode_videojs_video4" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="10-dark-ir.mp4"></video></div>
+<p>Now all I need to do is blast Beyoncé’s <em>“Freedom”</em> and I can relive the 2024 Democratic National Convention whenever I want.</p>
+<p>I learned a lot!</p>
+
+
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Neil Postman, I have forsaken thee.↩︎</p></li>
+<li id="fn2"><p>Said, “Bloody Mary” three times↩︎</p></li>
+</ol>
+</section></div> ]]></description>
+  <guid>https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/</guid>
+  <pubDate>Wed, 28 Aug 2024 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/00-dnc-teardown.jpeg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>ActBlue Isn’t Selling Your Data</title>
   <dc:creator>Matt Hodges</dc:creator>
