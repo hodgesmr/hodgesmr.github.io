@@ -34,7 +34,9 @@ I have been an **Election Night Reporter** for [Decision Desk HQ]{.color-accent}
 I have been a frequent **Open Source Contributor** to [OpenElections]{.color-accent}, which is creating the first free, comprehensive, standardized, linked set of election results data for the United States. 
 
 ## Media & Appearances
-
+*   Matt Hodges Modded the LED DNC Bracelets
+:   Wired, 2024
+:   [[Original](https://www.wired.com/story/on-the-bus-with-the-rfk-jr-bros/)] [[Archive](https://web.archive.org/web/20240829103146/https://www.wired.com/story/on-the-bus-with-the-rfk-jr-bros/)]
 *   Big Tech Is Giving Campaigns Both the Venom and the Antidote for GenAI
 :   Wired, 2024
 :   [[Original](https://www.wired.com/story/big-tech-microsoft-google-gen-ai-campaigns/)] [[Archive](https://web.archive.org/web/20240620113358/https://www.wired.com/story/big-tech-microsoft-google-gen-ai-campaigns/)]
