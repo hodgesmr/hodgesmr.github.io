@@ -62,7 +62,7 @@ I grabbed a jumper cable and touched one end to the IR's $GND$ pin and ran the o
 
 {{< video 06-led-cathode.mp4 >}}
 
-Great. So the batteries still have some juice (a lot of posts suggested this thing would be dead by the time I got it home) and I know the polarity and pinouts of the LEDs. And all the LEDs are in series, so that's nice. I also learned that the LEDs are interrupted in their path to ground, not their path to positive voltage, which is extra nice since the IR $V_{out}$ is active low. That means I can provide a voltage drop from the LED's anode to the IR $V_{out}$ when it receives a signal, which should light it up. And so I did! I grabbed the first remote I could find in my living room, and pointed it at the receiver:
+Great. So the batteries still have some juice (a lot of posts suggested this thing would be dead by the time I got it home) and I know the polarity and pinouts of the LEDs. And all the LEDs are in series, so that's nice. I also learned that the LEDs are interrupted in their path to ground, not their path to positive voltage, which is extra nice since the IR $V_{out}$ is active low. That means I can create a voltage drop from the LED's anode to cathode by tying the cathode to $V_{out}$, so when the IR receiver gets a signal and pulls $V_{out}$ low, the LED should light up. And so I did! I grabbed the first remote I could find in my living room, and pointed it at the receiver:
 
 {{< video 07-led-ir.mp4 >}}
 
