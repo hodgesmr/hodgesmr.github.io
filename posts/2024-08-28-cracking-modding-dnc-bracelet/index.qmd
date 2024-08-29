@@ -45,7 +45,7 @@ Moving on, the next thing I noticed about my wristband is that it has four LEDs:
 
 ![Opened DNC bracelet showing four LEDs](05-four-LEDs.jpeg)
 
-This means I probably have the [PixMod X4](https://pixmob.com/products/led-wristbands/x4), dubbed "our brightest wristband".
+This means I probably have the [PixMob X4](https://pixmob.com/products/led-wristbands/x4), dubbed "our brightest wristband".
 
 Now that I knew what I was working with, I turned back to web search to see what prior work has happened with cracking and modding these things. Turns out, I'm not the first person to break one of these things open. [There](https://www.youtube.com/watch?v=ziNF0seaw1k) [are](https://www.youtube.com/watch?v=50LL-n7xZp8) [so](https://www.youtube.com/watch?v=TuQImukbnRg) [many](https://www.youtube.com/watch?v=TlK1jrO30PA) videos of people getting these things to obey. And there are some [really cool GitHub repos](https://github.com/danielweidman/pixmob-ir-reverse-engineering?tab=readme-ov-file) demonstrating how to use [Arduinos](https://www.arduino.cc/) or [Flipper Zeros](https://flipperzero.one/) to replay actual IR instructions to the device.
 
