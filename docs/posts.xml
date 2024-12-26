@@ -15,7 +15,64 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.5.56</generator>
-<lastBuildDate>Wed, 28 Aug 2024 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 26 Dec 2024 06:00:00 GMT</lastBuildDate>
+<item>
+  <title>Part 2: Austin Texas, Hot or Not?</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2024-12-26-austin-hot-or-not-part-2/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>Over the Summer I <a href="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/">wondered</a> whether Austin was having a cooler season than normal. Through the magic of public weather data, I was able to discover that the answer was mostly yes! But I also wrote that post at the end of July, and a lot of 2024 was still left to go. So here I am, sitting at my kitchen counter the day after Christmas, ready to definitively answer the question for the year: Austin, hot or not? Code for how all of this (mostly) works is in the original post, so this update is relatively brief with only the graphs.</p>
+<p>First, I wanted to quickly glance at 2023 vs 2024. For a little bit there, this Summer was cooler than last Summer. But then we had a pretty hot week in late August. Year over year, the Summer looks like it was generally cooler than last year, but the Fall has been slightly warmer:</p>
+<div id="cell-7" class="cell" data-execution_count="114">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-12-26-austin-hot-or-not-part-2/index_files/figure-html/cell-6-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>But comparing two years doesn’t really reveal a trend (or lack of trend) so here are 2023 and 2024 highlighted over the previous ten years. It’s kindof a mess, like if Hulk Hogan couldn’t color within the lines. But if you squint you can somewhat pick out some insights.</p>
+<div id="cell-9" class="cell" data-execution_count="113">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-12-26-austin-hot-or-not-part-2/index_files/figure-html/cell-7-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>So here’s the final viz I landed on. For most of the Winter and Spring, Austin was oscillating around its 10-year trailing average maximum daily temperature. Then as Summer hit, max temperatures dipped a little bit below average, spiked up in mid August, and then fell again slightly below average until September. From there we’ve been mostly above average!</p>
+<div id="cell-12" class="cell" data-execution_count="112">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2024-12-26-austin-hot-or-not-part-2/index_files/figure-html/cell-9-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As a final glimpse, we can see how many 2024 days (through December 23, my last day of available data) have crossed above the average max temperature, and how many days stayed below:</p>
+<div id="cell-14" class="cell" data-execution_count="109">
+<div class="cell-output cell-output-stdout">
+<pre><code>Above Average: 219
+Below Average: 137</code></pre>
+</div>
+</div>
+<p>Thermometers!</p>
+
+
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2024-12-26-austin-hot-or-not-part-2/</guid>
+  <pubDate>Thu, 26 Dec 2024 06:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2024-12-26-austin-hot-or-not-part-2/2024-austin-texas-max-temperatures.png" medium="image" type="image/png" height="101" width="144"/>
+</item>
 <item>
   <title>I Cracked And Modded the DNC Bracelet</title>
   <dc:creator>Matt Hodges</dc:creator>
