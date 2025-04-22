@@ -1,7 +1,7 @@
 ---
 author: "Matt Hodges"
 title: "GPT Finally Jumps Out of the System"
-pagetitle: "GPT Finally Jumped Out of the System"
+pagetitle: "GPT Finally Jumps Out of the System"
 subtitle: "OpenAI’s o4-mini-high Model Solves the MU Puzzle and Demonstrates Why"
 image: "openai-o4-mini-high-mu-puzzle.jpeg"
 date: 2025-04-21
