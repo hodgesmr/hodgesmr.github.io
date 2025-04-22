@@ -14,8 +14,195 @@
 <title>Matt Hodges</title>
 <link>https://matthodges.com/posts.html</link>
 </image>
-<generator>quarto-1.5.56</generator>
-<lastBuildDate>Thu, 26 Dec 2024 06:00:00 GMT</lastBuildDate>
+<generator>quarto-1.7.27</generator>
+<lastBuildDate>Mon, 21 Apr 2025 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>GPT Finally Jumps Out of the System</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2025-04-21-openai-o4-mini-high-mu-puzzle/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>Well, they’ve done it. OpenAI released a model that can solve the <a href="https://en.wikipedia.org/wiki/MU_puzzle">MU Puzzle</a>. This has been my go-to test for GPTs since before ChatGPT was launched and models were only available in the Playground.</p>
+<p>If you’re unfamiliar with the puzzle, it was introduced by <a href="https://en.wikipedia.org/wiki/Douglas_Hofstadter">Douglas Hofstadter</a> in his Pulitzer-winning book <a href="https://en.wikipedia.org/wiki/G%C3%B6del,_Escher,_Bach">Gödel, Escher, Bach</a>. The book explores how meaning can emerge from symbolic manipulation, and how formal systems like mathematics can be simultaneously powerful and fundamentally incomplete. The MU Puzzle, introduced early in the book, isn’t just a quirky game. It’s a microcosm of formal systems. It was designed to make you feel clever while gently exposing the limits of mechanical reasoning. And its rules are simple:</p>
+<p>Suppose there are the symbols <code>M</code>, <code>I</code>, and <code>U</code> which can be combined to produce strings of symbols. The MU puzzle asks one to start with the axiomatic string <code>MI</code> and transform it into the string <code>MU</code> using any combination of the available transformation rules:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 16%">
+<col style="width: 59%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rule</th>
+<th>Formal</th>
+<th>Informal</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>x<code>I</code> → x<code>IU</code></td>
+<td>Add <code>U</code> to the end of any string that currently ends in <code>I</code>.</td>
+<td><code>MI</code> to <code>MIU</code></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><code>M</code>x → <code>M</code>xx</td>
+<td>Double the portion of the string that follows <code>M</code>.</td>
+<td><code>MIU</code> to <code>MIUIU</code></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>x<code>III</code>y → x<code>U</code>y</td>
+<td>Replace any single instance of the substring <code>III</code> with <code>U</code>.</td>
+<td><code>MUIIIU</code> to <code>MUUU</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>x<code>UU</code>y → xy</td>
+<td>Remove any <code>UU</code>.</td>
+<td><code>MUUU</code> to <code>MU</code></td>
+</tr>
+</tbody>
+</table>
+<p>If you’ve never seen this puzzle before, you should stop for a few minutes and think on it. Grab a pen and paper and see what you can come up with. I’ve tucked the solution behind this spoiler:</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Reveal Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Solution:</strong> It can’t be done! You might be grumpy that this was a trick question, or you might have tried a few steps and intuitively come to this conclusion. We’ll discuss more formally why the task is impossible later.</p>
+</div>
+</div>
+</div>
+<p>I like to use the MU Puzzle as a model test because until now, I’ve never seen any GPT come to the correct answer. Some of them stumble into the <em>expected</em> answer but give flawed explanations. Others come to the wrong answer, usually by violating one of the rules. Even now, <a href="https://openai.com/index/introducing-o3-and-o4-mini/">o3</a>, currently billed as, “our most powerful reasoning model that pushes the frontier across coding, math, science, visual perception, and more” fails the puzzle.</p>
+<p>When I give the puzzle to a model, I swap in different letters and present the rules conversationally. I do this to try to defend against the model regurgitation from GEB or Wikipedia. In my case, <code>M</code> becomes <code>A</code>, <code>I</code> becomes <code>B</code>, and <code>U</code> becomes <code>C</code>.</p>
+<p>My prompt:</p>
+<div class="long-quote">
+<p>Let’s play a game. You have three symbols: “A”, “B”, and “C” which you can combine to produce strings. You start with the string “AB” and your challenge is to transform it to the string “AC”. To transform it, you can use a series of transformation rules. You don’t have to use every rule, and you may use any rule multiple times. Here are the available transformation rules: Rule 1: You may add “C” to the end of any string that currently ends in “B”. For example, you may transform “AB” to “ABC”. Rule 2: You may double the portion of the string that follows “A”. For example, you may transform “ABC” to “ABCBC”. Rule 3: You may replace any single instance of the substring “BBB” with “C”. For example, you may transform “ACBBBC” to “ACCC”. Rule 4: You may remove any single instance of the substring “CC”. For example, you may transform “ACCC” to “AC”. Your task is to come up with a series of transformation steps to convert the string “AB” to “AC”. Please share what steps can solve this.</p>
+</div>
+<p>After <a href="https://chatgpt.com/share/68070559-e284-8002-9f44-d0bd8ace53e1">thinking</a> for <strong>3 minutes and 11 seconds</strong> o3 declared victory:</p>
+<div class="long-quote">
+<p>Here’s a clean sequence that turns <code>AB</code> into <code>AC</code>, using only the allowed rules. I annotate each step with the rule that was applied.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 27%">
+<col style="width: 51%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>String</th>
+<th>What happened</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td><code>AB</code></td>
+<td>start</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td><code>ABB</code></td>
+<td>Rule&nbsp;2 – doubled everything after <code>A</code> (“B” → “BB”)</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td><code>ABBBB</code></td>
+<td>Rule&nbsp;2 again – doubled “BB” → “BBBB”</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td><code>ABBBBBBBB</code></td>
+<td>Rule&nbsp;2 a third time – doubled “BBBB” → “BBBBBBBB” (now 8&nbsp;B’s in a row)</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td><code>ACBBBBBB</code></td>
+<td>Rule&nbsp;3 – replaced the first “BBB” with “C”</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td><code>ACCBBB</code></td>
+<td>Rule&nbsp;3 – replaced the next “BBB” with “C”</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td><code>ACCC</code></td>
+<td>Rule&nbsp;3 – replaced the last “BBB” with “C”</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td><code>AC</code></td>
+<td>Rule&nbsp;4 – removed one “CC” pair</td>
+</tr>
+</tbody>
+</table>
+<p>After step&nbsp;7 the string is exactly <code>AC</code>, so the puzzle is solved.</p>
+</div>
+<p>See the problem?</p>
+<p>Step Four violates Rule 3. After Step Three, the string is <code>ABBBBBBBB</code>. o3 then claimed to apply “Rule 3 – replaced the first ‘BBB’ with ‘C’” to yield <code>ACBBBBBB</code>. But it didn’t replace the first ‘BBB’. It only replaced the first ‘BB’.</p>
+<p>This kind of error is characteristic of a broader failure mode seen across GPT models: a tendency toward <em>approximate rule-matching</em> rather than strict symbolic fidelity. The model recognizes the general shape of a rule, in this case, something about repeating <code>B</code>s being collapsible, but it doesn’t reliably enforce the exact conditions. Instead of replacing a full <code>BBB</code> triplet, it replaced only two <code>B</code>s, violating Rule 3 while still producing something that looks right. This isn’t just a hallucination; it’s more like a form of <em>syntactic overgeneralization</em>. It suggests that the model is reasoning through fuzzy analogies to rules, rather than maintaining crisp internal representations of symbolic constraints.</p>
+<p>This is exactly the kind of reasoning Hofstadter warned about: systems that operate on syntactic structure without deeper semantic control can seem smart, until they aren’t.</p>
+<p>The other bad answer I’ve seen is the model will try for a while, generating endlessly long strings, and then just give up. It’ll declare “unsolvable!” on the grounds of it tried for a while.</p>
+<p>But <strong>o4-mini-high</strong> got it. After <a href="https://chatgpt.com/share/68070581-856c-8002-833d-a7385adb7c02">thinking</a> for <strong>1 minute and 40 seconds</strong>:</p>
+<div class="long-quote">
+<p>Let’s first look at what these rules do to the number of&nbsp;B’s in your string:</p>
+<ul>
+<li><strong>Rule&nbsp;2</strong> (doubling after&nbsp;A) takes a string with (b)&nbsp;B’s and turns it into one with (2b)&nbsp;B’s.<br>
+</li>
+<li><strong>Rule&nbsp;3</strong> (replacing “BBB” with “C”) removes exactly&nbsp;3&nbsp;B’s.<br>
+</li>
+<li>Rules&nbsp;1 and&nbsp;4 never touch the B‑count.</li>
+</ul>
+<p>So if you start with exactly&nbsp;1&nbsp;B (in “AB”), then after using Rule&nbsp;2 (k)&nbsp;times and Rule&nbsp;3 (m)&nbsp;times (in any order), the total B‑count will be<br>
+<img src="https://latex.codecogs.com/png.latex?%0A%20%20%201%5Ccdot2%5Ek%20%5C;-%5C;3%5C,m%0A"> because you’ve doubled the B’s (k)&nbsp;times and subtracted three B’s each time you applied Rule&nbsp;3. To end up with zero B’s (as you must, since “AC” has no B’s) you’d need<br>
+<img src="https://latex.codecogs.com/png.latex?%0A%20%20%202%5Ek%20%5C;=%5C;3%5C,m.%0A"> But <img src="https://latex.codecogs.com/png.latex?2%5Ek"> is never divisible by&nbsp;3, so there is <strong>no</strong> choice of nonnegative integers <img src="https://latex.codecogs.com/png.latex?k,m"> making <img src="https://latex.codecogs.com/png.latex?2%5Ek=3m">. In other words, you can never get rid of that single initial B; no finite sequence of these rules will turn “AB” into “AC.”</p>
+<p><strong>Conclusion:</strong><br>
+There is <strong>no</strong> sequence of applications of Rules&nbsp;1–4 that transforms “AB” into “AC.”</p>
+</div>
+<p>Not only is this the correct answer, but it’s the correct <em>reasoning</em> behind the answer.</p>
+<p>Hofstadter used the MU Puzzle to demonstrate the contrast between interpretation on the syntactic level of symbols and on the semantic level of meanings. This seems very relevant to studying LLMs!</p>
+<p>When dealing only in syntax there is nothing that would cause the LLM to infer the puzzle’s insolvability. It could churn away within the system, generating longer and longer valid strings, and never actually show that <code>MU</code> (or, <code>AC</code>) can’t be created.</p>
+<p>If you’re like me, you probably tried a number of different iterations before eventually suspecting that the puzzle might not have a solution. Hofstadter referred to this as, “jumping out of the system”, the idea of reasoning about the system, rather than working within it. Depending on how long you toiled at the game, you might have discovered the ability (or inability) to divide by 3 is key to the process. And at that point, you would be thinking on the semantic level of the system.</p>
+<p>Much of GEB is built around the idea of the MU Puzzle, and it’s used as a grounding point to explain <a href="https://en.wikipedia.org/wiki/G%C3%B6del%27s_incompleteness_theorems">Gödel’s Incompleteness Theorems</a>. But an approachable explanation to its insolvability is:</p>
+<ul>
+<li>Our desired string contains zero <code>I</code>s; 0 is divisible by 3.</li>
+<li>Our starting string contains one <code>I</code>; 1 is not divisible by 3</li>
+<li>Only Rule 2 and Rule 3 change the number of <code>I</code>s.</li>
+<li>Rule 2 doubles the number of <code>I</code>s.</li>
+<li>Doubling a number that is not divisible by 3 does not make it divisible by 3.</li>
+<li>Rule 3 reduces the number of <code>I</code> by 3.</li>
+<li>Subtracting 3 from a number that is not divisible by 3 does not make it divisible by 3.</li>
+</ul>
+<p>Since there is no series of transformations that make the number of <code>I</code>s divisible by 3, there is no series of transformations that produce <code>MU</code>.</p>
+<p>Which is exactly what <strong>o4-mini-high</strong> said!</p>
+<p>This echoes Hofstadter’s deeper point: the MU Puzzle is a toy model for Gödel’s Incompleteness Theorems. Within the formal system of applying the four rules mechanically, there’s no way to derive the string <code>MU</code>. But from outside the system, we can <em>see</em> and <em>prove</em> that no such derivation exists. The puzzle’s unsolvability is a true statement that cannot be proven from within the rules themselves. That’s Gödel’s move: constructing a statement that is unprovable from within the system, yet evidently true when viewed from a meta-level. What’s striking is that <strong>o4-mini-high</strong> not only refused to be tricked into endless symbol manipulation, but it also <em>appeared</em> to jumped to this higher level of reasoning — the “semantic” frame — and explained <em>why</em> the goal was unreachable.</p>
+<p>I’m not claiming AGI. Maybe the tensors just memorized enough puzzles of this shape. But I’ve tested this one on dozens of models over the years, and this is the first time I’ve seen a GPT both identify the impossibility <em>and</em> explain why. I think that’s pretty cool.</p>
+<p>Computers!</p>
+
+
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2025-04-21-openai-o4-mini-high-mu-puzzle/</guid>
+  <pubDate>Mon, 21 Apr 2025 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2025-04-21-openai-o4-mini-high-mu-puzzle/openai-o4-mini-high-mu-puzzle.png" medium="image" type="image/png" height="96" width="144"/>
+</item>
 <item>
   <title>Part 2: Austin Texas, Hot or Not?</title>
   <dc:creator>Matt Hodges</dc:creator>
@@ -2367,7 +2554,7 @@ date
 <h3 class="anchored" data-anchor-id="environment">Environment</h3>
 <p>First install the dependencies, which include the <a href="https://mlc.ai">MLC LLaMA 2 model</a> for summarization, the <a href="https://llm.datasette.io/en/stable/">LLM</a> library, and the <a href="https://huggingface.co/intfloat/e5-large-v2">E5-large-v2</a> language model for text embedding.</p>
 <p>Note, these models are constantly changing, and getting them up and running on your system might take some independent investigation. If running in Google Colab, check <a href="https://colab.research.google.com/github/mlc-ai/notebooks/blob/main/mlc-llm/tutorial_chat_module_getting_started.ipynb">this tutorial for MLC</a>. If running LLaMA with the LLM library on macOS, check the <a href="https://github.com/simonw/llm-mlc">repository’s instructions</a>.</p>
-<div id="cell-3" class="cell" data-vscode="{&quot;languageId&quot;:&quot;shellscript&quot;}" data-execution_count="1">
+<div id="cell-3" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;vscode&quot;,&quot;value&quot;:{&quot;languageId&quot;:&quot;shellscript&quot;}}" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1">pip install <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">--</span>pre <span class="op" style="color: #5E5E5E;
@@ -2436,7 +2623,7 @@ font-style: inherit;">--</span>alias llama2</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="load-data">Load Data</h3>
 <p>Before getting started, we need the Executive Order text to work against. This is probably the least interesting part of this post. I simply opened the Order in Firefox reader view, copy+pasted it into VSCode, did some manual find/replace to clean up the white space, and then concatenated paragraphs to get chunks as close to 400 words as I could. I picked 400 because the embedding model truncates at 512 <em>tokens</em> and a token is either a word or a symantically important subset of a word, so I allowed for some buffer. <em>This took less than half an hour.</em> Rather than share code to do this work, I simply provide the cleaned text here.</p>
 <p>Load it into a Pandas Dataframe with a single column:</p>
-<div id="cell-5" class="cell" data-outputid="92403b5b-d45a-4485-e6bd-bc26b23d6f38" data-execution_count="2">
+<div id="cell-5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="92403b5b-d45a-4485-e6bd-bc26b23d6f38" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
@@ -2470,8 +2657,7 @@ font-style: inherit;">"passage"</span>]</span>
 <span id="cb2-9"></span>
 <span id="cb2-10">df.head()</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-
-  <div id="df-bb16b36d-004b-481b-8a49-3f3c710dd35f" class="colab-df-container">
+<div id="df-bb16b36d-004b-481b-8a49-3f3c710dd35f" class="colab-df-container">
     <div>
 
 
@@ -2716,7 +2902,7 @@ font-style: inherit;">"passage"</span>]</span>
 <section id="calculate-embeddings" class="level3">
 <h3 class="anchored" data-anchor-id="calculate-embeddings">Calculate Embeddings</h3>
 <p>Now that we have a Dataframe of chunks of the Executive Order, we can calculate embeddings of each chunk. To do this we’ll use the <a href="https://huggingface.co/intfloat/e5-large-v2">E5-large-v2</a> language model, which was trained to handle text prefixed with either <code>passage:</code> or <code>query:</code>. Every chunk is considered a passage. We’ll add this as another column on our Dataframe.</p>
-<div id="cell-7" class="cell" data-outputid="6873d0fd-ff28-45c2-9b7c-d2474e1f1a9d" data-execution_count="3">
+<div id="cell-7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="6873d0fd-ff28-45c2-9b7c-d2474e1f1a9d" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> llm</span>
@@ -2761,8 +2947,7 @@ font-style: inherit;">list</span>(embedding_model.embed_multi(text_to_embed))</s
 <span id="cb3-10"></span>
 <span id="cb3-11">df.head()</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-
-  <div id="df-881f1164-104e-4a47-b886-c457247e5bb2" class="colab-df-container">
+<div id="df-881f1164-104e-4a47-b886-c457247e5bb2" class="colab-df-container">
     <div>
 
 
@@ -3010,7 +3195,7 @@ font-style: inherit;">list</span>(embedding_model.embed_multi(text_to_embed))</s
 </div>
 </div>
 <p>For our symantic searching, we’ll also need an embedding of our query. And the model would like that prefixed with <code>query:</code>. Let’s ask what the Order says regarding AI and healthcare:</p>
-<div id="cell-9" class="cell" data-outputid="834e16ab-688f-427f-848e-abf97deaeaa9" data-execution_count="4">
+<div id="cell-9" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="834e16ab-688f-427f-848e-abf97deaeaa9" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">query <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="st" style="color: #20794D;
@@ -3110,7 +3295,7 @@ background-color: null;
 font-style: inherit;">*</span> magnitude_b)</span></code></pre></div>
 </div>
 <p>Now, iterate over every embedding in our Dataframe and calculate the similarity score against our query embedding vector:</p>
-<div id="cell-13" class="cell" data-outputid="6c6703a8-cf2a-4f14-b115-0a2d80d29c6b" data-execution_count="6">
+<div id="cell-13" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="6c6703a8-cf2a-4f14-b115-0a2d80d29c6b" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">comp_df <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> df.copy()</span>
@@ -3137,8 +3322,7 @@ font-style: inherit;">1</span>,</span>
 <span id="cb7-9"></span>
 <span id="cb7-10">comp_df.head()</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-
-  <div id="df-3a86beae-ba8a-42d5-8a4c-9d3bddc6b005" class="colab-df-container">
+<div id="df-3a86beae-ba8a-42d5-8a4c-9d3bddc6b005" class="colab-df-container">
     <div>
 
 
@@ -3431,27 +3615,27 @@ font-style: inherit;">"llama2"</span>)</span></code></pre></div>
 background-color: null;
 font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"You are an assistant. You answer questions in a single </span><span class="ch" style="color: #20794D;
+font-style: inherit;">"You are an assistant. You answer questions in a single </span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">\</span></span>
 <span id="cb10-2"><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">paragraph about the policy from President Biden. The provided context </span><span class="ch" style="color: #20794D;
+font-style: inherit;">paragraph about the policy from President Biden. The provided context </span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">\</span></span>
 <span id="cb10-3"><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">comes directly from the policy. You MUST use the provided information </span><span class="ch" style="color: #20794D;
+font-style: inherit;">comes directly from the policy. You MUST use the provided information </span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">\</span></span>
 <span id="cb10-4"><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">as context. Not all provided information will be helpful, ONLY reference </span><span class="ch" style="color: #20794D;
+font-style: inherit;">as context. Not all provided information will be helpful, ONLY reference </span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">\</span></span>
 <span id="cb10-5"><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">information if it is related to my query. You may quote the context </span><span class="ch" style="color: #20794D;
+font-style: inherit;">information if it is related to my query. You may quote the context </span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">\</span></span>
 <span id="cb10-6"><span class="st" style="color: #20794D;
@@ -3459,7 +3643,7 @@ background-color: null;
 font-style: inherit;">information if helpful."</span></span></code></pre></div>
 </div>
 <p>Now, feed the context and the query into the model.</p>
-<div id="cell-21" class="cell" data-outputid="79b71ec9-d583-428a-fb79-d69c62162f48" data-execution_count="10">
+<div id="cell-21" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="79b71ec9-d583-428a-fb79-d69c62162f48" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
@@ -4689,25 +4873,39 @@ background-color: null;
 font-style: inherit;"># https://twitter.com/Mike_Pence/status/1707882018258751915</span></span>
 <span id="cb17-3">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Today, we applaud the Eighth Circuit's decision, "</span> \</span>
+font-style: inherit;">"Today, we applaud the Eighth Circuit's decision, "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-4">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"which is an important step in the fight to uphold and protect "</span> \</span>
+font-style: inherit;">"which is an important step in the fight to uphold and protect "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-5">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"the rights of parents and families in Linn-Mar. A family is the "</span> \</span>
+font-style: inherit;">"the rights of parents and families in Linn-Mar. A family is the "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-6">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"single best unit to protect children, and we must continue to do "</span> \</span>
+font-style: inherit;">"single best unit to protect children, and we must continue to do "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-7">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"everything we can to empower parents over bureaucrats. The strength "</span> \</span>
+font-style: inherit;">"everything we can to empower parents over bureaucrats. The strength "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-8">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"of our nation is tied to the strength of our families, and we will "</span> \</span>
+font-style: inherit;">"of our nation is tied to the strength of our families, and we will "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-9">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"not stand idly by as the Radical Left attempts to indoctrinate our "</span> \</span>
+font-style: inherit;">"not stand idly by as the Radical Left attempts to indoctrinate our "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-10">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"children behind parents’ backs."</span>,</span>
@@ -4716,31 +4914,45 @@ background-color: null;
 font-style: inherit;"># https://twitter.com/Mike_Pence/status/1707472823269392643</span></span>
 <span id="cb17-12">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"The cause of Life is the calling of our time "</span> \</span>
+font-style: inherit;">"The cause of Life is the calling of our time "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-13">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"and I couldn’t be more proud to have played a role in the administration "</span> \</span>
+font-style: inherit;">"and I couldn’t be more proud to have played a role in the administration "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-14">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"that appointed three of the justices that overturned Roe v. Wade and "</span> \</span>
+font-style: inherit;">"that appointed three of the justices that overturned Roe v. Wade and "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-15">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"returned the question of abortion to the states and the American people."</span>,</span>
 <span id="cb17-16">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Republicans are facing a Time for Choosing. "</span> \</span>
+font-style: inherit;">"Republicans are facing a Time for Choosing. "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-17">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># https://twitter.com/Mike_Pence/status/1707241587460186214</span></span>
 <span id="cb17-18">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"We have to choose whether or not we’re going to stay on the path "</span> \</span>
+font-style: inherit;">"We have to choose whether or not we’re going to stay on the path "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-19">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"that has defined our movement since the days of Ronald Reagan and "</span> \</span>
+font-style: inherit;">"that has defined our movement since the days of Ronald Reagan and "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-20">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"through the Trump-Pence years or whether we’re going to follow "</span> \</span>
+font-style: inherit;">"through the Trump-Pence years or whether we’re going to follow "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-21">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"the siren song of populism unmoored to Conservative principles."</span>,</span>
@@ -4749,13 +4961,19 @@ background-color: null;
 font-style: inherit;"># https://twitter.com/Mike_Pence/status/1704132623617122719</span></span>
 <span id="cb17-23">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"I am for working Americans and free enterprise. These businesses "</span> \</span>
+font-style: inherit;">"I am for working Americans and free enterprise. These businesses "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-24">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"make their decisions, but at the end the of the day these businesses "</span> \</span>
+font-style: inherit;">"make their decisions, but at the end the of the day these businesses "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-25">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"are responding to the heavy hand of the green new deal agenda of "</span> \</span>
+font-style: inherit;">"are responding to the heavy hand of the green new deal agenda of "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-26">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Joe Biden and the Democrats in Washington, DC."</span>,</span>
@@ -4764,13 +4982,19 @@ background-color: null;
 font-style: inherit;"># https://twitter.com/Mike_Pence/status/1703887286641873137</span></span>
 <span id="cb17-28">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"We were the first country to sanction Chinese leaders for building "</span> \</span>
+font-style: inherit;">"We were the first country to sanction Chinese leaders for building "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-29">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"concentration camps in Xinjiang and for undermining democracy in Hong Kong. "</span> \</span>
+font-style: inherit;">"concentration camps in Xinjiang and for undermining democracy in Hong Kong. "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-30">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"And we stood up to years of trade abuses, and imposed historic tariffs "</span> \</span>
+font-style: inherit;">"And we stood up to years of trade abuses, and imposed historic tariffs "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb17-31">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"to bring China to the negotiating table."</span></span>
@@ -4800,16 +5024,24 @@ background-color: null;
 font-style: inherit;"># https://twitter.com/GavinNewsom/status/1700615276667294035</span></span>
 <span id="cb19-3">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"When people ask why I am introducing a Constitutional Amendment "</span> \</span>
+font-style: inherit;">"When people ask why I am introducing a Constitutional Amendment "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-4">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"on gun safety this is why. Not only has Congress stalled for YEARS on passing "</span> \</span>
+font-style: inherit;">"on gun safety this is why. Not only has Congress stalled for YEARS on passing "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-5">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"common sense reforms -- judges across the country are tearing down laws that "</span> \</span>
+font-style: inherit;">"common sense reforms -- judges across the country are tearing down laws that "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-6">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Americans overwhelmingly support. Laws that keep us SAFE and keep guns out of "</span> \</span>
+font-style: inherit;">"Americans overwhelmingly support. Laws that keep us SAFE and keep guns out of "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-7">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"the hands of dangerous criminals. We have to push back"</span>,</span>
@@ -4818,13 +5050,19 @@ background-color: null;
 font-style: inherit;"># # https://twitter.com/GavinNewsom/status/1689743766733877248</span></span>
 <span id="cb19-9">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"California will be sending search and rescue "</span> \</span>
+font-style: inherit;">"California will be sending search and rescue "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-10">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"teams to assist in Hawaii's recovery efforts. The wildfires and "</span> \</span>
+font-style: inherit;">"teams to assist in Hawaii's recovery efforts. The wildfires and "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-11">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"devastation that Maui is experiencing is all too familiar and all "</span> \</span>
+font-style: inherit;">"devastation that Maui is experiencing is all too familiar and all "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-12">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"too horrifying. We stand at the ready to aid Hawaii in its time of need."</span>,</span>
@@ -4833,19 +5071,29 @@ background-color: null;
 font-style: inherit;"># https://twitter.com/GavinNewsom/status/1679579172690329601</span></span>
 <span id="cb19-14">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"A school board in Temecula decided to reject a "</span> \</span>
+font-style: inherit;">"A school board in Temecula decided to reject a "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-15">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"textbook because it mentioned Harvey Milk. CA is stepping in. "</span> \</span>
+font-style: inherit;">"textbook because it mentioned Harvey Milk. CA is stepping in. "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-16">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"We’re going to purchase the book for these students—the same "</span> \</span>
+font-style: inherit;">"We’re going to purchase the book for these students—the same "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-17">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"one that hundreds of thousands of kids are already using. "</span> \</span>
+font-style: inherit;">"one that hundreds of thousands of kids are already using. "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-18">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"If these extremist school board members won’t do their job, "</span> \</span>
+font-style: inherit;">"If these extremist school board members won’t do their job, "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-19">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"we will — and fine them for their incompetence."</span>,</span>
@@ -4854,10 +5102,14 @@ background-color: null;
 font-style: inherit;"># https://twitter.com/GavinNewsom/status/1650634702271942656</span></span>
 <span id="cb19-21">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"North Dakota GOP have decided to force women to give birth. Even victims of rape. "</span> \</span>
+font-style: inherit;">"North Dakota GOP have decided to force women to give birth. Even victims of rape. "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-22">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Meanwhile, they voted against providing school meals because child hunger isn't "</span> \</span>
+font-style: inherit;">"Meanwhile, they voted against providing school meals because child hunger isn't "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-23">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"</span><span class="ch" style="color: #20794D;
@@ -4868,7 +5120,9 @@ font-style: inherit;">the responsibility of the state.</span><span class="ch" st
 background-color: null;
 font-style: inherit;">\"</span><span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"</span> \</span>
+font-style: inherit;">"</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-24">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Mandating birth is state responsibility. Helping feed those kids is not. Got it."</span>,</span>
@@ -4877,10 +5131,14 @@ background-color: null;
 font-style: inherit;"># https://twitter.com/GavinNewsom/status/1643745476662132737</span></span>
 <span id="cb19-26">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"Met with some librarians today while in Florida. "</span> \</span>
+font-style: inherit;">"Met with some librarians today while in Florida. "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-27">    <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"They shared with me the rich, diverse background of the "</span> \</span>
+font-style: inherit;">"They shared with me the rich, diverse background of the "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\</span></span>
 <span id="cb19-28">    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"town and what's at stake if we ban our kids from learning our real history."</span></span>
