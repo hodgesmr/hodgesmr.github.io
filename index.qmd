@@ -1,7 +1,7 @@
 ---
 title: "About"
 pagetitle: "Matt Hodges - About"
-description: "Matt Hodges is a political technologist who leverages over a decade of experience in Democratic campaigns and software engineering to drive change. He is currently the Executive Director of Zinc Labs, and sits on the advisory boards of Quiller and Higher Ground Labs."
+description: "Matt Hodges is a political technologist who leverages over a decade of experience in Democratic campaigns and software engineering to drive change. He is currently a political consultant focussed on helping Democrats build, scale, and innovate with technology. He also and sits on the advisory boards of Quiller and Higher Ground Labs."
 about:
   template: trestles
   image: ./img/photo.jpg
@@ -11,7 +11,10 @@ about:
 
 ## Work
 
-I am currently the **Executive Director** of **Zinc Labs**, a political innovation lab at [Zinc Collective]{.color-accent} that houses the organization's strategic work in Democratic technology and pilot programs. Through our network of campaigns, committees, vendors, donors, and subject matter experts, we incubate and invest in innovative new programs across the ecosystem. We prioritize investing in technology and people to enable collaborative experimentation, technical execution, and hypothesis testing.
+I am currently a **Political Consultant** and founder of [Ilium Strategies]{.color-accent} working to helping Democrats build, scale, and innovate political technology. Drawing on over a decade of experience at the intersection of Democratic politics and software engineering, I partner with organizations, campaigns, and investors to amplify their impact. My focusses include product and engineering vision, go-to-market technical strategy, donor advising and technical diligence, political tech market navigation, ecosystem coordination, and AI strategy. I'm particularly interested in developing sustainable, scalable models for long-term impact in the political tech sector.
+
+
+I was the **Executive Director** of **Zinc Labs**, a political innovation lab at [Zinc Collective]{.color-accent} that houses the organization's strategic work in Democratic technology and pilot programs. Through a network of campaigns, committees, vendors, donors, and subject matter experts, Zinc Labs incubates and invests in innovative new programs across the ecosystem. I prioritized investing in technology and people to enable collaborative experimentation, technical execution, and hypothesis testing.
 
 I sit on the **Advisory Board** of [Quiller]{.color-accent}, an Artificial Intelligence copilot that helps Democrats draft and deploy high quality, effective fundraising content. In this capacity, I contribute product, technology, and political guidance to the Quiller leadership team.
 
