@@ -15,7 +15,3426 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.7.27</generator>
-<lastBuildDate>Mon, 21 Apr 2025 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 02 Aug 2025 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>Using LLM Embeddings to Normalize User Data</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2025-08-02-language-model-embeddings-campaign-donors/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>A common challenge in working with operational or CRM-style data is that you often find yourself dealing with user-entered free text. A recurrent example comes when users fill out forms that ask for their job title and employer. This data might seem secondary, but for any organization trying to understand, segment, or personalize communication with its users, it’s incredibly valuable.</p>
+<p>Of course, user-entered data is messy. One person types “nurse,” another “ER Nurse,” another “RN,” and yet another “home health nursing.” If you want to understand the composition of your user base, or build automated systems that adapt to it, you need to normalize that chaos into a finite and meaningful taxonomy. You wouldn’t want a dashboard full of job titles in <a href="https://knowyourmeme.com/memes/mocking-spongebob">SpongeBob casing</a>, but realistically, you have to work with whatever comes through the form.</p>
+<p>A data-forward organization might use this information for all kinds of purposes: tailoring outreach, prioritizing leads, enriching analytics, or even customizing onboarding flows. But none of that works without being clean, consistent, and structured.</p>
+<p>With language models, we can do better. We don’t need to predefine normalization rules or manually review each row. And we don’t even need much prior knowledge about our users to start.</p>
+<p>But before we jump straight to the AI, let’s define our approach:</p>
+<ol type="1">
+<li>To normalize free-form text, there must be a finite set of target categories.</li>
+<li>If we know nothing about users in advance, we need a reliable way to discover or define those categories.</li>
+<li>We’re decidedly not using a chatbot, and we’re not relying on external APIs.</li>
+<li>This isn’t a generative task; it’s about semantic understanding.</li>
+</ol>
+<p>Let’s start at the top. There are an infinite number of values a user could enter for their job, and we want to reduce that to a finite set. So where do we get that set?</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Occupational_Information_Network">Occupational Information Network</a> (O*NET) maintains exactly such a resource. Developed under the sponsorship of the Departoment of Labor, O*NET offers rich <a href="https://www.onetcenter.org/database.html#individual-files">datasets</a> that describe skills, knowlege, tasks, and job titles. We’re interested in the <a href="https://www.onetcenter.org/dictionary/29.3/excel/alternate_titles.html">Alternate Titles</a> file, which maps occupation titles to alternate “lay” job titles. There’s a good chance many of our users enter these alternate titles, so we’ll want to include them.</p>
+<p>The file includes columns of Department of Labor and Census identifiers, but we only need the few that focus on title. Let’s download it and take a look at a few examples:</p>
+<div id="cell-3" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="6720c6eb-0d6f-47c0-f86a-a4f7982f3068" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb1-3"></span>
+<span id="cb1-4">onet_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_excel(</span>
+<span id="cb1-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://www.onetcenter.org/dl_files/database/db_29_3_excel/Alternate%20Titles.xlsx"</span>,</span>
+<span id="cb1-6">    usecols<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Title'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Alternate Title'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Short Title'</span>],</span>
+<span id="cb1-7">).fillna(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>)</span>
+<span id="cb1-8"></span>
+<span id="cb1-9">onet_df.sample(n<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">101</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># seed for reproducibility</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div id="df-758f1366-5552-42da-bea4-e668dd263999" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Title</th>
+<th data-quarto-table-cell-role="th">Alternate Title</th>
+<th data-quarto-table-cell-role="th">Short Title</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25268</td>
+<td>Cargo and Freight Agents</td>
+<td>Shipping Agent</td>
+<td></td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">30407</td>
+<td>Helpers, Construction Trades, All Other</td>
+<td>Maintenance Construction Helper</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6045</td>
+<td>Bioengineers and Biomedical Engineers</td>
+<td>Biomedical Engineering Intern</td>
+<td></td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">18684</td>
+<td>Occupational Therapy Aides</td>
+<td>Rehabilitation Therapy Aide (Rehab Therapy Aide)</td>
+<td>Rehab Therapy Aide</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">24086</td>
+<td>Billing and Posting Clerks</td>
+<td>Statement Services Representative (Statement S...</td>
+<td>Statement Services Rep</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-758f1366-5552-42da-bea4-e668dd263999')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-758f1366-5552-42da-bea4-e668dd263999 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-758f1366-5552-42da-bea4-e668dd263999');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    <div id="df-87a574a5-2f1b-4bb7-bec4-e23afd2b6ba0">
+      <button class="colab-df-quickchart" onclick="quickchart('df-87a574a5-2f1b-4bb7-bec4-e23afd2b6ba0')" title="Suggest charts" style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+    </g>
+</svg>
+      </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+      <script>
+        async function quickchart(key) {
+          const quickchartButtonEl =
+            document.querySelector('#' + key + ' button');
+          quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+          quickchartButtonEl.classList.add('colab-df-spinner');
+          try {
+            const charts = await google.colab.kernel.invokeFunction(
+                'suggestCharts', [key], {});
+          } catch (error) {
+            console.error('Error during call to suggestCharts:', error);
+          }
+          quickchartButtonEl.classList.remove('colab-df-spinner');
+          quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+        }
+        (() => {
+          let quickchartButtonEl =
+            document.querySelector('#df-87a574a5-2f1b-4bb7-bec4-e23afd2b6ba0 button');
+          quickchartButtonEl.style.display =
+            google.colab.kernel.accessAllowed ? 'block' : 'none';
+        })();
+      </script>
+    </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<p>So O*NET tells us that <strong>Cargo and Freight Agents</strong> might also go by a <strong>Shipping Agent</strong> as an <code>Alternate Title</code> and that <strong>Occupational Therapy Aides</strong> might also go by a <strong>Rehab Therapy Aide</strong> as a <code>Short Title</code>.</p>
+<p>We also see that there can be many rows of different <code>Alternate Title</code> and <code>Short Title</code> for the same <code>Title</code>:</p>
+<div id="cell-5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:424}}" data-outputid="76ed7de9-8150-4e52-f30c-7f12f1e70f7a" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">onet_df[onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Software Developers"</span>]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div id="df-c143924f-7dcc-46ea-86ea-899d2a974128" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Title</th>
+<th data-quarto-table-cell-role="th">Alternate Title</th>
+<th data-quarto-table-cell-role="th">Short Title</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4931</td>
+<td>Software Developers</td>
+<td>.NET Developer</td>
+<td></td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4932</td>
+<td>Software Developers</td>
+<td>Android Developer</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4933</td>
+<td>Software Developers</td>
+<td>AngularJS Developer</td>
+<td></td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4934</td>
+<td>Software Developers</td>
+<td>Apache Hadoop Developer</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4935</td>
+<td>Software Developers</td>
+<td>Application Architect</td>
+<td></td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5061</td>
+<td>Software Developers</td>
+<td>User Interface Designer</td>
+<td></td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5062</td>
+<td>Software Developers</td>
+<td>Video Game Engineer</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5063</td>
+<td>Software Developers</td>
+<td>Wide Area Network Engineer (WAN Engineer)</td>
+<td>WAN Engineer</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5064</td>
+<td>Software Developers</td>
+<td>Windows Software Engineer</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5065</td>
+<td>Software Developers</td>
+<td>XML Developer (Extensible Markup Language Deve...</td>
+<td>XML Developer</td>
+</tr>
+</tbody>
+</table>
+
+<p>135 rows × 3 columns</p>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-c143924f-7dcc-46ea-86ea-899d2a974128')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-c143924f-7dcc-46ea-86ea-899d2a974128 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-c143924f-7dcc-46ea-86ea-899d2a974128');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    <div id="df-713523f4-d3ba-4823-bbd0-8720befe5f8b">
+      <button class="colab-df-quickchart" onclick="quickchart('df-713523f4-d3ba-4823-bbd0-8720befe5f8b')" title="Suggest charts" style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+    </g>
+</svg>
+      </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+      <script>
+        async function quickchart(key) {
+          const quickchartButtonEl =
+            document.querySelector('#' + key + ' button');
+          quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+          quickchartButtonEl.classList.add('colab-df-spinner');
+          try {
+            const charts = await google.colab.kernel.invokeFunction(
+                'suggestCharts', [key], {});
+          } catch (error) {
+            console.error('Error during call to suggestCharts:', error);
+          }
+          quickchartButtonEl.classList.remove('colab-df-spinner');
+          quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+        }
+        (() => {
+          let quickchartButtonEl =
+            document.querySelector('#df-713523f4-d3ba-4823-bbd0-8720befe5f8b button');
+          quickchartButtonEl.style.display =
+            google.colab.kernel.accessAllowed ? 'block' : 'none';
+        })();
+      </script>
+    </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<p>There is one thing we do know ahead of time about our users: not all of them will be employed. The O*NET data set doesn’t provide a job title for not working, so let’s add our own:</p>
+<div id="cell-7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:238}}" data-outputid="287b983f-e0e5-4f94-da1f-250ed74b8e98" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1">additions <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(</span>
+<span id="cb3-2">    [</span>
+<span id="cb3-3">        {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Unemployed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alternate Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Not Employed"</span>},</span>
+<span id="cb3-4">        {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Unemployed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alternate Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"None"</span>},</span>
+<span id="cb3-5">        {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Unemployed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alternate Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"N/A"</span>},</span>
+<span id="cb3-6">        {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Unemployed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alternate Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"No Employment"</span>},</span>
+<span id="cb3-7">        {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Unemployed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alternate Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Not Working"</span>},</span>
+<span id="cb3-8">        {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Retired"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alternate Title"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Retiree"</span>},</span>
+<span id="cb3-9">    ]</span>
+<span id="cb3-10">)</span>
+<span id="cb3-11">onet_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.concat([onet_df, additions], ignore_index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>).fillna(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>)</span>
+<span id="cb3-12">onet_df[(onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Unemployed"</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> (onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Retired"</span>)]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div id="df-dd544e90-62e2-424a-b90f-7440ca90bc2e" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Title</th>
+<th data-quarto-table-cell-role="th">Alternate Title</th>
+<th data-quarto-table-cell-role="th">Short Title</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">56560</td>
+<td>Unemployed</td>
+<td>Not Employed</td>
+<td></td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">56561</td>
+<td>Unemployed</td>
+<td>None</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">56562</td>
+<td>Unemployed</td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">56563</td>
+<td>Unemployed</td>
+<td>No Employment</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">56564</td>
+<td>Unemployed</td>
+<td>Not Working</td>
+<td></td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">56565</td>
+<td>Retired</td>
+<td>Retiree</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-dd544e90-62e2-424a-b90f-7440ca90bc2e')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-dd544e90-62e2-424a-b90f-7440ca90bc2e button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-dd544e90-62e2-424a-b90f-7440ca90bc2e');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    <div id="df-e4b43b41-c068-4beb-a8a2-96b0d403aadb">
+      <button class="colab-df-quickchart" onclick="quickchart('df-e4b43b41-c068-4beb-a8a2-96b0d403aadb')" title="Suggest charts" style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+    </g>
+</svg>
+      </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+      <script>
+        async function quickchart(key) {
+          const quickchartButtonEl =
+            document.querySelector('#' + key + ' button');
+          quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+          quickchartButtonEl.classList.add('colab-df-spinner');
+          try {
+            const charts = await google.colab.kernel.invokeFunction(
+                'suggestCharts', [key], {});
+          } catch (error) {
+            console.error('Error during call to suggestCharts:', error);
+          }
+          quickchartButtonEl.classList.remove('colab-df-spinner');
+          quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+        }
+        (() => {
+          let quickchartButtonEl =
+            document.querySelector('#df-e4b43b41-c068-4beb-a8a2-96b0d403aadb button');
+          quickchartButtonEl.style.display =
+            google.colab.kernel.accessAllowed ? 'block' : 'none';
+        })();
+      </script>
+    </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<p>Now let’s merge these fields together. Since we’ll be leveraging a language model, we can take the liberties of language here; we don’t need clean many-to-many relationships. Just combine <code>Title</code>, <code>Alternate Title</code>, and when available, <code>Short Title</code> into one <code>Long Title</code> field with <code>"aka"</code> inline:</p>
+<div id="cell-9" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:424}}" data-outputid="a6a4e52a-fde4-4659-9c64-3463b1b0a75c" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">mask <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Short Title"</span>].eq(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>)</span>
+<span id="cb4-2"></span>
+<span id="cb4-3">onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Long Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.where(</span>
+<span id="cb4-4">    mask,</span>
+<span id="cb4-5">    onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" aka "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alternate Title"</span>],</span>
+<span id="cb4-6">    onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" aka "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alternate Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" aka "</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Short Title"</span>],</span>
+<span id="cb4-7">)</span>
+<span id="cb4-8"></span>
+<span id="cb4-9">onet_df[onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Software Developers"</span>]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div id="df-4d1d07c4-8559-4241-ac8a-7d6232c19548" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Title</th>
+<th data-quarto-table-cell-role="th">Alternate Title</th>
+<th data-quarto-table-cell-role="th">Short Title</th>
+<th data-quarto-table-cell-role="th">Long Title</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4931</td>
+<td>Software Developers</td>
+<td>.NET Developer</td>
+<td></td>
+<td>Software Developers aka .NET Developer</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4932</td>
+<td>Software Developers</td>
+<td>Android Developer</td>
+<td></td>
+<td>Software Developers aka Android Developer</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4933</td>
+<td>Software Developers</td>
+<td>AngularJS Developer</td>
+<td></td>
+<td>Software Developers aka AngularJS Developer</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4934</td>
+<td>Software Developers</td>
+<td>Apache Hadoop Developer</td>
+<td></td>
+<td>Software Developers aka Apache Hadoop Developer</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4935</td>
+<td>Software Developers</td>
+<td>Application Architect</td>
+<td></td>
+<td>Software Developers aka Application Architect</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5061</td>
+<td>Software Developers</td>
+<td>User Interface Designer</td>
+<td></td>
+<td>Software Developers aka User Interface Designer</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5062</td>
+<td>Software Developers</td>
+<td>Video Game Engineer</td>
+<td></td>
+<td>Software Developers aka Video Game Engineer</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5063</td>
+<td>Software Developers</td>
+<td>Wide Area Network Engineer (WAN Engineer)</td>
+<td>WAN Engineer</td>
+<td>Software Developers aka Wide Area Network Engi...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5064</td>
+<td>Software Developers</td>
+<td>Windows Software Engineer</td>
+<td></td>
+<td>Software Developers aka Windows Software Engineer</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5065</td>
+<td>Software Developers</td>
+<td>XML Developer (Extensible Markup Language Deve...</td>
+<td>XML Developer</td>
+<td>Software Developers aka XML Developer (Extensi...</td>
+</tr>
+</tbody>
+</table>
+
+<p>135 rows × 4 columns</p>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-4d1d07c4-8559-4241-ac8a-7d6232c19548')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-4d1d07c4-8559-4241-ac8a-7d6232c19548 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-4d1d07c4-8559-4241-ac8a-7d6232c19548');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    <div id="df-cefd45d0-c35d-43ee-9e17-d6355a7128d7">
+      <button class="colab-df-quickchart" onclick="quickchart('df-cefd45d0-c35d-43ee-9e17-d6355a7128d7')" title="Suggest charts" style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+    </g>
+</svg>
+      </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+      <script>
+        async function quickchart(key) {
+          const quickchartButtonEl =
+            document.querySelector('#' + key + ' button');
+          quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+          quickchartButtonEl.classList.add('colab-df-spinner');
+          try {
+            const charts = await google.colab.kernel.invokeFunction(
+                'suggestCharts', [key], {});
+          } catch (error) {
+            console.error('Error during call to suggestCharts:', error);
+          }
+          quickchartButtonEl.classList.remove('colab-df-spinner');
+          quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+        }
+        (() => {
+          let quickchartButtonEl =
+            document.querySelector('#df-cefd45d0-c35d-43ee-9e17-d6355a7128d7 button');
+          quickchartButtonEl.style.display =
+            google.colab.kernel.accessAllowed ? 'block' : 'none';
+        })();
+      </script>
+    </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<p>Great. We’ve satisfied parts one and two of our approach. We have a finite set of job titles, and we have a good understanding that the set is large but not exhaustive, and it combines multiple values for a job title. Let’s start modeling language.</p>
+<p><a href="https://huggingface.co/TechWolf/JobBERT-v2">JobBERT-v2</a> is a <a href="https://www.sbert.net/">sentence-transformers</a> model fine tuned from <a href="https://huggingface.co/sentence-transformers/all-mpnet-base-v2">all-mpnet-base-v2</a> specifically for job title matching and similarity. Hey that’s convenient!</p>
+<p>We can’t use <code>JobBERT</code> out of the box, we’ll need to incorporate our O*NET dataset. Let’s pull it down and start building out our implementation of the model. To do this we’re going to leverage <a href="https://en.wikipedia.org/wiki/Word_embedding">word embeddings</a> against our <code>Long Title</code> values. If you’re unfamiliar with langage model embeddings, Simon Willison has a <a href="https://simonwillison.net/2023/Oct/23/embeddings/">fantastic overview</a> that you should go read now. But the gist of it is: embeddings are how language models numerically encode meaning from language into a large vector. This is suprisingly powerful, and yields operations like:</p>
+<p><code>emb('king') - emb('man') + emb('woman')</code> which returns a vector that is mathmatically <em>very close</em> to <code>emb('queen')</code>.</p>
+<p>We’re going to use this “closeness” between vectors to reduce infinite free-form data to our finite <code>Long Title</code> data and then map it back to <code>Title</code>. The first thing to do is quite simple: calculate <code>JobBERT</code> embeddings on all of the values in our <code>Long Title</code> column:</p>
+<div id="cell-11" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="c0689d5c-e02e-42d6-ead0-cb0730e7f47f" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> sentence_transformers <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> SentenceTransformer</span>
+<span id="cb5-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> warnings</span>
+<span id="cb5-3">warnings.filterwarnings(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ignore"</span>)</span>
+<span id="cb5-4"></span>
+<span id="cb5-5">model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> SentenceTransformer(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TechWolf/JobBERT-v2"</span>)</span>
+<span id="cb5-6"></span>
+<span id="cb5-7">onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"embedding"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb5-8">    model.encode(</span>
+<span id="cb5-9">        onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Long Title"</span>].tolist(),</span>
+<span id="cb5-10">        normalize_embeddings<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb5-11">        convert_to_numpy<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb5-12">        show_progress_bar<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>,</span>
+<span id="cb5-13">    )</span>
+<span id="cb5-14">)</span>
+<span id="cb5-15"></span>
+<span id="cb5-16">onet_df[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Long Title"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"embedding"</span>]].sample(n<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">101</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div id="df-50722b38-d2db-4afa-ac86-bdffe3ec87a5" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Long Title</th>
+<th data-quarto-table-cell-role="th">embedding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25268</td>
+<td>Cargo and Freight Agents aka Shipping Agent</td>
+<td>[-0.034480397, -0.01120864, -0.005822623, -0.0...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">30408</td>
+<td>Helpers, Construction Trades, All Other aka Me...</td>
+<td>[-0.07022176, -0.020068161, 0.0111531215, -0.0...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6045</td>
+<td>Bioengineers and Biomedical Engineers aka Biom...</td>
+<td>[-0.030613927, -0.059320696, -0.01718829, -0.0...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">18684</td>
+<td>Occupational Therapy Aides aka Rehabilitation ...</td>
+<td>[-0.014956265, -0.038792193, -0.00349255, 0.00...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">24086</td>
+<td>Billing and Posting Clerks aka Statement Servi...</td>
+<td>[0.020981414, -0.033710796, 0.03225505, -0.011...</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-50722b38-d2db-4afa-ac86-bdffe3ec87a5')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-50722b38-d2db-4afa-ac86-bdffe3ec87a5 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-50722b38-d2db-4afa-ac86-bdffe3ec87a5');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    <div id="df-124c9445-d054-4c56-8465-c4852571c4ad">
+      <button class="colab-df-quickchart" onclick="quickchart('df-124c9445-d054-4c56-8465-c4852571c4ad')" title="Suggest charts" style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+    </g>
+</svg>
+      </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+      <script>
+        async function quickchart(key) {
+          const quickchartButtonEl =
+            document.querySelector('#' + key + ' button');
+          quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+          quickchartButtonEl.classList.add('colab-df-spinner');
+          try {
+            const charts = await google.colab.kernel.invokeFunction(
+                'suggestCharts', [key], {});
+          } catch (error) {
+            console.error('Error during call to suggestCharts:', error);
+          }
+          quickchartButtonEl.classList.remove('colab-df-spinner');
+          quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+        }
+        (() => {
+          let quickchartButtonEl =
+            document.querySelector('#df-124c9445-d054-4c56-8465-c4852571c4ad button');
+          quickchartButtonEl.style.display =
+            google.colab.kernel.accessAllowed ? 'block' : 'none';
+        })();
+      </script>
+    </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<p>As a reader, the <code>embedding</code> column is an indecipherable array of floats, but now we can do some cool things. Here are three rows from our data:</p>
+<div id="cell-13" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:143}}" data-outputid="6691628c-10d7-456a-bf1f-ce3da300422a" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">slice</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> onet_df[</span>
+<span id="cb6-2">    (onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Long Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Software Developers aka Video Game Engineer"</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span></span>
+<span id="cb6-3">    (onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Long Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Database Architects aka Information Architect"</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span></span>
+<span id="cb6-4">    (onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Long Title"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Cargo and Freight Agents aka Shipping Agent"</span>)</span>
+<span id="cb6-5">]</span>
+<span id="cb6-6"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">slice</span>[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Long Title"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"embedding"</span>]]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div id="df-8d8fb5de-fec1-447f-bcc5-1f0a6c1f6859" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Long Title</th>
+<th data-quarto-table-cell-role="th">embedding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4806</td>
+<td>Database Architects aka Information Architect</td>
+<td>[0.020110216, 0.06301323, -0.029263753, -0.022...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5062</td>
+<td>Software Developers aka Video Game Engineer</td>
+<td>[0.041696787, 0.024444718, -0.053837907, 0.031...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25268</td>
+<td>Cargo and Freight Agents aka Shipping Agent</td>
+<td>[-0.034480397, -0.01120864, -0.005822623, -0.0...</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-8d8fb5de-fec1-447f-bcc5-1f0a6c1f6859')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-8d8fb5de-fec1-447f-bcc5-1f0a6c1f6859 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-8d8fb5de-fec1-447f-bcc5-1f0a6c1f6859');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    <div id="df-f885962c-3cc4-4c92-af03-69da27954f82">
+      <button class="colab-df-quickchart" onclick="quickchart('df-f885962c-3cc4-4c92-af03-69da27954f82')" title="Suggest charts" style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+    </g>
+</svg>
+      </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+      <script>
+        async function quickchart(key) {
+          const quickchartButtonEl =
+            document.querySelector('#' + key + ' button');
+          quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+          quickchartButtonEl.classList.add('colab-df-spinner');
+          try {
+            const charts = await google.colab.kernel.invokeFunction(
+                'suggestCharts', [key], {});
+          } catch (error) {
+            console.error('Error during call to suggestCharts:', error);
+          }
+          quickchartButtonEl.classList.remove('colab-df-spinner');
+          quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+        }
+        (() => {
+          let quickchartButtonEl =
+            document.querySelector('#df-f885962c-3cc4-4c92-af03-69da27954f82 button');
+          quickchartButtonEl.style.display =
+            google.colab.kernel.accessAllowed ? 'block' : 'none';
+        })();
+      </script>
+    </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<p>In a vector space, you can evaluate how similar two vectors are by taking their <a href="https://en.wikipedia.org/wiki/Cosine_similarity">cosine similarity</a>. Since we normalized our vectors when we embedded them, the denominator in the cosine function becomes <code>1</code> so we can do this even more efficiently with just a <a href="https://en.wikipedia.org/wiki/Dot_product">dot product</a>:</p>
+<div id="cell-15" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="d670cf17-fa52-40f7-b090-ea1fc384ef71" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">database_architect <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">slice</span>.iloc[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"embedding"</span>]</span>
+<span id="cb7-2">software_developer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">slice</span>.iloc[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"embedding"</span>]</span>
+<span id="cb7-3">cargo_and_freight_agent <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">slice</span>.iloc[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"embedding"</span>]</span>
+<span id="cb7-4"></span>
+<span id="cb7-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Software Developer vs Data Architect: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>software_developer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> database_architect<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb7-6"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Software Developer vs Cargo Agent: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>software_developer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> cargo_and_freight_agent<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Software Developer vs Data Architect: 0.2380954772233963
+Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
+</div>
+</div>
+<p>Those numbers look perfectly reasonable: a modest overlap (≈ 0.24) between two tech roles and an almost-orthogonal relationship (≈ 0.09) to the Cargo Agent job.</p>
+<p>Great. So now we have a mathematical way to compare the language of two job titles. And we’re not touching chatbots or 3rd party APIs at inferrence. The DataFrame is a self-contained model for semantically matching across the O*NET dataset. We’ve fully satisfied our approach!</p>
+<p>Now to apply it to our problem. Instead of evaluating O*NET data against itself, we can use our embeddings to evaluate <em>any</em> free-form job title text a user might submit.</p>
+<p>Let’s go get some real data to try it out! Since I work in political tech, I like to reach for campaign donor data.</p>
+<p>Our friends over at ProPublica <a href="https://projects.propublica.org/itemizer/committee/C00401224/2024/filings/1791562/downloads">publish itemized ActBlue receipts by state</a>. Because ActBlue is a conduit committee, these files include every transaction of any amount. That’s a lot of transactions! Let’s grab all of the ActBlue transactions from Texas for June 2024.</p>
+<div id="cell-18" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:363}}" data-outputid="61f7692b-5f8f-4a72-e0b4-4b8172b67e51" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1">dtypes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb9-2">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"flag_orgind"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"string"</span>,</span>
+<span id="cb9-3">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"first_name"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"string"</span>,</span>
+<span id="cb9-4">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"city"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"string"</span>,</span>
+<span id="cb9-5">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"zip"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"string"</span>,</span>
+<span id="cb9-6">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"amount"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"float64"</span>,</span>
+<span id="cb9-7">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"occupation"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"string"</span>,</span>
+<span id="cb9-8">}</span>
+<span id="cb9-9"></span>
+<span id="cb9-10">abtx_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(</span>
+<span id="cb9-11">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://pp-projects-static.s3.amazonaws.com/itemizer/sa_1791562_tx.csv"</span>,</span>
+<span id="cb9-12">    usecols<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>dtypes.keys(),</span>
+<span id="cb9-13">    dtype<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>dtypes,</span>
+<span id="cb9-14">)</span>
+<span id="cb9-15">abtx_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> abtx_df[abtx_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"flag_orgind"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"IND"</span>]</span>
+<span id="cb9-16">abtx_df.drop(columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"flag_orgind"</span>], inplace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb9-17">abtx_df.dropna(inplace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb9-18"></span>
+<span id="cb9-19">employed <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> df: df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"occupation"</span>].ne(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NOT EMPLOYED"</span>)</span>
+<span id="cb9-20">get_sample <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> seed: abtx_df.loc[employed(abtx_df)].sample(n<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, random_state<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>seed)</span>
+<span id="cb9-21"></span>
+<span id="cb9-22">get_sample(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30330</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># seed for reproducibility</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div id="df-28f43e9b-d7fb-436a-874a-f7d5dab9fc8a" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">first_name</th>
+<th data-quarto-table-cell-role="th">city</th>
+<th data-quarto-table-cell-role="th">zip</th>
+<th data-quarto-table-cell-role="th">amount</th>
+<th data-quarto-table-cell-role="th">occupation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">139133</td>
+<td>PAT</td>
+<td>NORTH RICHLAND HIL</td>
+<td>76180</td>
+<td>9.0</td>
+<td>RETIRED</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4248</td>
+<td>HARRY</td>
+<td>HOUSTON</td>
+<td>77019</td>
+<td>125.0</td>
+<td>LAWYER</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">221073</td>
+<td>THAO</td>
+<td>HOUSTON</td>
+<td>77083</td>
+<td>2.5</td>
+<td>HISTOLOGY TECHNICIAN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">201669</td>
+<td>PHILIP</td>
+<td>SAN ANTONIO</td>
+<td>78240</td>
+<td>3.0</td>
+<td>MANAGER</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">256487</td>
+<td>MARIA</td>
+<td>HOLLAND</td>
+<td>76534</td>
+<td>1.0</td>
+<td>HEALTHCARE ADMINISTRATOR</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6330</td>
+<td>ELLEN</td>
+<td>BELLAIRE</td>
+<td>77401</td>
+<td>100.0</td>
+<td>ARBITRATOR</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">125976</td>
+<td>MICHELLE</td>
+<td>FORT WORTH</td>
+<td>76133</td>
+<td>10.0</td>
+<td>SERVER</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13659</td>
+<td>ROSE</td>
+<td>HOUSTON</td>
+<td>77024</td>
+<td>75.0</td>
+<td>NURSING</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">138213</td>
+<td>PETER</td>
+<td>HOUSTON</td>
+<td>77019</td>
+<td>9.0</td>
+<td>DATABASE ANALYST</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">62939</td>
+<td>ERIN</td>
+<td>FRISCO</td>
+<td>75035</td>
+<td>25.0</td>
+<td>NONPROFIT</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-28f43e9b-d7fb-436a-874a-f7d5dab9fc8a')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-28f43e9b-d7fb-436a-874a-f7d5dab9fc8a button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-28f43e9b-d7fb-436a-874a-f7d5dab9fc8a');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    <div id="df-68bf1acc-580a-453a-afa7-1de23da4efbf">
+      <button class="colab-df-quickchart" onclick="quickchart('df-68bf1acc-580a-453a-afa7-1de23da4efbf')" title="Suggest charts" style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+    </g>
+</svg>
+      </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+      <script>
+        async function quickchart(key) {
+          const quickchartButtonEl =
+            document.querySelector('#' + key + ' button');
+          quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+          quickchartButtonEl.classList.add('colab-df-spinner');
+          try {
+            const charts = await google.colab.kernel.invokeFunction(
+                'suggestCharts', [key], {});
+          } catch (error) {
+            console.error('Error during call to suggestCharts:', error);
+          }
+          quickchartButtonEl.classList.remove('colab-df-spinner');
+          quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+        }
+        (() => {
+          let quickchartButtonEl =
+            document.querySelector('#df-68bf1acc-580a-453a-afa7-1de23da4efbf button');
+          quickchartButtonEl.style.display =
+            google.colab.kernel.accessAllowed ? 'block' : 'none';
+        })();
+      </script>
+    </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<p>That <code>occupation</code> field came from donors and doesn’t perfectly match our modeled job titles. But we don’t need it to! Let’s use our model to calculate embeddings on these new values:</p>
+<div id="cell-20" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:363}}" data-outputid="fdc95ad3-bb0a-486e-b7fe-d142a580ae34" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1">abtx_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"embedding"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb10-2">    model.encode(</span>
+<span id="cb10-3">        abtx_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"occupation"</span>].tolist(),</span>
+<span id="cb10-4">        normalize_embeddings<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb10-5">        convert_to_numpy<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb10-6">        show_progress_bar<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>,</span>
+<span id="cb10-7">    )</span>
+<span id="cb10-8">)</span>
+<span id="cb10-9"></span>
+<span id="cb10-10">get_sample(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30330</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div id="df-4ec6b342-a3ca-4e2e-9f4e-abee488afd11" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">first_name</th>
+<th data-quarto-table-cell-role="th">city</th>
+<th data-quarto-table-cell-role="th">zip</th>
+<th data-quarto-table-cell-role="th">amount</th>
+<th data-quarto-table-cell-role="th">occupation</th>
+<th data-quarto-table-cell-role="th">embedding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">139133</td>
+<td>PAT</td>
+<td>NORTH RICHLAND HIL</td>
+<td>76180</td>
+<td>9.0</td>
+<td>RETIRED</td>
+<td>[-0.022304475, 0.08798518, 0.008374137, 0.0150...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4248</td>
+<td>HARRY</td>
+<td>HOUSTON</td>
+<td>77019</td>
+<td>125.0</td>
+<td>LAWYER</td>
+<td>[0.0123939905, 0.06054912, 0.0046267705, -0.03...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">221073</td>
+<td>THAO</td>
+<td>HOUSTON</td>
+<td>77083</td>
+<td>2.5</td>
+<td>HISTOLOGY TECHNICIAN</td>
+<td>[0.027493875, -0.079993084, 0.013278877, -0.00...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">201669</td>
+<td>PHILIP</td>
+<td>SAN ANTONIO</td>
+<td>78240</td>
+<td>3.0</td>
+<td>MANAGER</td>
+<td>[0.09953636, 0.07623968, 0.020005615, 0.001361...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">256487</td>
+<td>MARIA</td>
+<td>HOLLAND</td>
+<td>76534</td>
+<td>1.0</td>
+<td>HEALTHCARE ADMINISTRATOR</td>
+<td>[0.036386397, 0.06352263, -0.0023324555, -0.02...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6330</td>
+<td>ELLEN</td>
+<td>BELLAIRE</td>
+<td>77401</td>
+<td>100.0</td>
+<td>ARBITRATOR</td>
+<td>[0.05744064, 0.03044543, -0.011071598, 0.01120...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">125976</td>
+<td>MICHELLE</td>
+<td>FORT WORTH</td>
+<td>76133</td>
+<td>10.0</td>
+<td>SERVER</td>
+<td>[0.0222358, 0.025343752, -0.027377797, -0.0031...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13659</td>
+<td>ROSE</td>
+<td>HOUSTON</td>
+<td>77024</td>
+<td>75.0</td>
+<td>NURSING</td>
+<td>[0.008113306, 0.03859657, -0.014793488, -0.064...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">138213</td>
+<td>PETER</td>
+<td>HOUSTON</td>
+<td>77019</td>
+<td>9.0</td>
+<td>DATABASE ANALYST</td>
+<td>[0.042439297, 0.08193651, -0.027909847, 0.0143...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">62939</td>
+<td>ERIN</td>
+<td>FRISCO</td>
+<td>75035</td>
+<td>25.0</td>
+<td>NONPROFIT</td>
+<td>[-0.052989695, 0.19739158, 0.007059781, 0.0288...</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-4ec6b342-a3ca-4e2e-9f4e-abee488afd11')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-4ec6b342-a3ca-4e2e-9f4e-abee488afd11 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-4ec6b342-a3ca-4e2e-9f4e-abee488afd11');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    <div id="df-9dfa3d08-6fd7-4ec8-972e-2f6cdb1bc3d6">
+      <button class="colab-df-quickchart" onclick="quickchart('df-9dfa3d08-6fd7-4ec8-972e-2f6cdb1bc3d6')" title="Suggest charts" style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+    </g>
+</svg>
+      </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+      <script>
+        async function quickchart(key) {
+          const quickchartButtonEl =
+            document.querySelector('#' + key + ' button');
+          quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+          quickchartButtonEl.classList.add('colab-df-spinner');
+          try {
+            const charts = await google.colab.kernel.invokeFunction(
+                'suggestCharts', [key], {});
+          } catch (error) {
+            console.error('Error during call to suggestCharts:', error);
+          }
+          quickchartButtonEl.classList.remove('colab-df-spinner');
+          quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+        }
+        (() => {
+          let quickchartButtonEl =
+            document.querySelector('#df-9dfa3d08-6fd7-4ec8-972e-2f6cdb1bc3d6 button');
+          quickchartButtonEl.style.display =
+            google.colab.kernel.accessAllowed ? 'block' : 'none';
+        })();
+      </script>
+    </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<p>So now we have two sets of embeddings: we have our O*NET embeddings and we have our ActBlue donor embeddings. Just as before, we can calculate similaries between them. But unlike before, we need to calculate <em>a lot</em>. In order to find the best match we need to compare every O*NET embedding vector with every ActBlue embedding vector. That’s a lot of comparisons. The good news, this is what GPUs are good at, and a free-tier GPU in Google Colab can kick this out fast.</p>
+<p>We convert our O*NET <code>embedding</code> column into a (n × d) tensor, where <code>n</code> is the number of rows and <code>d</code> is the vector length. Similarly, we convert the ActBlue <code>embedding</code> column into a (m × d) tensor where <code>m</code> is the number of ActBlue rows.</p>
+<p>When pushing this to a GPU, it’s a little more art than science. We batch it, and picking an optimal batch size can take some trial and error. For every batch, we’ll calculate the dot product, and return the indices of the best similarities.</p>
+<p>From there, we can map all the way back to our original O*NET <code>Title</code> column, as our normalized output:</p>
+<div id="cell-22" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:363}}" data-outputid="df9fc12c-177f-4d80-cfa8-8bd72bfac643" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> torch</span>
+<span id="cb11-2"></span>
+<span id="cb11-3">device <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cuda"</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># requires an NVIDIA GPU + CUDA</span></span>
+<span id="cb11-4">onet_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.tensor(np.stack(onet_df.embedding), device<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>device)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># (n × d)</span></span>
+<span id="cb11-5">abtx_t <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.tensor(np.stack(abtx_df.embedding), device<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>device)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># (m × d)</span></span>
+<span id="cb11-6"></span>
+<span id="cb11-7">batch <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4096</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># tune to fit GPU RAM</span></span>
+<span id="cb11-8">best <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb11-9"></span>
+<span id="cb11-10"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> torch.no_grad():</span>
+<span id="cb11-11">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> s <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, abtx_t.size(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>), batch):</span>
+<span id="cb11-12">        sims <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> abtx_t[s:s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span>batch] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> onet_t.T  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># (batch × n)</span></span>
+<span id="cb11-13">        best.append(sims.argmax(dim<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>).cpu())</span>
+<span id="cb11-14"></span>
+<span id="cb11-15">idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.cat(best).numpy()</span>
+<span id="cb11-16"></span>
+<span id="cb11-17">abtx_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Normalized Occupation"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> onet_df.Title.iloc[idx].to_numpy()</span>
+<span id="cb11-18"></span>
+<span id="cb11-19">get_sample(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30330</span>)[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"first_name"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"occupation"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Normalized Occupation"</span>]]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div id="df-a1e005cf-36c2-433f-99a9-113a3ec71d4a" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">first_name</th>
+<th data-quarto-table-cell-role="th">occupation</th>
+<th data-quarto-table-cell-role="th">Normalized Occupation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">139133</td>
+<td>PAT</td>
+<td>RETIRED</td>
+<td>Retired</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4248</td>
+<td>HARRY</td>
+<td>LAWYER</td>
+<td>Lawyers</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">221073</td>
+<td>THAO</td>
+<td>HISTOLOGY TECHNICIAN</td>
+<td>Histology Technicians</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">201669</td>
+<td>PHILIP</td>
+<td>MANAGER</td>
+<td>Managers, All Other</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">256487</td>
+<td>MARIA</td>
+<td>HEALTHCARE ADMINISTRATOR</td>
+<td>Medical and Health Services Managers</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6330</td>
+<td>ELLEN</td>
+<td>ARBITRATOR</td>
+<td>Arbitrators, Mediators, and Conciliators</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">125976</td>
+<td>MICHELLE</td>
+<td>SERVER</td>
+<td>Food Servers, Nonrestaurant</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13659</td>
+<td>ROSE</td>
+<td>NURSING</td>
+<td>Registered Nurses</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">138213</td>
+<td>PETER</td>
+<td>DATABASE ANALYST</td>
+<td>Database Administrators</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">62939</td>
+<td>ERIN</td>
+<td>NONPROFIT</td>
+<td>Fundraisers</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-a1e005cf-36c2-433f-99a9-113a3ec71d4a')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-a1e005cf-36c2-433f-99a9-113a3ec71d4a button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-a1e005cf-36c2-433f-99a9-113a3ec71d4a');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    <div id="df-1f02a267-ad0f-480d-915e-5dc79eb9a6a2">
+      <button class="colab-df-quickchart" onclick="quickchart('df-1f02a267-ad0f-480d-915e-5dc79eb9a6a2')" title="Suggest charts" style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"></path>
+    </g>
+</svg>
+      </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+      <script>
+        async function quickchart(key) {
+          const quickchartButtonEl =
+            document.querySelector('#' + key + ' button');
+          quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+          quickchartButtonEl.classList.add('colab-df-spinner');
+          try {
+            const charts = await google.colab.kernel.invokeFunction(
+                'suggestCharts', [key], {});
+          } catch (error) {
+            console.error('Error during call to suggestCharts:', error);
+          }
+          quickchartButtonEl.classList.remove('colab-df-spinner');
+          quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+        }
+        (() => {
+          let quickchartButtonEl =
+            document.querySelector('#df-1f02a267-ad0f-480d-915e-5dc79eb9a6a2 button');
+          quickchartButtonEl.style.display =
+            google.colab.kernel.accessAllowed ? 'block' : 'none';
+        })();
+      </script>
+    </div>
+
+    </div>
+  </div>
+</div>
+</div>
+<p>A way to visualized this is with <a href="https://en.wikipedia.org/wiki/Principal_component_analysis">principal component analysis</a>. PCA computes new orthogonal axes called principal components that capture the most variation in the data. These directions are combinations of the original dimensions, chosen to reveal the biggest patterns and differences. By projecting each vector onto the first two principal components, we can plot everything in two dimensions while keeping as much of the original structure as possible:</p>
+<div id="cell-24" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:906}}" data-outputid="53040c7b-649a-4120-9918-3d6cd337f116" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> matplotlib.pyplot <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> plt</span>
+<span id="cb12-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> sklearn.decomposition <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> PCA</span>
+<span id="cb12-3"></span>
+<span id="cb12-4">X_onet <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.vstack(onet_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"embedding"</span>].to_numpy())</span>
+<span id="cb12-5">X_abtx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.vstack(abtx_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"embedding"</span>].to_numpy())</span>
+<span id="cb12-6">X_all  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.vstack([X_onet, X_abtx])</span>
+<span id="cb12-7"></span>
+<span id="cb12-8">pca <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> PCA(n_components<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb12-9">proj <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pca.fit_transform(X_all)</span>
+<span id="cb12-10">coords_onet <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> proj[: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(X_onet)]</span>
+<span id="cb12-11">coords_abtx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> proj[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(X_onet) :]</span>
+<span id="cb12-12"></span>
+<span id="cb12-13">plt.figure(figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>))</span>
+<span id="cb12-14">plt.scatter(coords_onet[:, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], coords_onet[:, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>], alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.6</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"O*NET job titles"</span>)</span>
+<span id="cb12-15">plt.scatter(coords_abtx[:, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], coords_abtx[:, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>], alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.6</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Donor-entered occupations"</span>)</span>
+<span id="cb12-16">plt.title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PCA of Occupation Embeddings: O*NET vs Donor-entered"</span>)</span>
+<span id="cb12-17">plt.xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Component 1"</span>)</span>
+<span id="cb12-18">plt.ylabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Component 2"</span>)</span>
+<span id="cb12-19">plt.legend()</span>
+<span id="cb12-20">plt.tight_layout()</span>
+<span id="cb12-21">plt.show()</span></code></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2025-08-02-language-model-embeddings-campaign-donors/index_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>And in our higher-dimension space, we can calculate ad hoc similarities on any arbitrary job title someone might enter:</p>
+<div id="cell-26" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="ef85c9d4-0725-44ce-bfe3-81ae2be42c31" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> normalize(job_title):</span>
+<span id="cb13-2">  ad_hoc <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> torch.tensor(</span>
+<span id="cb13-3">      model.encode(</span>
+<span id="cb13-4">          [job_title],</span>
+<span id="cb13-5">          normalize_embeddings<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb13-6">          convert_to_numpy<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb13-7">          show_progress_bar<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>,</span>
+<span id="cb13-8">      ),</span>
+<span id="cb13-9">      device<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>device,</span>
+<span id="cb13-10">  )</span>
+<span id="cb13-11">  idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>((ad_hoc <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">@</span> onet_t.T).argmax(dim<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb13-12">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>job_title<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> → </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>onet_df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>at[idx, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Title"</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span></span>
+<span id="cb13-13"></span>
+<span id="cb13-14"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"code ninja"</span>))</span>
+<span id="cb13-15"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"uber"</span>))</span>
+<span id="cb13-16"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GM"</span>))</span>
+<span id="cb13-17"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Professor, Artist"</span>))</span>
+<span id="cb13-18"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Postdoctoral Fellow"</span>))</span>
+<span id="cb13-19"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DARE Officer"</span>))</span>
+<span id="cb13-20"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Senator"</span>))</span>
+<span id="cb13-21"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Comms Director"</span>))</span>
+<span id="cb13-22"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dermatology"</span>))</span>
+<span id="cb13-23"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"commodities trader"</span>))</span>
+<span id="cb13-24"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"life insurance adjuster"</span>))</span>
+<span id="cb13-25"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lumberjack"</span>))</span>
+<span id="cb13-26"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cpa"</span>))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>code ninja → Computer Programmers
+uber → Taxi Drivers
+GM → General and Operations Managers
+Professor, Artist → Art, Drama, and Music Teachers, Postsecondary
+Postdoctoral Fellow → Clinical Research Coordinators
+DARE Officer → Police and Sheriff's Patrol Officers
+Senator → Legislators
+Comms Director → Public Relations Managers
+dermatology → Dermatologists
+commodities trader → Securities, Commodities, and Financial Services Sales Agents
+life insurance adjuster → Claims Adjusters, Examiners, and Investigators
+lumberjack → Fallers
+cpa → Accountants and Auditors</code></pre>
+</div>
+</div>
+<p>It’s not perfect. I don’t think I would have normalized <strong>Postdoctoral Fellow</strong> to <strong>Clinical Research Coordinators</strong>. This is where decisions we made in constructing the model start to show themselves. All those <code>aka</code> job title concatenations we did at the top affected how the language was modeled. Depending on your use case this could be fine; maybe you just need deterministic finite categories. You can play with the embedding calculation process to see how different strategies yield different resules.</p>
+<p>As for our nurses:</p>
+<div id="cell-28" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="f4243eb0-6ba7-46a8-8e78-4d9ae71fcbcc" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nurse"</span>))</span>
+<span id="cb15-2"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RN"</span>))</span>
+<span id="cb15-3"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MSN"</span>))</span>
+<span id="cb15-4"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ER Nurse"</span>))</span>
+<span id="cb15-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(normalize(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"home health nursing"</span>))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>nurse → Registered Nurses
+RN → Registered Nurses
+MSN → Registered Nurses
+ER Nurse → Registered Nurses
+home health nursing → Registered Nurses</code></pre>
+</div>
+</div>
+<p>Language models are pretty good at modeling language!</p>
+
+
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2025-08-02-language-model-embeddings-campaign-donors/</guid>
+  <pubDate>Sat, 02 Aug 2025 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2025-08-02-language-model-embeddings-campaign-donors/pca-onet-donor-entered.png" medium="image" type="image/png" height="81" width="144"/>
+</item>
 <item>
   <title>GPT Finally Jumps Out of the System</title>
   <dc:creator>Matt Hodges</dc:creator>
@@ -6628,7 +10047,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</code></pre
 <p>This post assumes you are fairly familiar with Python and Python’s <a href="https://docs.python.org/3/tutorial/controlflow.html#lambda-expressions">lambda expressions</a>.</p>
 <section id="rules-of-our-system" class="level3">
 <h3 class="anchored" data-anchor-id="rules-of-our-system">Rules of Our System</h3>
-<p>The Lambda Calculus asserts that any computational system can be implemented with a set of three simple rules: * You can define variables * You can define single-argument functions * You can call single-argument functions</p>
+<p>The Lambda Calculus asserts that any computational system can be implemented with a set of three simple rules:</p>
+<ul>
+<li>You can define variables</li>
+<li>You can define single-argument functions</li>
+<li>You can call single-argument functions</li>
+</ul>
 <p>That’s it. <strong>No numbers. No operators. No control flow. No data structures.</strong></p>
 <p>I find it fascinating that with these very minimal concepts, the Lambda Calculus asserts that we can create a fully functional computer! This is, of course, a very minimal explanation of the rules of the Lambda Calculus, and I invite you to consult the references above for more information and formal definitions!</p>
 </section>
