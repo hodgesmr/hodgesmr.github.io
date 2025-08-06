@@ -13,12 +13,11 @@ about:
 
 I am a **Political Technologist** and founder of [Ilium Strategies]{.color-accent} working to help Democrats build, scale, and innovate with tech. Drawing on over a decade of experience at the intersection of Democratic politics and software engineering, I partner with organizations, campaigns, and investors to amplify their impact. My focusses include product and engineering vision, go-to-market technical strategy, donor advising and technical diligence, political tech market navigation, ecosystem coordination, and AI strategy. I'm particularly interested in developing sustainable, scalable models for long-term impact in the political tech sector.
 
-
 I was the **Executive Director** of **Zinc Labs**, a political innovation lab at [Zinc Collective]{.color-accent} that houses the organization's strategic work in Democratic technology and pilot programs. Through a network of campaigns, committees, vendors, donors, and subject matter experts, Zinc Labs incubates and invests in innovative new programs across the ecosystem. I prioritized investing in technology and people to enable collaborative experimentation, technical execution, and hypothesis testing.
 
-I sit on the **Advisory Board** of [Quiller]{.color-accent}, an Artificial Intelligence copilot that helps Democrats draft and deploy high quality, effective fundraising content. In this capacity, I contribute product, technology, and political guidance to the Quiller leadership team.
-
 I sit on the **Advisory Board** of [Higher Ground Labs]{.color-accent}, an accelerator that invests in early-stage political tech companies. In this capacity, I contribute strategic guidance to the Higher Ground Labs leadership team, and provide both political and technical advice to investment cohort companies.
+
+I was on the **Advisory Board** of [Quiller]{.color-accent}, an Artificial Intelligence copilot that helps Democrats draft and deploy high quality, effective fundraising content. In this capacity, I contributed product, technology, and political guidance to the Quiller leadership team. Quiller was acquired in 2025.
 
 I was the **Director of Engineering** for [President Joe Biden]{.color-accent} on his 2020 presidential campaign. I joined the campaign in July of 2019, and served in that role through the duration of the primary and general election cycles. I led a team of software, infrastructure, and security engineers, which was charged with delivering innovative new campaign tech for headquarters and states programs. We shipped dozens of internal and voter-facing products, including an in-house peer-to-peer texter, a relational organizing app, a real-time debate transcription service, a document and media ingestion and indexing library, a live donation tracking web service, a distributed soft-reporting platform, the JoeBiden.com web property, hundreds of ETL pipelines, and a cross-region data warehouse.
 
