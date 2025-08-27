@@ -7,6 +7,8 @@ image: "geb-crab-openai.jpeg"
 date: 2025-08-26
 ---
 
+![](geb-crab-openai.jpeg)
+
 > *He had just bought his first record player, and being somewhat gullible, believed every word the salesman had told him about it-in particular, that it was capable of reproducing any and all sounds. In short, he was convinced that it was a perfect phonograph*.
 
 Douglas Hofstadter’s [Gödel, Escher, Bach](https://en.wikipedia.org/wiki/G%C3%B6del,_Escher,_Bach) contains an illustrative little dialogue called [*Contracrostipunctus*](https://godel-escher-bach.fandom.com/wiki/Contracrostipunctus). You don’t need to have read the book (but you should) to appreciate the setup: the Tortoise (a regular character in GEB’s allegories) composes records engineered to destroy his friend the Crab’s latest “perfect” phonograph. The phonograph is billed as “capable of reproducing any and all sounds,” and each time the Crab upgrades, the Tortoise arrives with a new record with a title like:
