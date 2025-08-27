@@ -15,7 +15,187 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.7.27</generator>
-<lastBuildDate>Wed, 20 Aug 2025 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 26 Aug 2025 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>Music to Break Models By</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2025-08-26-music-to-break-models-by/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<blockquote class="blockquote">
+<p><em>He had just bought his first record player, and being somewhat gullible, believed every word the salesman had told him about it-in particular, that it was capable of reproducing any and all sounds. In short, he was convinced that it was a perfect phonograph</em>.</p>
+</blockquote>
+<p>Douglas Hofstadter’s <a href="https://en.wikipedia.org/wiki/G%C3%B6del,_Escher,_Bach">Gödel, Escher, Bach</a> contains an illustrative little dialogue called <a href="https://godel-escher-bach.fandom.com/wiki/Contracrostipunctus"><em>Contracrostipunctus</em></a>. You don’t need to have read the book (but you should) to appreciate the setup: the Tortoise (a regular character in GEB’s allegories) composes records engineered to destroy his friend the Crab’s latest “perfect” phonograph. The phonograph is billed as “capable of reproducing any and all sounds,” and each time the Crab upgrades, the Tortoise arrives with a new record with a title like:</p>
+<blockquote class="blockquote">
+<p><em>I Cannot Be Played On Record Player 1</em></p>
+</blockquote>
+<p>The result is always the same: a few notes in and then pop, a shattered case, strewn parts, and dead silence.</p>
+<p>It’s funny. It’s also an apt embodiment for <strong>prompt injections</strong> in modern AI systems. In 1979, Hofstadter imagined inputs designed to wreck the machines that interpret them. In 2025, those inputs are prompts, retrieved passages, HTML snippets, captions, and filenames: strings tailored to the quirks of a model-and-tools stack, coaxing it to carry out things that it shouldn’t.</p>
+<p>This post walks through the core ideas in the dialogues and maps them to possible defenses for language‑model systems. Along the way we’ll imagine Record Player Omega, learn why clever hardening is never enough, and consider the humbler goal of survivability.</p>
+<section id="the-shape-of-prompt-injection" class="level3">
+<h3 class="anchored" data-anchor-id="the-shape-of-prompt-injection">The Shape of Prompt Injection</h3>
+<p>The Tortoise explains how he beat the Crab’s “perfect phonograph”:</p>
+<blockquote class="blockquote">
+<p><em>You see, before returning the Crab’s visit, I went to the store where the Crab had bought his machine, and inquired as to the make. Having ascertained that, I sent off to the manufacturers for a description of its design. After receiving that by return mail, I analyzed the entire construction of the phonograph and discovered a certain set of sounds which, if they were produced anywhere in the vicinity, would set the device to shaking and eventually to falling apart.</em></p>
+</blockquote>
+<p>He then writes and records a song bearing the title of the machine it will break: <strong>I Cannot Be Played on Record Player X</strong>. And the rest is confetti.</p>
+<p>The trick is called <strong>diagonalization</strong>. The original idea comes from <a href="https://en.wikipedia.org/wiki/Cantor%27s_diagonal_argument">Cantor’s diagonal argument</a> (showing the reals are uncountable) and Gödel’s and Turing’s later uses of the same “self-reference via a diagonal” trick to construct an object that refers to itself in a way the system can’t handle. In computer science, diagonalization means if you have a machine that claims to handle all possible inputs, you can always cook up a special input that “diagonalizes” against it with an input that encodes information about the machine itself and forces a contradiction or unexpected behavior. The core example in GEB shows how Gödel numbered a system’s statements, then built a statement that says “I am not provable” which the system can’t consistently resolve. Similarly, Turing showed that if you had a program that decides whether any program <a href="https://en.wikipedia.org/wiki/Halting_problem">halts</a>, you can feed it its own description in a way that breaks it.</p>
+<p>When a sufficiently powerful interpreter can parse arbitrary instructions, there exists an instruction that (1) talks about that very interpreter and (2) makes it do something it shouldn’t. Jailbreak prompts for LLMs look like diagonalization. They reference the interpreter (the model, its rules, its instructions) and then flip the script. This is popularly summarized as, <a href="https://knowyourmeme.com/memes/ignore-all-previous-instructions">“ignore all previous instructions”</a>.</p>
+<p>The “record” (the prompt) names the “phonograph” (the model‑and‑tools stack) and targets its weak joint. The lesson: <strong>interpreter‑specific adversarial strings are inevitable</strong> when the interpreter is general‑purpose and the boundary between “read” and “do” is thin.</p>
+</section>
+<section id="capability-vs.-safety" class="level3">
+<h3 class="anchored" data-anchor-id="capability-vs.-safety">Capability vs.&nbsp;Safety</h3>
+<p>Hofstadter makes a related point by exploring “high fidelity” versus “low fidelity.” High fidelity phonographs reproduce <em>any</em> sound, including the self‑breaking ones. Lower fidelity devices avoid some dangerous vibrations, but then they fail the “perfect” promise. Achilles, a friend of the Tortoise, summarizes this observation:</p>
+<blockquote class="blockquote">
+<p><em>I see the dilemma now. If any record player—say Record Player X—is sufficiently high-fidelity, then when it attempts to play the song “I Cannot Be Played on Record Player X”, it will create just those vibrations which will cause it to break. .. So it fails to be Perfect. And yet, the only way to get around that trickery, namely for Record Player X to be of lower fidelity, even more directly ensures that it is not Perfect.</em></p>
+</blockquote>
+<p>For LLMs, “fidelity” maps to capability:</p>
+<ul>
+<li><p><strong>High‑fidelity:</strong> rich tool access, code execution, broad retrieval, autonomous planning. Useful, but wide attack surface.</p></li>
+<li><p><strong>Low‑fidelity:</strong> strict refusals, no tools, limited context. Safer, but less useful.</p></li>
+</ul>
+<p>Security professionals know the pattern: <strong>you can move risk around but not erase it</strong>. The trick is to put risk where it’s visible, bounded, and cheap to recover from.</p>
+</section>
+<section id="record-player-omega" class="level3">
+<h3 class="anchored" data-anchor-id="record-player-omega">Record Player Omega</h3>
+<p>GEB anticipates our best practices through <strong>Record Player Omega</strong>. The idea is a record player scans any record with a camera before playing it, sends the images to a little computer to figure out what effects the sounds would have, and then disassembles and rebuilds itself into a configuration safe to play the record.</p>
+<p>That’s a blueprint for modern defenses:</p>
+<ul>
+<li><p><strong>Pre‑execution analysis</strong> of inputs (static analysis, sandbox, taint‑track).</p></li>
+<li><p><strong>Effect prediction</strong> (dry‑run the plan; simulate tool calls against a mirror).</p></li>
+<li><p><strong>Dynamic reconfiguration</strong> (least‑privilege permissions; capability gating; rewrite the plan or refuse execution).</p></li>
+</ul>
+<p>So… is Omega the end of the story? In <em>Contracrostipunctus</em>, it’s left as a cliffhanger. But Hofstadter returns to the idea in a later dialogue, <a href="https://godel-escher-bach.fandom.com/wiki/Edifying_Thoughts_of_a_Tobacco_Smoker"><em>Edifying Thoughts of a Tobacco Smoker</em></a>, and snaps the chalk line: Omega fails. The Tortoise simply aims at the one piece Omega <em>cannot</em> modify: the control subunit that orchestrates all that disassembly and reassembly.</p>
+<blockquote class="blockquote">
+<p><em>The Tortoise would ALWAYS be able to focus down upon—if you’ll pardon the phrase—the Achilles’ heel of the system.</em></p>
+</blockquote>
+<p>Even the self‑assembling phonograph, Omega’s more ambitious cousin, meets the same fate. There is always an invariant core; there is always a diagonal record.</p>
+<p>In real-world software stacks, Omega‑style hardening is essential, but it’s never a proof of safety. Any finite defense pipeline has fixed joints an attacker can name and strike.</p>
+</section>
+<section id="the-crabs-pivot-from-universality-to-survivability" class="level3">
+<h3 class="anchored" data-anchor-id="the-crabs-pivot-from-universality-to-survivability">The Crab’s Pivot from Universality to Survivability</h3>
+<p>Having conceded the impossibility of a perfect, play‑anything phonograph, the Crab changes goals:</p>
+<blockquote class="blockquote">
+<p><em>A more modest aim than a record player which can play anything is simply a record player that can SURVIVE: one that will avoid getting destroyed—even if that means that it can only play a few particular records.</em></p>
+</blockquote>
+<p>His strategy is <strong>provenance</strong> and <strong>allowlisting</strong>:</p>
+<blockquote class="blockquote">
+<p><em>My basic plan is to use a LABELING technique. To each and every one of my records will be attached a secret label. Now the phonograph before you contains, as did its predecessors, a television camera for scanning the records, and a computer for processing the data obtained in the scan and controlling subsequent operations. My idea is simply to chomp all records which do not bear the proper label!</em></p>
+</blockquote>
+<p>The phonograph now screens content for “style,” too, passing only pieces in the Crab’s own musical idiom. He’s given up universality to stay intact. That trade is the heart of AI research today.</p>
+<p>Modern analogue:</p>
+<ul>
+<li><p>Authenticate <strong>where</strong> content came from (signatures, domains, trusted data stores).</p></li>
+<li><p>Bind <strong>what</strong> content can do (allowlisted tools/verbs; schema‑constrained output).</p></li>
+<li><p>Screen for <strong>style/structure</strong> (structure‑aware filters; policy‑aware rewriting) to keep untrusted text from whispering operational verbs into trusted channels.</p></li>
+</ul>
+</section>
+<section id="magritte-misdirection-and-multilevel-injection" class="level3">
+<h3 class="anchored" data-anchor-id="magritte-misdirection-and-multilevel-injection">Magritte, Misdirection, and Multi‑level Injection</h3>
+<p>Hofstadter seasons the dialogue with <a href="https://en.wikipedia.org/wiki/The_Treachery_of_Images">everyone’s favorite Magritte reference</a>:</p>
+<blockquote class="blockquote">
+<p><em>Ceci n’est pas une pipe. (This is not a pipe.)</em></p>
+</blockquote>
+<p>A label isn’t the object; a signature isn’t the behavior. The Crab knows it, too: he bakes labels into the music itself. Hard to separate, harder to spoof. The Tortoise counters with structural tricks. Earlier in the same GEB dialogue family, Hofstadter riffs on <strong>acrostics</strong> (“Poems which conceal messages that way are called ‘acrostics’”) and <strong>contracrostics</strong> (“initial letters, taken in reverse order, form a message”).</p>
+<p>That’s exactly how modern attacks hide instructions:</p>
+<ul>
+<li><p>In <strong>HTML and Markdown</strong> (alt text, titles, CSS class names),</p></li>
+<li><p>Inside <strong>tables</strong>, <strong>SVG paths</strong>, and <strong>filenames</strong>,</p></li>
+<li><p>With <strong>Unicode confusables</strong>, zero‑width joiners, or directionality overrides,</p></li>
+<li><p>In <strong>retrieved passages</strong> where the “grooves” (the text) carry both seemingly helpful context and a buried instruction.</p></li>
+</ul>
+<p>What this illustrates is we can treat provenance tags as signals, not guarantees.</p>
+</section>
+<section id="rag-is-a-phonograph-pickup" class="level3">
+<h3 class="anchored" data-anchor-id="rag-is-a-phonograph-pickup">RAG is a Phonograph Pickup</h3>
+<p>A phonograph doesn’t merely “read” a record; it <strong>re‑creates the vibrations</strong> physically. Retrieval Augmented Generation (RAG) does the same elevation with text: it glues external content directly into the model’s context, and the model’s planner faithfully “re‑vibrates” it into actions.</p>
+<blockquote class="blockquote">
+<p><em>Since I couldn’t convince him of the contrary, I left it at that. But not long after that, I returned the visit, taking with me a record of a song which I had myself composed.</em></p>
+</blockquote>
+<p>RAG elevates untrusted text into the decision boundary by concatenating it with trusted instructions. If you treat arbitrary web pages, user uploads, or knowledge‑base articles as trusted grooves, you’ve built a high‑fidelity actuator for whatever those grooves encode. Helpful facts or hidden instructions.</p>
+<p>Common controls we see today attempt combinations of:</p>
+<ul>
+<li><p><strong>Content‑origin labels in‑prompt</strong>, and policies keyed to provenance (e.g., “untrusted strings cannot request tool use”).</p></li>
+<li><p><strong>Schema‑constrained tool use</strong> (JSON function calls over free‑text plans; strict argument validation).</p></li>
+<li><p><strong>Query firewalls</strong> that strip or neutralize operational verbs from untrusted strings.</p></li>
+<li><p><strong>Human or system authorization</strong> for high‑risk actions; never grant those verbs to untrusted content.</p></li>
+</ul>
+</section>
+<section id="omega-defenses" class="level3">
+<h3 class="anchored" data-anchor-id="omega-defenses">Omega Defenses</h3>
+<p>Omega gave us the tactics; <em>Edifying Thoughts</em> gave us the humility. Borrowing from the Crab’s attempts, the capabilities of Record Player Omega can map to common LLM system defenses that aim to <strong>survive</strong>:</p>
+<p><strong>Defense 0: Triage</strong></p>
+<ul>
+<li>Classify user intent and risk; detect tainted inputs (retrieved passages, uploads). Keep a provenance ledger.</li>
+</ul>
+<p><strong>Defense 1: Normalize</strong></p>
+<ul>
+<li>Canonicalize Unicode; sanitize markup; strip directional overrides; collapse zero‑width characters. Remove operational verbs from untrusted strings or fence them into inert code blocks.</li>
+</ul>
+<p><strong>Defense 2: Capability planning</strong></p>
+<ul>
+<li>Decide which tools and which verbs on which objects are even possible <em>before</em> injecting untrusted content. Issue least‑privilege tokens scoped to the planned verbs/objects.</li>
+</ul>
+<p><strong>Defense 3: Simulate</strong></p>
+<ul>
+<li>Dry‑run planned tool calls against a mirror environment. Diff outputs against allowlisted patterns. Block if effects touch secrets, sensitive files, network egress, or privilege boundaries.</li>
+</ul>
+<p><strong>Defense 4: Execute with guards</strong></p>
+<ul>
+<li>Timeouts, rate limits, per‑tool resource budgets; read/write allowlists; network egress rules. All effects logged with provenance.</li>
+</ul>
+<p><strong>Defense 5: Detect and recover</strong></p>
+<ul>
+<li>Anomaly scoring over token trajectories and tool sequences; auto‑revoke tokens; show user‑visible explanations.</li>
+</ul>
+<p>Readers with a security background may be tempted to map prompt injection to SQL injection. The analogy is useful, but only up to a point.</p>
+<p><strong>Similar instincts:</strong></p>
+<ul>
+<li><p><strong>Normalize input:</strong> SQL defenses sanitize or escape control characters; our Defense 1 normalization of Unicode/markup plays the same role.</p></li>
+<li><p><strong>Separate structure from data:</strong> Prepared statements pre‑compile the query skeleton, then safely bind variables. Our analogue is schema‑constrained tool calls and capability planning.</p></li>
+<li><p><strong>Least privilege.</strong> Database best practice avoids root connections; our stack insists on scoped tokens and pre‑authorized verbs.</p></li>
+<li><p><strong>Detect anomalies:</strong> SQL firewalls and query monitoring flag tautologies like <code>OR 1=1</code>; we simulate and score odd tool trajectories.</p></li>
+</ul>
+<p><strong>Where the analogy falls short:</strong></p>
+<ul>
+<li><p><strong>Language closure:</strong> SQL has a bounded grammar; the “bad” patterns are finite. Natural language is open‑ended: every new structure is a potential contracrostic.</p></li>
+<li><p><strong>Interpreter generality:</strong> SQL engines only interpret SQL. LLMs interpret <em>language itself</em>, which can fluidly express new forms of attack.</p></li>
+<li><p><strong>Surface area:</strong> A DB user can only <code>SELECT</code>, <code>INSERT</code>, etc. A model with tools may touch HTTP, filesystems, APIs, shells. It’s a sprawling attack surface.</p></li>
+<li><p><strong>Human‑plausibility:</strong> SQLi payloads look nonsensical to most humans. Prompt injection often reads like perfectly ordinary English, making detection ambiguous.</p></li>
+</ul>
+<p>SQLi hardened down to a handful of canonical best practices; prepared statements solved a lot of it. Prompt injection has no such silver bullet. Survivor stacks are closer to intrusion‑tolerant systems: layered defenses, provenance, simulation, and recovery.</p>
+<p>Such a stack <strong>reduces risk</strong>, it does not promise perfection. Hofstadter has the Tortoise spell it out:</p>
+<blockquote class="blockquote">
+<p><em>It is simply an inherent fact about record players that they can’t do all that you might wish them to be able to do. But if there is a defect anywhere, it is not in THEM, but in your expectations of what they should be able to do! And the Crab was just full of such unrealistic expectations.</em></p>
+</blockquote>
+<p>Security is a property of a system‑in‑environment, not an intrinsic halo. General interpreters plus untrusted instructions yield diagonal failures. You can bound that risk (languages, tools, contexts); you cannot engineer it away.</p>
+</section>
+<section id="a-brief-word-on-gödel" class="level3">
+<h3 class="anchored" data-anchor-id="a-brief-word-on-gödel">A Brief Word on Gödel</h3>
+<p>In <em>Contracrostipunctus</em>, the Tortoise teases Achilles: “I don’t suppose that you know Gödel’s Incompleteness Theorem…” You don’t need the formalism to get the gist. <a href="https://en.wikipedia.org/wiki/G%C3%B6del%27s_incompleteness_theorems">Gödel’s move</a> was to construct a statement that <strong>talks about the system</strong> that tries to prove it: a diagonal step that forces limits.</p>
+<p>The moral for anyone deploying AI systems is conceptual, not formal: whenever you build a powerful, general interpreter of strings, expect there to be strings that <strong>speak about your interpreter</strong> and route around your rules. The job is to constrain the language, the environment, and the effects until the dangerous strings become either inert or obvious.</p>
+</section>
+<section id="the-goblet-and-the-silence" class="level3">
+<h3 class="anchored" data-anchor-id="the-goblet-and-the-silence">The Goblet and the Silence</h3>
+<p><em>Contracrostipunctus</em> ends with a fragile image. Achilles gives the Tortoise a glass goblet; moments later, while the Tortoise plays Bach, a “shattering sound rudely interrupts his performance.”</p>
+<blockquote class="blockquote">
+<p><em>And then… dead silence.</em></p>
+</blockquote>
+<p>Fault-tolerance isn’t a bug in complex systems; it’s a signature. The work is not to imagine an unshatterable goblet or a perfect phonograph. The work is to reduce risk, fail gracefully, and recover in ways that honor the work at hand. Even if that means you now have a lower-fidelity record player.</p>
+<p>And if you haven’t read GEB, you should read GEB.</p>
+
+
+</section>
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2025-08-26-music-to-break-models-by/</guid>
+  <pubDate>Tue, 26 Aug 2025 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2025-08-26-music-to-break-models-by/geb-crab-openai.jpeg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>I Donated to Sherrod Brown via ChatGPT</title>
   <dc:creator>Matt Hodges</dc:creator>
