@@ -7,7 +7,11 @@ image: "geb-crab-openai.jpeg"
 date: 2025-08-26
 ---
 
-![](geb-crab-openai.jpeg)
+*This post is also available in video format, created by experiment with NotebookLM:*
+
+{{< video https://www.youtube.com/watch?v=_CYwJ8KFQYA >}}
+
+Let's meet the Crab:
 
 > *He had just bought his first record player, and being somewhat gullible, believed every word the salesman had told him about it-in particular, that it was capable of reproducing any and all sounds. In short, he was convinced that it was a perfect phonograph*.
 
