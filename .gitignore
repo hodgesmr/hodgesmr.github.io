@@ -4,3 +4,4 @@
 /_*.local
 .env
 .vscode/
+.venv/
