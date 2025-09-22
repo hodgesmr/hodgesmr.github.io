@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.8.24">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -60,7 +60,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -70,14 +70,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../img/favicon.png" rel="icon" type="image/png">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-1100dc645a9806080dc50effd6ccb0f7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-a6e161b2431e1f94a14e0f5d32135a3c.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-e8a494901d728753c08c0bd476d7e03f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-ae2740be6c8dfbd2a514f453c184fb99.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -104,7 +105,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <link href="https://fonts.googleapis.com/css?family=Overpass:300,900" rel="stylesheet">
@@ -132,6 +133,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Matt Hodges</span>
     </a>
@@ -224,7 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The <a href="https://en.wikipedia.org/wiki/Occupational_Information_Network">Occupational Information Network</a> (O*NET) maintains exactly such a resource. Developed under the sponsorship of the Departoment of Labor, O*NET offers rich <a href="https://www.onetcenter.org/database.html#individual-files">datasets</a> that describe skills, knowlege, tasks, and job titles. We’re interested in the <a href="https://www.onetcenter.org/dictionary/29.3/excel/alternate_titles.html">Alternate Titles</a> file, which maps occupation titles to alternate “lay” job titles. There’s a good chance many of our users enter these alternate titles, so we’ll want to include them.</p>
 <p>The file includes columns of Department of Labor and Census identifiers, but we only need the few that focus on title. Let’s download it and take a look at a few examples:</p>
 <div id="cell-3" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="6720c6eb-0d6f-47c0-f86a-a4f7982f3068" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>onet_df <span class="op">=</span> pd.read_excel(</span>
@@ -232,13 +235,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    usecols<span class="op">=</span>[<span class="st">'Title'</span>, <span class="st">'Alternate Title'</span>, <span class="st">'Short Title'</span>],</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>).fillna(<span class="st">""</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>onet_df.sample(n<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">101</span>)  <span class="co"># seed for reproducibility</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>onet_df.sample(n<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">101</span>)  <span class="co"># seed for reproducibility</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div id="df-758f1366-5552-42da-bea4-e668dd263999" class="colab-df-container">
     <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -249,31 +252,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">25268</td>
+<th data-quarto-table-cell-role="th">25268</th>
 <td>Cargo and Freight Agents</td>
 <td>Shipping Agent</td>
 <td></td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">30407</td>
+<th data-quarto-table-cell-role="th">30407</th>
 <td>Helpers, Construction Trades, All Other</td>
 <td>Maintenance Construction Helper</td>
 <td></td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6045</td>
+<th data-quarto-table-cell-role="th">6045</th>
 <td>Bioengineers and Biomedical Engineers</td>
 <td>Biomedical Engineering Intern</td>
 <td></td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">18684</td>
+<th data-quarto-table-cell-role="th">18684</th>
 <td>Occupational Therapy Aides</td>
 <td>Rehabilitation Therapy Aide (Rehab Therapy Aide)</td>
 <td>Rehab Therapy Aide</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">24086</td>
+<th data-quarto-table-cell-role="th">24086</th>
 <td>Billing and Posting Clerks</td>
 <td>Statement Services Representative (Statement S...</td>
 <td>Statement Services Rep</td>
@@ -491,13 +494,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>So O*NET tells us that <strong>Cargo and Freight Agents</strong> might also go by a <strong>Shipping Agent</strong> as an <code>Alternate Title</code> and that <strong>Occupational Therapy Aides</strong> might also go by a <strong>Rehab Therapy Aide</strong> as a <code>Short Title</code>.</p>
 <p>We also see that there can be many rows of different <code>Alternate Title</code> and <code>Short Title</code> for the same <code>Title</code>:</p>
 <div id="cell-5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:424}}" data-outputid="76ed7de9-8150-4e52-f30c-7f12f1e70f7a" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>onet_df[onet_df[<span class="st">"Title"</span>] <span class="op">==</span> <span class="st">"Software Developers"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>onet_df[onet_df[<span class="st">"Title"</span>] <span class="op">==</span> <span class="st">"Software Developers"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <div id="df-c143924f-7dcc-46ea-86ea-899d2a974128" class="colab-df-container">
     <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -508,67 +511,67 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4931</td>
+<th data-quarto-table-cell-role="th">4931</th>
 <td>Software Developers</td>
 <td>.NET Developer</td>
 <td></td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">4932</td>
+<th data-quarto-table-cell-role="th">4932</th>
 <td>Software Developers</td>
 <td>Android Developer</td>
 <td></td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4933</td>
+<th data-quarto-table-cell-role="th">4933</th>
 <td>Software Developers</td>
 <td>AngularJS Developer</td>
 <td></td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">4934</td>
+<th data-quarto-table-cell-role="th">4934</th>
 <td>Software Developers</td>
 <td>Apache Hadoop Developer</td>
 <td></td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4935</td>
+<th data-quarto-table-cell-role="th">4935</th>
 <td>Software Developers</td>
 <td>Application Architect</td>
 <td></td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">...</td>
+<th data-quarto-table-cell-role="th">...</th>
 <td>...</td>
 <td>...</td>
 <td>...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">5061</td>
+<th data-quarto-table-cell-role="th">5061</th>
 <td>Software Developers</td>
 <td>User Interface Designer</td>
 <td></td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5062</td>
+<th data-quarto-table-cell-role="th">5062</th>
 <td>Software Developers</td>
 <td>Video Game Engineer</td>
 <td></td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">5063</td>
+<th data-quarto-table-cell-role="th">5063</th>
 <td>Software Developers</td>
 <td>Wide Area Network Engineer (WAN Engineer)</td>
 <td>WAN Engineer</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5064</td>
+<th data-quarto-table-cell-role="th">5064</th>
 <td>Software Developers</td>
 <td>Windows Software Engineer</td>
 <td></td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">5065</td>
+<th data-quarto-table-cell-role="th">5065</th>
 <td>Software Developers</td>
 <td>XML Developer (Extensible Markup Language Deve...</td>
 <td>XML Developer</td>
@@ -786,7 +789,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>There is one thing we do know ahead of time about our users: not all of them will be employed. The O*NET data set doesn’t provide a job title for not working, so let’s add our own:</p>
 <div id="cell-7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:238}}" data-outputid="287b983f-e0e5-4f94-da1f-250ed74b8e98" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>additions <span class="op">=</span> pd.DataFrame(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>additions <span class="op">=</span> pd.DataFrame(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    [</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"Title"</span>: <span class="st">"Unemployed"</span>, <span class="st">"Alternate Title"</span>: <span class="st">"Not Employed"</span>},</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"Title"</span>: <span class="st">"Unemployed"</span>, <span class="st">"Alternate Title"</span>: <span class="st">"None"</span>},</span>
@@ -797,13 +800,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    ]</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>onet_df <span class="op">=</span> pd.concat([onet_df, additions], ignore_index<span class="op">=</span><span class="va">True</span>).fillna(<span class="st">""</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>onet_df[(onet_df[<span class="st">"Title"</span>] <span class="op">==</span> <span class="st">"Unemployed"</span>) <span class="op">|</span> (onet_df[<span class="st">"Title"</span>] <span class="op">==</span> <span class="st">"Retired"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>onet_df[(onet_df[<span class="st">"Title"</span>] <span class="op">==</span> <span class="st">"Unemployed"</span>) <span class="op">|</span> (onet_df[<span class="st">"Title"</span>] <span class="op">==</span> <span class="st">"Retired"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <div id="df-dd544e90-62e2-424a-b90f-7440ca90bc2e" class="colab-df-container">
     <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -814,37 +817,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">56560</td>
+<th data-quarto-table-cell-role="th">56560</th>
 <td>Unemployed</td>
 <td>Not Employed</td>
 <td></td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">56561</td>
+<th data-quarto-table-cell-role="th">56561</th>
 <td>Unemployed</td>
 <td>None</td>
 <td></td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">56562</td>
+<th data-quarto-table-cell-role="th">56562</th>
 <td>Unemployed</td>
 <td>N/A</td>
 <td></td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">56563</td>
+<th data-quarto-table-cell-role="th">56563</th>
 <td>Unemployed</td>
 <td>No Employment</td>
 <td></td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">56564</td>
+<th data-quarto-table-cell-role="th">56564</th>
 <td>Unemployed</td>
 <td>Not Working</td>
 <td></td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">56565</td>
+<th data-quarto-table-cell-role="th">56565</th>
 <td>Retired</td>
 <td>Retiree</td>
 <td></td>
@@ -1061,7 +1064,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>Now let’s merge these fields together. Since we’ll be leveraging a language model, we can take the liberties of language here; we don’t need clean many-to-many relationships. Just combine <code>Title</code>, <code>Alternate Title</code>, and when available, <code>Short Title</code> into one <code>Long Title</code> field with <code>"aka"</code> inline:</p>
 <div id="cell-9" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:424}}" data-outputid="a6a4e52a-fde4-4659-9c64-3463b1b0a75c" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> onet_df[<span class="st">"Short Title"</span>].eq(<span class="st">""</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> onet_df[<span class="st">"Short Title"</span>].eq(<span class="st">""</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>onet_df[<span class="st">"Long Title"</span>] <span class="op">=</span> np.where(</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    mask,</span>
@@ -1069,13 +1072,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    onet_df[<span class="st">"Title"</span>] <span class="op">+</span> <span class="st">" aka "</span> <span class="op">+</span> onet_df[<span class="st">"Alternate Title"</span>] <span class="op">+</span> <span class="st">" aka "</span> <span class="op">+</span> onet_df[<span class="st">"Short Title"</span>],</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>onet_df[onet_df[<span class="st">"Title"</span>] <span class="op">==</span> <span class="st">"Software Developers"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>onet_df[onet_df[<span class="st">"Title"</span>] <span class="op">==</span> <span class="st">"Software Developers"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div id="df-4d1d07c4-8559-4241-ac8a-7d6232c19548" class="colab-df-container">
     <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1087,77 +1090,77 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4931</td>
+<th data-quarto-table-cell-role="th">4931</th>
 <td>Software Developers</td>
 <td>.NET Developer</td>
 <td></td>
 <td>Software Developers aka .NET Developer</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">4932</td>
+<th data-quarto-table-cell-role="th">4932</th>
 <td>Software Developers</td>
 <td>Android Developer</td>
 <td></td>
 <td>Software Developers aka Android Developer</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4933</td>
+<th data-quarto-table-cell-role="th">4933</th>
 <td>Software Developers</td>
 <td>AngularJS Developer</td>
 <td></td>
 <td>Software Developers aka AngularJS Developer</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">4934</td>
+<th data-quarto-table-cell-role="th">4934</th>
 <td>Software Developers</td>
 <td>Apache Hadoop Developer</td>
 <td></td>
 <td>Software Developers aka Apache Hadoop Developer</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4935</td>
+<th data-quarto-table-cell-role="th">4935</th>
 <td>Software Developers</td>
 <td>Application Architect</td>
 <td></td>
 <td>Software Developers aka Application Architect</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">...</td>
+<th data-quarto-table-cell-role="th">...</th>
 <td>...</td>
 <td>...</td>
 <td>...</td>
 <td>...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">5061</td>
+<th data-quarto-table-cell-role="th">5061</th>
 <td>Software Developers</td>
 <td>User Interface Designer</td>
 <td></td>
 <td>Software Developers aka User Interface Designer</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5062</td>
+<th data-quarto-table-cell-role="th">5062</th>
 <td>Software Developers</td>
 <td>Video Game Engineer</td>
 <td></td>
 <td>Software Developers aka Video Game Engineer</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">5063</td>
+<th data-quarto-table-cell-role="th">5063</th>
 <td>Software Developers</td>
 <td>Wide Area Network Engineer (WAN Engineer)</td>
 <td>WAN Engineer</td>
 <td>Software Developers aka Wide Area Network Engi...</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5064</td>
+<th data-quarto-table-cell-role="th">5064</th>
 <td>Software Developers</td>
 <td>Windows Software Engineer</td>
 <td></td>
 <td>Software Developers aka Windows Software Engineer</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">5065</td>
+<th data-quarto-table-cell-role="th">5065</th>
 <td>Software Developers</td>
 <td>XML Developer (Extensible Markup Language Deve...</td>
 <td>XML Developer</td>
@@ -1380,7 +1383,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>emb('king') - emb('man') + emb('woman')</code> which returns a vector that is mathmatically <em>very close</em> to <code>emb('queen')</code>.</p>
 <p>We’re going to use this “closeness” between vectors to reduce infinite free-form data to our finite <code>Long Title</code> data and then map it back to <code>Title</code>. The first thing to do is quite simple: calculate <code>JobBERT</code> embeddings on all of the values in our <code>Long Title</code> column:</p>
 <div id="cell-11" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:206}}" data-outputid="c0689d5c-e02e-42d6-ead0-cb0730e7f47f" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sentence_transformers <span class="im">import</span> SentenceTransformer</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sentence_transformers <span class="im">import</span> SentenceTransformer</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1395,13 +1398,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>onet_df[[<span class="st">"Long Title"</span>, <span class="st">"embedding"</span>]].sample(n<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">101</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>onet_df[[<span class="st">"Long Title"</span>, <span class="st">"embedding"</span>]].sample(n<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">101</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
 <div id="df-50722b38-d2db-4afa-ac86-bdffe3ec87a5" class="colab-df-container">
     <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1411,27 +1414,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">25268</td>
+<th data-quarto-table-cell-role="th">25268</th>
 <td>Cargo and Freight Agents aka Shipping Agent</td>
 <td>[-0.034480397, -0.01120864, -0.005822623, -0.0...</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">30408</td>
+<th data-quarto-table-cell-role="th">30408</th>
 <td>Helpers, Construction Trades, All Other aka Me...</td>
 <td>[-0.07022176, -0.020068161, 0.0111531215, -0.0...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6045</td>
+<th data-quarto-table-cell-role="th">6045</th>
 <td>Bioengineers and Biomedical Engineers aka Biom...</td>
 <td>[-0.030613927, -0.059320696, -0.01718829, -0.0...</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">18684</td>
+<th data-quarto-table-cell-role="th">18684</th>
 <td>Occupational Therapy Aides aka Rehabilitation ...</td>
 <td>[-0.014956265, -0.038792193, -0.00349255, 0.00...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">24086</td>
+<th data-quarto-table-cell-role="th">24086</th>
 <td>Billing and Posting Clerks aka Statement Servi...</td>
 <td>[0.020981414, -0.033710796, 0.03225505, -0.011...</td>
 </tr>
@@ -1647,18 +1650,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>As a reader, the <code>embedding</code> column is an indecipherable array of floats, but now we can do some cool things. Here are three rows from our data:</p>
 <div id="cell-13" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:143}}" data-outputid="6691628c-10d7-456a-bf1f-ce3da300422a" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">slice</span> <span class="op">=</span> onet_df[</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">slice</span> <span class="op">=</span> onet_df[</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    (onet_df[<span class="st">"Long Title"</span>] <span class="op">==</span> <span class="st">"Software Developers aka Video Game Engineer"</span>) <span class="op">|</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    (onet_df[<span class="st">"Long Title"</span>] <span class="op">==</span> <span class="st">"Database Architects aka Information Architect"</span>) <span class="op">|</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    (onet_df[<span class="st">"Long Title"</span>] <span class="op">==</span> <span class="st">"Cargo and Freight Agents aka Shipping Agent"</span>)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">slice</span>[[<span class="st">"Long Title"</span>, <span class="st">"embedding"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">slice</span>[[<span class="st">"Long Title"</span>, <span class="st">"embedding"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
 <div id="df-8d8fb5de-fec1-447f-bcc5-1f0a6c1f6859" class="colab-df-container">
     <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1668,17 +1671,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4806</td>
+<th data-quarto-table-cell-role="th">4806</th>
 <td>Database Architects aka Information Architect</td>
 <td>[0.020110216, 0.06301323, -0.029263753, -0.022...</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5062</td>
+<th data-quarto-table-cell-role="th">5062</th>
 <td>Software Developers aka Video Game Engineer</td>
 <td>[0.041696787, 0.024444718, -0.053837907, 0.031...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">25268</td>
+<th data-quarto-table-cell-role="th">25268</th>
 <td>Cargo and Freight Agents aka Shipping Agent</td>
 <td>[-0.034480397, -0.01120864, -0.005822623, -0.0...</td>
 </tr>
@@ -1894,12 +1897,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>In a vector space, you can evaluate how similar two vectors are by taking their <a href="https://en.wikipedia.org/wiki/Cosine_similarity">cosine similarity</a>. Since we normalized our vectors when we embedded them, the denominator in the cosine function becomes <code>1</code> so we can do this even more efficiently with just a <a href="https://en.wikipedia.org/wiki/Dot_product">dot product</a>:</p>
 <div id="cell-15" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="d670cf17-fa52-40f7-b090-ea1fc384ef71" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>database_architect <span class="op">=</span> <span class="bu">slice</span>.iloc[<span class="dv">0</span>][<span class="st">"embedding"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>database_architect <span class="op">=</span> <span class="bu">slice</span>.iloc[<span class="dv">0</span>][<span class="st">"embedding"</span>]</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>software_developer <span class="op">=</span> <span class="bu">slice</span>.iloc[<span class="dv">1</span>][<span class="st">"embedding"</span>]</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>cargo_and_freight_agent <span class="op">=</span> <span class="bu">slice</span>.iloc[<span class="dv">2</span>][<span class="st">"embedding"</span>]</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Software Developer vs Data Architect: </span><span class="sc">{</span>software_developer <span class="op">@</span> database_architect<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Software Developer vs Cargo Agent: </span><span class="sc">{</span>software_developer <span class="op">@</span> cargo_and_freight_agent<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Software Developer vs Cargo Agent: </span><span class="sc">{</span>software_developer <span class="op">@</span> cargo_and_freight_agent<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Software Developer vs Data Architect: 0.2380954772233963
 Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
@@ -1911,7 +1914,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <p>Let’s go get some real data to try it out! Since I work in political tech, I like to reach for campaign donor data.</p>
 <p>Our friends over at ProPublica <a href="https://projects.propublica.org/itemizer/committee/C00401224/2024/filings/1791562/downloads">publish itemized ActBlue receipts by state</a>. Because ActBlue is a conduit committee, these files include every transaction of any amount. That’s a lot of transactions! Let’s grab all of the ActBlue transactions from Texas for June 2024.</p>
 <div id="cell-18" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:363}}" data-outputid="61f7692b-5f8f-4a72-e0b4-4b8172b67e51" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dtypes <span class="op">=</span> {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dtypes <span class="op">=</span> {</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"flag_orgind"</span>: <span class="st">"string"</span>,</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_name"</span>: <span class="st">"string"</span>,</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"city"</span>: <span class="st">"string"</span>,</span>
@@ -1932,13 +1935,13 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>employed <span class="op">=</span> <span class="kw">lambda</span> df: df[<span class="st">"occupation"</span>].ne(<span class="st">"NOT EMPLOYED"</span>)</span>
 <span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>get_sample <span class="op">=</span> <span class="kw">lambda</span> seed: abtx_df.loc[employed(abtx_df)].sample(n<span class="op">=</span><span class="dv">10</span>, random_state<span class="op">=</span>seed)</span>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>get_sample(<span class="dv">30330</span>)  <span class="co"># seed for reproducibility</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>get_sample(<span class="dv">30330</span>)  <span class="co"># seed for reproducibility</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
 <div id="df-28f43e9b-d7fb-436a-874a-f7d5dab9fc8a" class="colab-df-container">
     <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1951,7 +1954,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">139133</td>
+<th data-quarto-table-cell-role="th">139133</th>
 <td>PAT</td>
 <td>NORTH RICHLAND HIL</td>
 <td>76180</td>
@@ -1959,7 +1962,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>RETIRED</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">4248</td>
+<th data-quarto-table-cell-role="th">4248</th>
 <td>HARRY</td>
 <td>HOUSTON</td>
 <td>77019</td>
@@ -1967,7 +1970,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>LAWYER</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">221073</td>
+<th data-quarto-table-cell-role="th">221073</th>
 <td>THAO</td>
 <td>HOUSTON</td>
 <td>77083</td>
@@ -1975,7 +1978,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>HISTOLOGY TECHNICIAN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">201669</td>
+<th data-quarto-table-cell-role="th">201669</th>
 <td>PHILIP</td>
 <td>SAN ANTONIO</td>
 <td>78240</td>
@@ -1983,7 +1986,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>MANAGER</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">256487</td>
+<th data-quarto-table-cell-role="th">256487</th>
 <td>MARIA</td>
 <td>HOLLAND</td>
 <td>76534</td>
@@ -1991,7 +1994,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>HEALTHCARE ADMINISTRATOR</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">6330</td>
+<th data-quarto-table-cell-role="th">6330</th>
 <td>ELLEN</td>
 <td>BELLAIRE</td>
 <td>77401</td>
@@ -1999,7 +2002,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>ARBITRATOR</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">125976</td>
+<th data-quarto-table-cell-role="th">125976</th>
 <td>MICHELLE</td>
 <td>FORT WORTH</td>
 <td>76133</td>
@@ -2007,7 +2010,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>SERVER</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">13659</td>
+<th data-quarto-table-cell-role="th">13659</th>
 <td>ROSE</td>
 <td>HOUSTON</td>
 <td>77024</td>
@@ -2015,7 +2018,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>NURSING</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">138213</td>
+<th data-quarto-table-cell-role="th">138213</th>
 <td>PETER</td>
 <td>HOUSTON</td>
 <td>77019</td>
@@ -2023,7 +2026,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>DATABASE ANALYST</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">62939</td>
+<th data-quarto-table-cell-role="th">62939</th>
 <td>ERIN</td>
 <td>FRISCO</td>
 <td>75035</td>
@@ -2242,7 +2245,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 </div>
 <p>That <code>occupation</code> field came from donors and doesn’t perfectly match our modeled job titles. But we don’t need it to! Let’s use our model to calculate embeddings on these new values:</p>
 <div id="cell-20" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:363}}" data-outputid="fdc95ad3-bb0a-486e-b7fe-d142a580ae34" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>abtx_df[<span class="st">"embedding"</span>] <span class="op">=</span> <span class="bu">list</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>abtx_df[<span class="st">"embedding"</span>] <span class="op">=</span> <span class="bu">list</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    model.encode(</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        abtx_df[<span class="st">"occupation"</span>].tolist(),</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        normalize_embeddings<span class="op">=</span><span class="va">True</span>,</span>
@@ -2251,13 +2254,13 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>get_sample(<span class="dv">30330</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>get_sample(<span class="dv">30330</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="9">
 <div id="df-4ec6b342-a3ca-4e2e-9f4e-abee488afd11" class="colab-df-container">
     <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -2271,7 +2274,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">139133</td>
+<th data-quarto-table-cell-role="th">139133</th>
 <td>PAT</td>
 <td>NORTH RICHLAND HIL</td>
 <td>76180</td>
@@ -2280,7 +2283,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>[-0.022304475, 0.08798518, 0.008374137, 0.0150...</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">4248</td>
+<th data-quarto-table-cell-role="th">4248</th>
 <td>HARRY</td>
 <td>HOUSTON</td>
 <td>77019</td>
@@ -2289,7 +2292,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>[0.0123939905, 0.06054912, 0.0046267705, -0.03...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">221073</td>
+<th data-quarto-table-cell-role="th">221073</th>
 <td>THAO</td>
 <td>HOUSTON</td>
 <td>77083</td>
@@ -2298,7 +2301,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>[0.027493875, -0.079993084, 0.013278877, -0.00...</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">201669</td>
+<th data-quarto-table-cell-role="th">201669</th>
 <td>PHILIP</td>
 <td>SAN ANTONIO</td>
 <td>78240</td>
@@ -2307,7 +2310,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>[0.09953636, 0.07623968, 0.020005615, 0.001361...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">256487</td>
+<th data-quarto-table-cell-role="th">256487</th>
 <td>MARIA</td>
 <td>HOLLAND</td>
 <td>76534</td>
@@ -2316,7 +2319,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>[0.036386397, 0.06352263, -0.0023324555, -0.02...</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">6330</td>
+<th data-quarto-table-cell-role="th">6330</th>
 <td>ELLEN</td>
 <td>BELLAIRE</td>
 <td>77401</td>
@@ -2325,7 +2328,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>[0.05744064, 0.03044543, -0.011071598, 0.01120...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">125976</td>
+<th data-quarto-table-cell-role="th">125976</th>
 <td>MICHELLE</td>
 <td>FORT WORTH</td>
 <td>76133</td>
@@ -2334,7 +2337,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>[0.0222358, 0.025343752, -0.027377797, -0.0031...</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">13659</td>
+<th data-quarto-table-cell-role="th">13659</th>
 <td>ROSE</td>
 <td>HOUSTON</td>
 <td>77024</td>
@@ -2343,7 +2346,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>[0.008113306, 0.03859657, -0.014793488, -0.064...</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">138213</td>
+<th data-quarto-table-cell-role="th">138213</th>
 <td>PETER</td>
 <td>HOUSTON</td>
 <td>77019</td>
@@ -2352,7 +2355,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <td>[0.042439297, 0.08193651, -0.027909847, 0.0143...</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">62939</td>
+<th data-quarto-table-cell-role="th">62939</th>
 <td>ERIN</td>
 <td>FRISCO</td>
 <td>75035</td>
@@ -2575,7 +2578,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <p>When pushing this to a GPU, it’s a little more art than science. We batch it, and picking an optimal batch size can take some trial and error. For every batch, we’ll calculate the dot product, and return the indices of the best similarities.</p>
 <p>From there, we can map all the way back to our original O*NET <code>Title</code> column, as our normalized output:</p>
 <div id="cell-22" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:363}}" data-outputid="df9fc12c-177f-4d80-cfa8-8bd72bfac643" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> <span class="st">"cuda"</span>  <span class="co"># requires an NVIDIA GPU + CUDA</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>onet_t <span class="op">=</span> torch.tensor(np.stack(onet_df.embedding), device<span class="op">=</span>device)  <span class="co"># (n × d)</span></span>
@@ -2593,13 +2596,13 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>abtx_df[<span class="st">"Normalized Occupation"</span>] <span class="op">=</span> onet_df.Title.iloc[idx].to_numpy()</span>
 <span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>get_sample(<span class="dv">30330</span>)[[<span class="st">"first_name"</span>, <span class="st">"occupation"</span>, <span class="st">"Normalized Occupation"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>get_sample(<span class="dv">30330</span>)[[<span class="st">"first_name"</span>, <span class="st">"occupation"</span>, <span class="st">"Normalized Occupation"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="10">
 <div id="df-a1e005cf-36c2-433f-99a9-113a3ec71d4a" class="colab-df-container">
     <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -2610,61 +2613,61 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">139133</td>
+<th data-quarto-table-cell-role="th">139133</th>
 <td>PAT</td>
 <td>RETIRED</td>
 <td>Retired</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">4248</td>
+<th data-quarto-table-cell-role="th">4248</th>
 <td>HARRY</td>
 <td>LAWYER</td>
 <td>Lawyers</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">221073</td>
+<th data-quarto-table-cell-role="th">221073</th>
 <td>THAO</td>
 <td>HISTOLOGY TECHNICIAN</td>
 <td>Histology Technicians</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">201669</td>
+<th data-quarto-table-cell-role="th">201669</th>
 <td>PHILIP</td>
 <td>MANAGER</td>
 <td>Managers, All Other</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">256487</td>
+<th data-quarto-table-cell-role="th">256487</th>
 <td>MARIA</td>
 <td>HEALTHCARE ADMINISTRATOR</td>
 <td>Medical and Health Services Managers</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">6330</td>
+<th data-quarto-table-cell-role="th">6330</th>
 <td>ELLEN</td>
 <td>ARBITRATOR</td>
 <td>Arbitrators, Mediators, and Conciliators</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">125976</td>
+<th data-quarto-table-cell-role="th">125976</th>
 <td>MICHELLE</td>
 <td>SERVER</td>
 <td>Food Servers, Nonrestaurant</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">13659</td>
+<th data-quarto-table-cell-role="th">13659</th>
 <td>ROSE</td>
 <td>NURSING</td>
 <td>Registered Nurses</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">138213</td>
+<th data-quarto-table-cell-role="th">138213</th>
 <td>PETER</td>
 <td>DATABASE ANALYST</td>
 <td>Database Administrators</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">62939</td>
+<th data-quarto-table-cell-role="th">62939</th>
 <td>ERIN</td>
 <td>NONPROFIT</td>
 <td>Fundraisers</td>
@@ -2881,7 +2884,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 </div>
 <p>A way to visualized this is with <a href="https://en.wikipedia.org/wiki/Principal_component_analysis">principal component analysis</a>. PCA computes new orthogonal axes called principal components that capture the most variation in the data. These directions are combinations of the original dimensions, chosen to reveal the biggest patterns and differences. By projecting each vector onto the first two principal components, we can plot everything in two dimensions while keeping as much of the original structure as possible:</p>
 <div id="cell-24" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:906}}" data-outputid="53040c7b-649a-4120-9918-3d6cd337f116" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> PCA</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>X_onet <span class="op">=</span> np.vstack(onet_df[<span class="st">"embedding"</span>].to_numpy())</span>
@@ -2901,7 +2904,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Component 2"</span>)</span>
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -2912,7 +2915,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 </div>
 <p>And in our higher-dimension space, we can calculate ad hoc similarities on any arbitrary job title someone might enter:</p>
 <div id="cell-26" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="ef85c9d4-0725-44ce-bfe3-81ae2be42c31" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normalize(job_title):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normalize(job_title):</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  ad_hoc <span class="op">=</span> torch.tensor(</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>      model.encode(</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>          [job_title],</span>
@@ -2937,7 +2940,7 @@ Software Developer vs Cargo Agent: 0.08600345253944397</code></pre>
 <span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"commodities trader"</span>))</span>
 <span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"life insurance adjuster"</span>))</span>
 <span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"lumberjack"</span>))</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"cpa"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"cpa"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>code ninja → Computer Programmers
 uber → Taxi Drivers
@@ -2957,11 +2960,11 @@ cpa → Accountants and Auditors</code></pre>
 <p>It’s not perfect. I don’t think I would have normalized <strong>Postdoctoral Fellow</strong> to <strong>Clinical Research Coordinators</strong>. This is where decisions we made in constructing the model start to show themselves. All those <code>aka</code> job title concatenations we did at the top affected how the language was modeled. Depending on your use case this could be fine; maybe you just need deterministic finite categories. You can play with the embedding calculation process to see how different strategies yield different resules.</p>
 <p>As for our nurses:</p>
 <div id="cell-28" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="f4243eb0-6ba7-46a8-8e78-4d9ae71fcbcc" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"nurse"</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"nurse"</span>))</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"RN"</span>))</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"MSN"</span>))</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"ER Nurse"</span>))</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"home health nursing"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(normalize(<span class="st">"home health nursing"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>nurse → Registered Nurses
 RN → Registered Nurses
@@ -3030,13 +3033,14 @@ home health nursing → Registered Nurses</code></pre>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

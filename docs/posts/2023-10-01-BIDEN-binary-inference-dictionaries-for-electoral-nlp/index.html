@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.8.24">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -60,7 +60,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -70,14 +70,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../img/favicon.png" rel="icon" type="image/png">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-1100dc645a9806080dc50effd6ccb0f7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-a6e161b2431e1f94a14e0f5d32135a3c.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-e8a494901d728753c08c0bd476d7e03f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-ae2740be6c8dfbd2a514f453c184fb99.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -104,7 +105,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <link href="https://fonts.googleapis.com/css?family=Overpass:300,900" rel="stylesheet">
@@ -132,6 +133,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Matt Hodges</span>
     </a>
@@ -237,12 +240,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="cleaning-the-training-data">Cleaning the Training Data</h3>
 <p>The ElectionEmails 2020 data set is a CSV. The model consideres <a href="https://electionemails2020.org/downloads/corpus_documentation_v1.0.pdf">two columns</a>: <code>party_affiliation</code> and <code>body_text</code>. <strong>BIDEN</strong> is only concerned with binary classification for Democratic and Republican labeling.</p>
 <p>The two requirements defined in <code>requirements.txt</code> are <a href="https://pypi.org/project/pandas/">Pandas</a> and <a href="https://pypi.org/project/zstandard/">zstandard</a>:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode txt code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pandas==2.1.*</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>zstandard==0.21.* </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode txt code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pandas==2.1.*</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>zstandard==0.21.* </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Start by reading in the data. Since the model is only working with two columns, drop any record that doesn’t contain both. Also filter the data to only consider Democratic or Republican emails for the binary classificaiton.</p>
 <p><strong>Note</strong>: this assumes you have the ElectionEmails 2020 data saved at the relative path <code>data/corpus_v1.0.csv</code>.</p>
 <div id="a8127153-8f5a-460c-a5d5-da2fcc7c8d8c" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> enum <span class="im">import</span> Enum</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> enum <span class="im">import</span> Enum</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> zstandard</span>
@@ -265,7 +268,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>r_df <span class="op">=</span> df[df.party_affiliation <span class="op">==</span> <span class="st">"Republican Party"</span>].dropna()</span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'D Samples: </span><span class="sc">{</span><span class="bu">len</span>(d_df.index)<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'R Samples: </span><span class="sc">{</span><span class="bu">len</span>(r_df.index)<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'R Samples: </span><span class="sc">{</span><span class="bu">len</span>(r_df.index)<span class="sc">}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>D Samples: 127194
 R Samples: 36788</code></pre>
@@ -273,7 +276,7 @@ R Samples: 36788</code></pre>
 </div>
 <p>There are significantly more Democratic samples than Republican samples, so take a random subset of the former.</p>
 <div id="54b8fe57-dae5-47dd-af3c-aa7c9d28d853" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>max_data <span class="op">=</span> <span class="bu">min</span>(<span class="bu">len</span>(d_df.index), <span class="bu">len</span>(r_df.index))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>max_data <span class="op">=</span> <span class="bu">min</span>(<span class="bu">len</span>(d_df.index), <span class="bu">len</span>(r_df.index))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>d_df <span class="op">=</span> d_df.sample(</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    n<span class="op">=</span>max_data,</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    random_state<span class="op">=</span><span class="dv">9001</span>  <span class="co"># random seed set for reproducibility </span></span>
@@ -285,7 +288,7 @@ R Samples: 36788</code></pre>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'D Samples: </span><span class="sc">{</span><span class="bu">len</span>(d_df.index)<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'R Samples: </span><span class="sc">{</span><span class="bu">len</span>(r_df.index)<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'R Samples: </span><span class="sc">{</span><span class="bu">len</span>(r_df.index)<span class="sc">}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>D Samples: 36788
 R Samples: 36788</code></pre>
@@ -293,7 +296,7 @@ R Samples: 36788</code></pre>
 </div>
 <p>Now divide the data into training and test subsets, at an 80/20 split.</p>
 <div id="7f3c0940-4013-4e03-b361-bdf5886f9954" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>d_train_df <span class="op">=</span> d_df.sample(frac<span class="op">=</span><span class="fl">0.8</span>, random_state<span class="op">=</span><span class="dv">9001</span>)  <span class="co"># random seed set for reproducibility </span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>d_train_df <span class="op">=</span> d_df.sample(frac<span class="op">=</span><span class="fl">0.8</span>, random_state<span class="op">=</span><span class="dv">9001</span>)  <span class="co"># random seed set for reproducibility </span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>d_test_df <span class="op">=</span> d_df.drop(d_train_df.index)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>r_train_df <span class="op">=</span> r_df.sample(frac<span class="op">=</span><span class="fl">0.8</span>, random_state<span class="op">=</span><span class="dv">9001</span>)  <span class="co"># random seed set for reproducibility </span></span>
@@ -302,7 +305,7 @@ R Samples: 36788</code></pre>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Democratic Training Samples: </span><span class="sc">{</span><span class="bu">len</span>(d_train_df.index)<span class="sc">}</span><span class="ss">'</span>)</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Democratic Test Samples: </span><span class="sc">{</span><span class="bu">len</span>(d_test_df.index)<span class="sc">}</span><span class="ss">'</span>)</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Republican Training Samples: </span><span class="sc">{</span><span class="bu">len</span>(r_train_df.index)<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Republican Test Samples: </span><span class="sc">{</span><span class="bu">len</span>(r_test_df.index)<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Republican Test Samples: </span><span class="sc">{</span><span class="bu">len</span>(r_test_df.index)<span class="sc">}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Democratic Training Samples: 29430
 Democratic Test Samples: 7358
@@ -315,7 +318,7 @@ Republican Test Samples: 7358</code></pre>
 <h3 class="anchored" data-anchor-id="the-biden-model">The BIDEN model</h3>
 <p>The model consistes of two core methods: <code>train()</code> and <code>classify()</code> :</p>
 <div id="53a77efa-3809-4bfe-9afb-42ca058943fb" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BIDEN():</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BIDEN():</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Binary Inference Dictionaries for Electoral NLP (BIDEN)</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -420,18 +423,18 @@ Republican Test Samples: 7358</code></pre>
 <span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> r_ratio <span class="op">&lt;</span> d_ratio:</span>
 <span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> BIDEN.Classification.REPUBLICAN</span>
 <span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> BIDEN.Classification.DEMOCRATIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> BIDEN.Classification.DEMOCRATIC</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="train-the-model" class="level3">
 <h3 class="anchored" data-anchor-id="train-the-model">Train the Model</h3>
 <p>To train the model, we pass the entirety of the Democratic and Republican texts to construct <a href="https://python-zstandard.readthedocs.io/en/latest/dictionaries.html">prefix dictionaries</a>. Prefix dictionaries allow compression operations to reference raw data within the <a href="https://python-zstandard.readthedocs.io/en/latest/concepts.html#dictionaries">dictionary</a>. Once we have two compressors instantiated and pre-seeded with our training data, the model is trained. This is <em>fast</em>. On my 2.6 GHz 6-Core Intel Core i7, this takes roughly <strong>30 seconds</strong>.</p>
 <div id="cfa1300f-0ca7-4030-942f-7ea780e6db4e" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>d_combined_text <span class="op">=</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(d_train_df.body_text)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>d_combined_text <span class="op">=</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(d_train_df.body_text)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>r_combined_text <span class="op">=</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(r_train_df.body_text)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> BIDEN()</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>model.train(d_combined_text, r_combined_text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>model.train(d_combined_text, r_combined_text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
 <pre><code>True</code></pre>
 </div>
@@ -441,7 +444,7 @@ Republican Test Samples: 7358</code></pre>
 <h3 class="anchored" data-anchor-id="classification">Classification</h3>
 <p>Now, we can classify our test data. We could loop through each set, but let’s combine and shuffle them together first, and loop in one go. We’ll also convert the party affiliation strings <code>'Democratic Party'</code>, and <code>'Republican Party'</code> into our model’s enum values:</p>
 <div id="8179375a-26b8-46f9-8de0-8f44eef4b141" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>combined_test_df <span class="op">=</span> pd.concat(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>combined_test_df <span class="op">=</span> pd.concat(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    [d_test_df, r_test_df],</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    ignore_index<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    sort<span class="op">=</span><span class="va">False</span></span>
@@ -463,7 +466,7 @@ Republican Test Samples: 7358</code></pre>
 <span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> inferred_label <span class="op">==</span> actual_label:</span>
 <span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>        num_correct <span class="op">+=</span> <span class="dv">1</span></span>
 <span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Classification Success Rate: </span><span class="sc">{</span>((num_correct <span class="op">/</span> <span class="bu">len</span>(combined_test_df.index))<span class="op">*</span><span class="dv">100</span>)<span class="sc">:.1f}</span><span class="ss">%'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Classification Success Rate: </span><span class="sc">{</span>((num_correct <span class="op">/</span> <span class="bu">len</span>(combined_test_df.index))<span class="op">*</span><span class="dv">100</span>)<span class="sc">:.1f}</span><span class="ss">%'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Classification Success Rate: 98.9%</code></pre>
 </div>
@@ -474,7 +477,7 @@ Republican Test Samples: 7358</code></pre>
 <h3 class="anchored" data-anchor-id="another-email-data-set">Another Email Data Set</h3>
 <p>Let’s see how it performs with emails from another data set. <a href="https://www.thescoop.org">Derek Willis</a> maintains a <a href="https://datasette.io/">Datasette</a> of <a href="https://political-emails.herokuapp.com/emails">over 150,000 campaign emails</a>. Let’s grab 100 samples of each party from that collection, and see how they perform:</p>
 <div id="95f0a04c-a454-44e9-b189-c45a9d17cb0c" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>base_url <span class="op">=</span> <span class="st">'https://political-emails.herokuapp.com/emails.csv?sql='</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>base_url <span class="op">=</span> <span class="st">'https://political-emails.herokuapp.com/emails.csv?sql='</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>d_query <span class="op">=</span> <span class="st">'select body, party from emails where party = "D" limit 100;'</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>r_query <span class="op">=</span> <span class="st">'select body, party from emails where party = "R" limit 100;'</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -511,7 +514,7 @@ Republican Test Samples: 7358</code></pre>
 <span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'DW Sample:'</span>)</span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>combined_dw_df.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>combined_dw_df.head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>DW Sample:</code></pre>
 </div>
@@ -519,7 +522,7 @@ Republican Test Samples: 7358</code></pre>
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -529,52 +532,52 @@ Republican Test Samples: 7358</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>Hey Peter!!! You know our campaign is made by,...</td>
 <td>Classification.DEMOCRATIC</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>https://www.jahanahayes.com/ [https://www.jaha...</td>
 <td>Classification.DEMOCRATIC</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>Hi there, it’s storytime: I developed a keen n...</td>
 <td>Classification.DEMOCRATIC</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>We’re contacting a select group of patriots fo...</td>
 <td>Classification.REPUBLICAN</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>Peter – You need to watch this. CLICK HERE OR ...</td>
 <td>Classification.REPUBLICAN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
+<th data-quarto-table-cell-role="th">5</th>
 <td>Peter, you may have seen me asking for your ol...</td>
 <td>Classification.DEMOCRATIC</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
+<th data-quarto-table-cell-role="th">6</th>
 <td>Do you want an Official Mugshot Mug? (24-hour ...</td>
 <td>Classification.REPUBLICAN</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
+<th data-quarto-table-cell-role="th">7</th>
 <td>https://secure.actblue.com/donate/cdp-footer?r...</td>
 <td>Classification.DEMOCRATIC</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
+<th data-quarto-table-cell-role="th">8</th>
 <td>[ https://act.katieporter.com/go/14559?t=1001&amp;...</td>
 <td>Classification.DEMOCRATIC</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
+<th data-quarto-table-cell-role="th">9</th>
 <td>I hope I made you proud fighting for you at th...</td>
 <td>Classification.REPUBLICAN</td>
 </tr>
@@ -585,7 +588,7 @@ Republican Test Samples: 7358</code></pre>
 </div>
 </div>
 <div id="e8cc55d0-fba3-4a6a-ad2f-5e5db9da3016" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>num_correct <span class="op">=</span> <span class="dv">0</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>num_correct <span class="op">=</span> <span class="dv">0</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> combined_dw_df.itertuples():</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    actual_label <span class="op">=</span> row.party</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    inferred_label <span class="op">=</span> model.classify(row.body)</span>
@@ -593,7 +596,7 @@ Republican Test Samples: 7358</code></pre>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> inferred_label <span class="op">==</span> actual_label:</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        num_correct <span class="op">+=</span> <span class="dv">1</span></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Classification Success Rate: </span><span class="sc">{</span>((num_correct <span class="op">/</span> <span class="bu">len</span>(combined_dw_df.index))<span class="op">*</span><span class="dv">100</span>)<span class="sc">:.1f}</span><span class="ss">%'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Classification Success Rate: </span><span class="sc">{</span>((num_correct <span class="op">/</span> <span class="bu">len</span>(combined_dw_df.index))<span class="op">*</span><span class="dv">100</span>)<span class="sc">:.1f}</span><span class="ss">%'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Classification Success Rate: 93.0%</code></pre>
 </div>
@@ -604,7 +607,7 @@ Republican Test Samples: 7358</code></pre>
 <h3 class="anchored" data-anchor-id="classifying-tweets">Classifying Tweets</h3>
 <p>The Twitter API is basically useless these days, so I scrolled the timelines of <a href="https://twitter.com/Mike_Pence">Mike Pence</a> (R) and <a href="https://twitter.com/GavinNewsom">Gavin Newsom</a> (D), and copy+paste’d 5 tweets from each. It’s a tiny sample, and not really random, but it’s neat to see how well it does:</p>
 <div id="5839d1f1-3b63-41da-a131-d594b0fb2b00" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pence_tweets <span class="op">=</span> [</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pence_tweets <span class="op">=</span> [</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># https://twitter.com/Mike_Pence/status/1707882018258751915</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Today, we applaud the Eighth Circuit's decision, "</span> <span class="op">\</span></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"which is an important step in the fight to uphold and protect "</span> <span class="op">\</span></span>
@@ -637,7 +640,7 @@ Republican Test Samples: 7358</code></pre>
 <span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"to bring China to the negotiating table."</span></span>
 <span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>]</span>
 <span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>[model.classify(t) <span class="cf">for</span> t <span class="kw">in</span> pence_tweets]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>[model.classify(t) <span class="cf">for</span> t <span class="kw">in</span> pence_tweets]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="10">
 <pre><code>[&lt;Classification.REPUBLICAN: 2&gt;,
  &lt;Classification.REPUBLICAN: 2&gt;,
@@ -647,7 +650,7 @@ Republican Test Samples: 7358</code></pre>
 </div>
 </div>
 <div id="9d56a846-ff42-4744-ad85-98842226edfa" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>newsom_tweets <span class="op">=</span> [</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>newsom_tweets <span class="op">=</span> [</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># https://twitter.com/GavinNewsom/status/1700615276667294035</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"When people ask why I am introducing a Constitutional Amendment "</span> <span class="op">\</span></span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"on gun safety this is why. Not only has Congress stalled for YEARS on passing "</span> <span class="op">\</span></span>
@@ -677,7 +680,7 @@ Republican Test Samples: 7358</code></pre>
 <span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"town and what's at stake if we ban our kids from learning our real history."</span></span>
 <span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>]</span>
 <span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>[model.classify(t) <span class="cf">for</span> t <span class="kw">in</span> newsom_tweets]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>[model.classify(t) <span class="cf">for</span> t <span class="kw">in</span> newsom_tweets]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
 <pre><code>[&lt;Classification.DEMOCRATIC: 1&gt;,
  &lt;Classification.DEMOCRATIC: 1&gt;,
@@ -791,13 +794,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</code></pre
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

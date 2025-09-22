@@ -36,6 +36,9 @@ I have been an **Election Night Reporter** for [Decision Desk HQ]{.color-accent}
 I have been a frequent **Open Source Contributor** to [OpenElections]{.color-accent}, which is creating the first free, comprehensive, standardized, linked set of election results data for the United States. 
 
 ## Media & Appearances
+*   Deepfakes Are Everywhere, and Many Campaigns Aren’t Prepared
+:   NOTUS, 2025
+:   [[Original](https://www.notus.org/technology/deepfakes-campaigns)] [[Archive](https://web.archive.org/web/20250922113311/https://www.notus.org/technology/deepfakes-campaigns)]
 *   Trump wants an investigation of Democrats' fundraising. His own campaign has issues
 :   AP, 2025
 :   [[Original](https://apnews.com/article/trump-actblue-winred-fundraising-justice-department-3e73d4022bb47e0533f9dcfd35d37371)] [[Archive](https://web.archive.org/web/20250602003119/https://apnews.com/article/trump-actblue-winred-fundraising-justice-department-3e73d4022bb47e0533f9dcfd35d37371)]
