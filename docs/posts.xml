@@ -15,7 +15,131 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.8.24</generator>
-<lastBuildDate>Tue, 23 Sep 2025 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 30 Sep 2025 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>Scraping the Federal Reserve with VisiData</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2025-09-30-visidata/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>I’ve been loving <a href="https://www.visidata.org/">VisiData</a> for years now. It’s my favorite way to poke around tabular data without the overhead of spreadsheets.</p>
+<p>In 2020 I posted a short video demonstrating some quick data exploration you can do with it:</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/lzS2z8NNnzo" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>Today I appreciated another snappy use case: pulling and transforming HTML table data.</p>
+<p>I learned that the Federal Reserve publishes a regularly-updated <a href="https://www.federalreserve.gov/releases/lbr/current/">list of the largest commercial banks</a>. It looks like this:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2025-09-30-visidata/federal-reserve-large-commercial-banks.png" class="img-fluid figure-img"></p>
+<figcaption>Federal Reserve Large Commercial Banks table</figcaption>
+</figure>
+</div>
+<p>It also comes in <a href="https://www.federalreserve.gov/releases/lbr/current/lrg_bnk_lst.pdf">PDF</a> and <a href="https://www.federalreserve.gov/releases/lbr/current/lrg_bnk_lst.txt">ASCII</a> formats. Unfortunately, the ASCII format would require bespoke parsing.</p>
+<p>The good news is the HTML-formatted data uses good old <code>&lt;table&gt;</code> instead of <code>&lt;div&gt;</code> nonsense. Better yet, VisiData can work really well with HTML tables:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">curl</span> <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-s</span> https://www.federalreserve.gov/releases/lbr/current/ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">|</span> <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">vd</span> +:table_1::</span></code></pre></div></div>
+<p>which does the following:</p>
+<ol type="1">
+<li>Pull the page HTML with curl</li>
+<li>Pipe it into VisiData</li>
+<li>Select the second (zero-indexed) table</li>
+</ol>
+<p>which presents this:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2025-09-30-visidata/visidata-fed-large-banks.jpeg" class="img-fluid figure-img"></p>
+<figcaption>VisiData showing large bank data from the Federal Reserve</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You can often skip the curl step. VisiData can usually fetch HTML pages directly with the url passed as a positional argument (go try it on Wikipedia!). But the Federal Reserve page was 403’ing me. Rather than <a href="https://github.com/saulpw/visidata/issues/1446">mess with VisiData User-Agent strings</a>, I moved the problem to curl, which worked.</p>
+</div>
+</div>
+<p>You can do fun <a href="https://www.visidata.org/docs/graph/">visualizations in the terminal</a>, like graph the <code>log10</code> of the <code>Consol Assets (Mil $)</code> column, which looks like this:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2025-09-30-visidata/visidata-fed-large-banks-log-assets.jpeg" class="img-fluid figure-img"></p>
+<figcaption>VisiData plot of the common logarithm of large bank assets from the Federal Reserve</figcaption>
+</figure>
+</div>
+<p>But what’s even more handy is you can just convert the entire data set directly to TSV (there are commas in the numeric data; <a href="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/">CSVs are kinda bad</a>) in one go:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">curl</span> <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-s</span> https://www.federalreserve.gov/releases/lbr/current/ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">|</span></span>
+<span id="cb2-2">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">vd</span> +:table_1:: <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-b</span> <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-o</span> feddata.tsv</span></code></pre></div></div>
+<p>or SQLite:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">curl</span> <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-s</span> https://www.federalreserve.gov/releases/lbr/current/ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">|</span></span>
+<span id="cb3-2">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">vd</span> +:table_1:: <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-b</span> <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-o</span> feddata.sqlite</span></code></pre></div></div>
+<p>or JSON:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">curl</span> <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-s</span> https://www.federalreserve.gov/releases/lbr/current/ <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">|</span></span>
+<span id="cb4-2">  <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">vd</span> +:table_1:: <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-b</span> <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-o</span> feddata.json</span></code></pre></div></div>
+<p>And just like that, you’ve got clean data of every big bank in the country.</p>
+<p>Not bad for one pipe.</p>
+
+
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2025-09-30-visidata/</guid>
+  <pubDate>Tue, 30 Sep 2025 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2025-09-30-visidata/fed-data-powell-visidata.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>ChatGPT Got Me Reading Plato</title>
   <dc:creator>Matt Hodges</dc:creator>

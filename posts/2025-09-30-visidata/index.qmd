@@ -1,0 +1,71 @@
+---
+author: "Matt Hodges"
+title: "Scraping the Federal Reserve with VisiData"
+pagetitle: "Scraping the Federal Reserve With VisiData"
+subtitle: "Big banks, small commands: a one-liner to wrangle the Fed's bank list"
+image: "fed-data-powell-visidata.jpg"
+date: 2025-09-30
+---
+
+I've been loving [VisiData](https://www.visidata.org/) for years now. It's my favorite way to poke around tabular data without the overhead of spreadsheets.
+
+In 2020 I posted a short video demonstrating some quick data exploration you can do with it:
+
+{{< video https://www.youtube.com/watch?v=lzS2z8NNnzo  >}}
+
+Today I appreciated another snappy use case: pulling and transforming HTML table data.
+
+I learned that the Federal Reserve publishes a regularly-updated [list of the largest commercial banks](https://www.federalreserve.gov/releases/lbr/current/). It looks like this:
+
+![Federal Reserve Large Commercial Banks table](federal-reserve-large-commercial-banks.png)
+
+It also comes in [PDF](https://www.federalreserve.gov/releases/lbr/current/lrg_bnk_lst.pdf) and [ASCII](https://www.federalreserve.gov/releases/lbr/current/lrg_bnk_lst.txt) formats. Unfortunately, the ASCII format would require bespoke parsing.
+
+The good news is the HTML-formatted data uses good old `<table>` instead of `<div>` nonsense. Better yet, VisiData can work really well with HTML tables:
+
+```bash
+curl -s https://www.federalreserve.gov/releases/lbr/current/ | vd +:table_1::
+```
+
+which does the following:
+
+1. Pull the page HTML with curl
+2. Pipe it into VisiData
+3. Select the second (zero-indexed) table
+
+which presents this:
+
+![VisiData showing large bank data from the Federal Reserve](visidata-fed-large-banks.jpeg)
+
+::: {.callout-note}
+You can often skip the curl step. VisiData can usually fetch HTML pages directly with the url passed as a positional argument (go try it on Wikipedia!). But the Federal Reserve page was 403'ing me. Rather than [mess with VisiData User-Agent strings](https://github.com/saulpw/visidata/issues/1446), I moved the problem to curl, which worked.
+:::
+
+You can do fun [visualizations in the terminal](https://www.visidata.org/docs/graph/), like graph the `log10` of the `Consol Assets (Mil $)` column, which looks like this:
+
+![VisiData plot of the common logarithm of large bank assets from the Federal Reserve](visidata-fed-large-banks-log-assets.jpeg)
+
+But what's even more handy is you can just convert the entire data set directly to TSV (there are commas in the numeric data; [CSVs are kinda bad](https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/)) in one go:
+
+```bash
+curl -s https://www.federalreserve.gov/releases/lbr/current/ |
+  vd +:table_1:: -b -o feddata.tsv
+```
+
+or SQLite:
+
+```bash
+curl -s https://www.federalreserve.gov/releases/lbr/current/ |
+  vd +:table_1:: -b -o feddata.sqlite
+```
+
+or JSON:
+
+```bash
+curl -s https://www.federalreserve.gov/releases/lbr/current/ |
+  vd +:table_1:: -b -o feddata.json
+```
+
+And just like that, you've got clean data of every big bank in the country.
+
+Not bad for one pipe.
