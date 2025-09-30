@@ -1,13 +1,14 @@
 ---
 title: "Posts"
 pagetitle: "Posts by Matt Hodges"
-description: "My writing, largely focussed on United States politics and software engineering"
+description: "I reserve the right to change my mind."
 listing:
     contents: posts
-    type: default
+    type: grid
     feed: true
     sort: "date desc"
     fields: [image, date, title, subtitle, reading-time]
     date-format: iso
+    page-size: 100
 search: false
 ---
