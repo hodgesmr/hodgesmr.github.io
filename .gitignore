@@ -7,3 +7,6 @@
 .venv/
 
 **/*.quarto_ipynb
+
+**/data/*
+!**/data/.gitkeep
