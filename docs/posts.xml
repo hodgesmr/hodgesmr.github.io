@@ -42,9 +42,8 @@
 <blockquote class="blockquote">
 <p>Manually entering in phone numbers to a suppression tool is a waste of time and resources. Our tool can take plain text and compare it against MD5 or SHA hashed lists of phone numbers – simply throw in the data, and it will do the hard work for you.</p>
 </blockquote>
-<p>But this is trivially broken on modern consumer hardware. And you don’t need special password cracking software.</p>
-<p>On a laptop, we can build a <a href="https://blog.codinghorror.com/rainbow-hash-cracking/">rainbow table</a> of <a href="https://parquet.apache.org/">Parquet</a> files for every North American phone number.</p>
-<p>We can abuse <a href="https://duckdb.org/">DuckDB</a> as a hashing mill, and generate every MD5 in the <code>5XX</code> area code block:</p>
+<p>Everyone is trying to do <a href="https://en.wikipedia.org/wiki/Private_set_intersection">private set intersection</a>, but doing this with hash-passing is trivially broken on modern consumer hardware. And you don’t even need special password cracking software to break it.</p>
+<p>On a laptop, we can build a <a href="https://blog.codinghorror.com/rainbow-hash-cracking/">rainbow table</a> of <a href="https://parquet.apache.org/">Parquet</a> files for every North American phone number. We can abuse <a href="https://duckdb.org/">DuckDB</a> as a hashing mill, and generate every MD5 in the <code>5XX</code> area code block:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1">PRAGMA threads<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;

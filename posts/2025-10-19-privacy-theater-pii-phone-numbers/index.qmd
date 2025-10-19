@@ -24,11 +24,9 @@ And platforms like [UnsubCentral](https://www.unsubcentral.com/phone-number-supp
 
 > Manually entering in phone numbers to a suppression tool is a waste of time and resources. Our tool can take plain text and compare it against MD5 or SHA hashed lists of phone numbers – simply throw in the data, and it will do the hard work for you.
 
-But this is trivially broken on modern consumer hardware. And you don't need special password cracking software.
+Everyone is trying to do [private set intersection](https://en.wikipedia.org/wiki/Private_set_intersection), but doing this with hash-passing is trivially broken on modern consumer hardware. And you don't even need special password cracking software to break it.
 
-On a laptop, we can build a [rainbow table](https://blog.codinghorror.com/rainbow-hash-cracking/) of [Parquet](https://parquet.apache.org/) files for every North American phone number.
-
-We can abuse [DuckDB](https://duckdb.org/) as a hashing mill, and generate every MD5 in the `5XX` area code block:
+On a laptop, we can build a [rainbow table](https://blog.codinghorror.com/rainbow-hash-cracking/) of [Parquet](https://parquet.apache.org/) files for every North American phone number. We can abuse [DuckDB](https://duckdb.org/) as a hashing mill, and generate every MD5 in the `5XX` area code block:
 
 ```sql
 PRAGMA threads=8;
