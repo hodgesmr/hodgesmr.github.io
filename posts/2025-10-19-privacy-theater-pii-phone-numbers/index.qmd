@@ -2,7 +2,7 @@
 author: "Matt Hodges"
 title: "The Privacy Theater of Hashed PII"
 pagetitle: "The Privacy Theater of Hashed PII"
-subtitle: "It takes a 2020 Macbook Air four hours to hash every North American phone number"
+subtitle: "A 2020 MacBook Air can hash every North American phone number in four hours"
 image: "hash-phone.png"
 date: 2025-10-19
 ---
