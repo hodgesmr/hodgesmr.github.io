@@ -15,7 +15,285 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.8.24</generator>
-<lastBuildDate>Sun, 12 Oct 2025 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 19 Oct 2025 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>The Privacy Theater of Hashed PII</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2025-10-19-privacy-theater-pii-phone-numbers/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>About once a year, I’m reminded of the fact that a lot of marketing SaaS and ad tech dresses up cryptographic hashes as a sort of privacy theater. This shows up frequently in product features for <a href="https://en.wikipedia.org/wiki/Suppression_list">suppression lists</a> with the general idea of uploading hashed values of email addresses or phone numbers to enable matching while preserving privacy. The problem is, <a href="https://www.johndcook.com/blog/2019/07/20/hashing-pii-does-not-protect-privacy/">hashing PII does not protect privacy</a>.</p>
+<p>The long and short of it is: hashing is only effective if the input data is unbounded. It’s why <a href="https://pages.nist.gov/800-63-4/sp800-63b.html#appA">long and unpredictable passwords</a> are necessary, even with a robust hashing function. PII is neither long nor unpredictable.</p>
+<ul>
+<li>You can download <a href="https://www.ssa.gov/oact/babynames/names.zip">every baby name going back to 1880</a> from the Social Security administration.</li>
+<li>Email addresses follow the format <code>something@something.something</code>.</li>
+<li>Social Security numbers are 9 digits, so there are at most 1 billion.<sup>1</sup></li>
+<li>North American phone numbers are 10 digits, so there are at most 10 billion.<sup>2</sup></li>
+</ul>
+<p>Despite this, marketing tools still shuffle around PII hashes of this data. For example, here’s <a href="https://partners.bamboohr.com/md5hash/">BambooHR</a>:</p>
+<blockquote class="blockquote">
+<p>In order to better identify any shared customers we may have, we have decided to compare our customer lists encoded as MD5 Hashes. By encoding our respective customer lists in MD5 Hashes, we will be able to compare customer lists without disclosing any customer info (including customer name).</p>
+</blockquote>
+<p>And platforms like <a href="https://www.unsubcentral.com/phone-number-suppression/">UnsubCentral</a>:</p>
+<blockquote class="blockquote">
+<p>Manually entering in phone numbers to a suppression tool is a waste of time and resources. Our tool can take plain text and compare it against MD5 or SHA hashed lists of phone numbers – simply throw in the data, and it will do the hard work for you.</p>
+</blockquote>
+<p>But this is trivially broken on modern consumer hardware. And you don’t need special password cracking software.</p>
+<p>On a laptop, we can build a <a href="https://blog.codinghorror.com/rainbow-hash-cracking/">rainbow table</a> of <a href="https://parquet.apache.org/">Parquet</a> files for every North American phone number.</p>
+<p>We can abuse <a href="https://duckdb.org/">DuckDB</a> as a hashing mill, and generate every MD5 in the <code>5XX</code> area code block:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1">PRAGMA threads<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>;</span>
+<span id="cb1-2">PRAGMA temp_directory<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/tmp'</span>;</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">COPY</span> (</span>
+<span id="cb1-5">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">WITH</span> gen <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">AS</span> (</span>
+<span id="cb1-6">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">SELECT</span> i:<span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">:BIGINT</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">AS</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">number</span>, md5(i:<span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">:VARCHAR</span>) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">AS</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">hash</span></span>
+<span id="cb1-7">    <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">FROM</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5000000000</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6000000000</span>) t(i)</span>
+<span id="cb1-8">  )</span>
+<span id="cb1-9">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">SELECT</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">substr</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">hash</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">AS</span> h2, (<span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">number</span> % <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">AS</span> shard, <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">number</span>, <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">hash</span></span>
+<span id="cb1-10">  <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">FROM</span> gen</span>
+<span id="cb1-11">) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">TO</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'out/md5nums'</span></span>
+<span id="cb1-12">    (FORMAT <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'parquet'</span>,</span>
+<span id="cb1-13">    PARTITION_BY (h2, shard),</span>
+<span id="cb1-14">    COMPRESSION <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'zstd'</span>,</span>
+<span id="cb1-15">    ROW_GROUP_SIZE <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">250000</span>);</span></code></pre></div></div>
+<p>What this does:</p>
+<ul>
+<li>Specify DuckDB to use up to 8 execution threads.</li>
+<li>For each generated integer <code>i</code> within <code>5,000,000,000</code> - <code>5,999,999,999</code>, cast to text and compute its MD5. The generator is vectorized and parallelized, so it feeds the pipeline quickly.</li>
+<li>Take the first two hex chars (<code>00</code> - <code>ff</code>). This <code>h2</code> is a <strong>hash prefix</strong> for partitioning so lookups by full hash only have to read one small directory.</li>
+<li>With modulo-8, sharding spreads each hash-prefix partition, which give parallelism during writes and avoids large single files.</li>
+<li>Write Parquet files, and organize output as directories per distinct <code>(h2, shard)</code>; this gives a structure like: <code>out/md5nums/h2=ab/shard=3/part-*.parquet</code>.</li>
+<li>Use <a href="https://en.wikipedia.org/wiki/Zstd">Zstandard</a> compression inside Parquet (efficient for <code>number</code> but not <code>hash</code>).</li>
+</ul>
+<p><em>Crunch:</em></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"> <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">~/</span> $ duckdb <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-c</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">".read md5gen.sql"</span></span>
+<span id="cb2-2"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">100%</span> ▕██████████████████████████████████████▏ <span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">(</span><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">00:40:41.41</span> elapsed<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">)</span></span></code></pre></div></div>
+<p>And now with the hash <code>af82af0fad119df159ce350db422d3b3</code> we can reverse back to its phone number:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb3-1"> <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">~/</span> $ H=af82af0fad119df159ce350db422d3b3</span>
+<span id="cb3-2"> <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">~/</span> $ P=<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">${H</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">}</span></span>
+<span id="cb3-3"> <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">~/</span> $ duckdb <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-c</span> <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb3-4"><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"SELECT number FROM 'out/md5nums/h2=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">${P}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">/**/*.parquet' WHERE hash='</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">${H}</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">' LIMIT 1;"</span></span>
+<span id="cb3-5"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">100%</span> ▕██████████████████████████████████████▏ <span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">(</span><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">00:00:02.84</span> elapsed<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">)</span></span>
+<span id="cb3-6"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">┌────────────────┐</span></span>
+<span id="cb3-7"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     number     │</span>
+<span id="cb3-8"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>     int64      │</span>
+<span id="cb3-9"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">├────────────────┤</span></span>
+<span id="cb3-10"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span>   5555550123   │</span>
+<span id="cb3-11"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span> <span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">(</span><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">5.56</span> billion<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">)</span> <span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">│</span></span>
+<span id="cb3-12"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">└────────────────┘</span></span></code></pre></div></div>
+<p>Here we do:</p>
+<ul>
+<li><code>H=...</code> is the hash.</li>
+<li><code>P=${H:0:2}</code> grabs the first two hex chars (<code>af</code>) to match the partitioned dataset.</li>
+<li><code>FROM 'out/md5nums/h2=${P}/**/*.parquet'</code> allows DuckDB to read <strong>only</strong> files inside the partition directory whose name encodes <code>h2=${P}</code>. The <code>**/*.parquet</code> is a recursive glob so it also walks into the <code>shard=...</code> subfolders instead of scanning the entire billion-row dataset.</li>
+<li>DuckDB vector-scans row groups within that one <code>h2</code> partition until it finds a match.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>MD5 is incredibly <a href="https://en.wikipedia.org/wiki/MD5#Security">broken</a>, but this approach is hash-agnostic. The problem is the application on low-entropy input data, not the specific hashing algorithm.</p>
+</div>
+</div>
+<p>File scanning here is just a proof-of-concept. For true query speed you can trade file portability for a database index. Once your Parquet files are built, you can load them into DuckDB as a persistent table and create an index on the <code>hash</code> column. Or, Postgres with a B-tree index is also a great fit.</p>
+<p>On my 2020 M1 MacBook Air, computing 1 billion <code>5XX</code> phone number hashes completes in about <strong>40 minutes</strong>. <a href="https://en.wikipedia.org/wiki/North_American_Numbering_Plan">There are about 6.3 billion valid North American phone numbers</a>, so building a hash lookup table for all of them would take my little laptop just over 4 hours.</p>
+<p>None of this is breaking news. In 2021, <a href="https://www.ndss-symposium.org/wp-content/uploads/ndss2021_1C-3_23159_paper.pdf">researchers hashed 118 billion phone numbers</a>:</p>
+<blockquote class="blockquote">
+<p>The limited amount of possible mobile phone numbers combined with the rapid increase in affordable storage capacity makes it feasible to create key-value databases of phone numbers indexed by their hashes and then to perform constant-time lookups for each given hash value. We demonstrate this by using a high-performance cluster to create an in-memory database of all 118 billion possible mobile phone numbers</p>
+</blockquote>
+<p>The thing is, you really don’t need a high-performance cluster anymore.</p>
+
+
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p><a href="https://www.ssa.gov/policy/docs/ssb/v69n2/v69n2p55.html">It’s fewer.</a>↩︎</p></li>
+<li id="fn2"><p><a href="https://www.nanpa.com/">It’s fewer.</a>↩︎</p></li>
+</ol>
+</section></div> ]]></description>
+  <guid>https://matthodges.com/posts/2025-10-19-privacy-theater-pii-phone-numbers/</guid>
+  <pubDate>Sun, 19 Oct 2025 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2025-10-19-privacy-theater-pii-phone-numbers/hash-phone.png" medium="image" type="image/png" height="81" width="144"/>
+</item>
 <item>
   <title>Tracking Five Years Of Health Data</title>
   <dc:creator>Matt Hodges</dc:creator>
@@ -11145,27 +11423,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</code></pre
   <guid>https://matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/</guid>
   <pubDate>Sun, 17 Jul 2022 05:00:00 GMT</pubDate>
   <media:content url="https://matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/lambda-calculus-python.jpeg" medium="image" type="image/jpeg"/>
-</item>
-<item>
-  <title>Thank you.</title>
-  <dc:creator>Matt Hodges</dc:creator>
-  <link>https://matthodges.com/posts/2020-11-10-thank-you/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>It can’t be a cliche because it actually can’t be over-said: working on the Biden Campaign has been both the hardest and most rewarding experience of my career. It’s a rare opportunity to work on something you care deeply about, with amazing people, and to succeed. I said it in 2016, and in 2018, and I’ll say it again in 2020: the tech was never the point. I’m immensely proud of the work we did. The world will never fully understand the mountains that this scrappy team was able to move.</p>
-<p>To those who invited me in: thank you. To those who pushed me: thank you. To those who pushed with me: thank you.</p>
-<p>What’s next? I’m going to sleep for a while. I don’t know what’s after that, but I won’t be stepping away from the fight for democracy, justice, and a better world.</p>
-
-
-
- ]]></description>
-  <guid>https://matthodges.com/posts/2020-11-10-thank-you/</guid>
-  <pubDate>Tue, 10 Nov 2020 06:00:00 GMT</pubDate>
-  <media:content url="https://matthodges.com/posts/2020-11-10-thank-you/thank-you-social.jpg" medium="image" type="image/jpeg"/>
 </item>
 </channel>
 </rss>
