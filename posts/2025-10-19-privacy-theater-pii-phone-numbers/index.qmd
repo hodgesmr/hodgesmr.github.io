@@ -94,6 +94,10 @@ File scanning here is just a proof-of-concept. For true query speed you can trad
 
 On my 2020 M1 MacBook Air, computing 1 billion `5XX` phone number hashes completes in about **40 minutes**. [There are about 6.3 billion valid North American phone numbers](https://en.wikipedia.org/wiki/North_American_Numbering_Plan), so building a hash lookup table for all of them would take my little laptop just over 4 hours.
 
+::: {.callout-important}
+[Salting](https://en.wikipedia.org/wiki/Salt_(cryptography)) does not solve this problem. With per-record random salts, identical identifiers hash differently across parties, so no deterministic equality join is possible. Publishing those salts still doesn't enable a direct join: the only viable path is recover-then-join, which costs $\sim D \times (N + M)$. That's operationally impractical for a bulk-matching service, but practically feasible for an adversary performing offline, per-record brute force over time. It also reveals non-matches, because recovery exposes plaintexts beyond the overlap. If parties instead share a global salt to keep hashes comparable, the domain is trivially enumerable and a lookup table can be rebuilt.
+:::
+
 None of this is breaking news. In 2021, [researchers hashed 118 billion phone numbers](https://www.ndss-symposium.org/wp-content/uploads/ndss2021_1C-3_23159_paper.pdf):
 
 > The limited amount of possible mobile phone numbers combined with the rapid increase in affordable storage capacity makes it feasible to create key-value databases of phone numbers indexed by their hashes and then to perform constant-time lookups for each given hash value. We demonstrate this by using a high-performance cluster to create an in-memory database of all 118 billion possible mobile phone numbers

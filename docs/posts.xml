@@ -273,6 +273,19 @@ Note
 </div>
 <p>File scanning here is just a proof-of-concept. For true query speed you can trade file portability for a database index. Once your Parquet files are built, you can load them into DuckDB as a persistent table and create an index on the <code>hash</code> column. Or, Postgres with a B-tree index is also a great fit.</p>
 <p>On my 2020 M1 MacBook Air, computing 1 billion <code>5XX</code> phone number hashes completes in about <strong>40 minutes</strong>. <a href="https://en.wikipedia.org/wiki/North_American_Numbering_Plan">There are about 6.3 billion valid North American phone numbers</a>, so building a hash lookup table for all of them would take my little laptop just over 4 hours.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><a href="https://en.wikipedia.org/wiki/Salt_(cryptography)">Salting</a> does not solve this problem. With per-record random salts, identical identifiers hash differently across parties, so no deterministic equality join is possible. Publishing those salts still doesn’t enable a direct join: the only viable path is recover-then-join, which costs <img src="https://latex.codecogs.com/png.latex?%5Csim%20D%20%5Ctimes%20(N%20+%20M)">. That’s operationally impractical for a bulk-matching service, but practically feasible for an adversary performing offline, per-record brute force over time. It also reveals non-matches, because recovery exposes plaintexts beyond the overlap. If parties instead share a global salt to keep hashes comparable, the domain is trivially enumerable and a lookup table can be rebuilt.</p>
+</div>
+</div>
 <p>None of this is breaking news. In 2021, <a href="https://www.ndss-symposium.org/wp-content/uploads/ndss2021_1C-3_23159_paper.pdf">researchers hashed 118 billion phone numbers</a>:</p>
 <blockquote class="blockquote">
 <p>The limited amount of possible mobile phone numbers combined with the rapid increase in affordable storage capacity makes it feasible to create key-value databases of phone numbers indexed by their hashes and then to perform constant-time lookups for each given hash value. We demonstrate this by using a high-performance cluster to create an in-memory database of all 118 billion possible mobile phone numbers</p>
