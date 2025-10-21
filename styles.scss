@@ -4,7 +4,6 @@
   display: block;
   color: #080808;
   text-decoration: none;
-  font-family: 'Overpass', sans-serif;
   font-weight: 500;
 }
 
@@ -17,7 +16,6 @@ h1 {
   display: block;
   color: #080808;
   text-decoration: none;
-  font-family: 'Overpass', sans-serif;
   font-weight: 500;
 }
 
@@ -28,7 +26,6 @@ h2 {
   margin-bottom: 0.5rem;
   color: #080808;
   text-decoration: none;
-  font-family: 'Overpass', sans-serif;
   font-weight: 500;
   line-height: 1.2;
 }
@@ -49,9 +46,9 @@ div.quarto-about-trestles {
 
 span.color-accent {
   border-radius: 2px;
-  padding: 0.22rem 0.22rem 0 0.22rem;
-  font-weight: bold;
-  background-color: #3459e6;
+  padding: 0 0.22rem 0 0.22rem;
+  font-weight: 700;
+  background-color: #3a86ff;
   color: #fff;
 }
 
@@ -69,6 +66,9 @@ a {
   text-decoration-style: dotted;
 }
 
+p {
+  line-height: 1.5;
+}
 
 p.post-footer {
   font-size: 0.9rem;

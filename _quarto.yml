@@ -36,8 +36,8 @@ format:
       - cosmo
       - styles.scss
     header-includes: |
-      <link href="https://fonts.googleapis.com/css?family=Overpass:300,900" rel="stylesheet">
-    mainfont: Overpass
+      <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    mainfont: Figtree
     fontsize: 1.3em
     grid: 
       body-width: 1000px
