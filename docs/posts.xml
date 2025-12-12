@@ -15,7 +15,369 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.8.24</generator>
-<lastBuildDate>Sun, 02 Nov 2025 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 14 Dec 2025 06:00:00 GMT</lastBuildDate>
+<item>
+  <title>Claude in a Game Theory Tournament</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2025-12-14-claude-axelrod-prisoners-dilemma/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>I’ve been playing around with Claude Code, and I wanted to see what happens when you give it something genuinely open-ended. Not “implement this feature” or “fix this bug” but something that would typically require actual creativity from a human. Something where the agent needs to look at a landscape of existing solutions, find the gaps, and make something new.</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Prisoner%27s_dilemma#The_iterated_prisoner's_dilemma">Iterated Prisoner’s Dilemma</a> felt perfect for this. It’s a well-studied problem with decades of research and it allows you to objectively measure how good your strategy is by running a tournament. So I gave Claude Code (Sonnet 4.5) one prompt to look at the <a href="https://github.com/Axelrod-Python/Axelrod">Axelrod library’s</a> 200+ IPD strategies, come up with something novel that could actually compete, and build it.</p>
+<section id="time-for-some-game-theory" class="level3">
+<h3 class="anchored" data-anchor-id="time-for-some-game-theory">Time For Some Game Theory</h3>
+<p>The traditional <a href="https://en.wikipedia.org/wiki/Prisoner%27s_dilemma">Prisoner’s Dilemma</a> is one of game theory’s most studied problems. Two players simultaneously choose to either <strong>Cooperate</strong> or <strong>Defect</strong>. The payoff matrix creates a tension between individual and collective benefit:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 34%">
+<col style="width: 33%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>You Cooperate</th>
+<th>You Defect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Opponent Cooperates</strong></td>
+<td>R = 3 (Reward)</td>
+<td>T = 5 (Temptation)</td>
+</tr>
+<tr class="even">
+<td><strong>Opponent Defects</strong></td>
+<td>S = 0 (Sucker’s payoff)</td>
+<td>P = 1 (Punishment)</td>
+</tr>
+</tbody>
+</table>
+<p>The dilemma: mutual cooperation yields 3 points each (Reward), but you’re tempted to defect for 5 points while your opponent gets 0 (Sucker’s payoff). But if you both defect, you each only get 1 point.</p>
+<p><strong>In a one-shot game, rational self-interest says defect.</strong> But what if you play repeatedly?</p>
+<p>In 1980, political scientist <a href="https://en.wikipedia.org/wiki/Robert_Axelrod_(political_scientist)">Robert Axelrod</a> adjusted the idea, and organized a computational tournament where experts across various fields submitted strategies for the <strong>Iterated Prisoner’s Dilemma (IPD)</strong>. The traditional Prisoner’s Dilemma was a single, one-shot game: two players choose cooperate or defect once, receive payoffs, and the interaction ends. Axelrod’s Iterated Prisoner’s Dilemma instead pits many strategies against each other in a round-robin tournament, where each pair plays the same opponent repeatedly over many rounds and total scores are accumulated. Because moves can depend on the history of play, strategies can reward cooperation, punish defection, and recover from mistakes.</p>
+<p>The winner was <a href="https://en.wikipedia.org/wiki/Anatol_Rapoport">Anatol Rapoport</a> and his strategy <strong><a href="https://en.wikipedia.org/wiki/Tit_for_tat">Tit For Tat</a></strong>: start by cooperating, then mirror your opponent’s last move. The simplicity surprised everyone. More complex strategies lost to this extremely basic algorithm.</p>
+<p>Axelrod’s 1984 book <em><a href="https://en.wikipedia.org/wiki/The_Evolution_of_Cooperation">The Evolution of Cooperation</a></em> analyzed why:</p>
+<ul>
+<li><strong>Nice strategies</strong> (never defect first) tended to win in the long run</li>
+<li><strong>Forgiving strategies</strong> (don’t hold grudges forever) did well</li>
+<li><strong>Clear strategies</strong> (opponents can understand your pattern) encouraged cooperation</li>
+<li><strong>Retaliatory strategies</strong> (punish defection) prevented exploitation</li>
+</ul>
+<p>The key discovery was that while the traditional Prisoner’s Dilemma elevated defection as the logical play, the Iterated Prisoner’s Dilemma tended to reward cooperation. These findings influenced fields from evolutionary biology to international relations. If cooperation can emerge from pure self-interest in simple games, perhaps it can explain cooperation in nature and human societies. <a href="https://www.youtube.com/watch?v=mScpHTIi-kM">Veritasium did a great video summarizing the book</a>, but you should read the book!</p>
+<p>The <a href="https://github.com/Axelrod-Python/Axelrod">Axelrod library</a> continues this research. It’s a comprehensive Python framework containing:</p>
+<ul>
+<li>200+ strategy implementations (classic and modern)</li>
+<li>Tournament infrastructure</li>
+<li>Statistical analysis and visualization tools</li>
+<li><a href="https://en.wikipedia.org/wiki/Moran_process">Moran process</a> simulation for evolutionary dynamics</li>
+<li>Support for noise, probabilistic endings, and spatial tournaments</li>
+</ul>
+<p>Strategies range from simple (<a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.TitForTat">Tit For Tat</a>, <a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.grudger.Grudger">Grudger</a>) to complex (neural networks, finite state machines, zero-determinant strategies). It’s maintained by researchers and serves as a testbed for game theory experiments.</p>
+</section>
+<section id="claude-in-the-tournament" class="level3">
+<h3 class="anchored" data-anchor-id="claude-in-the-tournament">Claude In The Tournament</h3>
+<p>So I cloned the Axelrod library and gave Claude Code this prompt:</p>
+<blockquote class="blockquote">
+<p><em>This is the Axelrod python library that implements the tournament-style iterative prisoners’ dilemma popularized by Robert Axelrod in his seminal work The Evolution of Cooperation. We’re going to try to create a novel and competitive strategy, one that stands on its own and can reliably compete with the bests known strategies, like Tit-For-Tat. The repository ships with over 200 strategies already for the tournament. I would like you to think hard about what a novel new strategy could be. This is going to require creativity and thinking outside the box. It’ll likely take some iteration too. Let’s begin. Explore the repository for existing strategies, understand how the tournament system works, and then, once you’ve created a novel and creative idea, implement the new strategy. Once implemented, run it in a tournament to see how it performs against all others.</em></p>
+</blockquote>
+<p>The interesting part here is what I didn’t specify. I didn’t tell it to use any particular approach. I just said: be novel, be competitive, figure it out. This is different from most coding tasks, and different from how I typically advise users getting started with AI tools. It requires the agent to do research, synthesize information, identify opportunities, and validate its own work.</p>
+<p>The agent started by exploring. It read through the strategy implementations systematically, looking through dozens of Python files, each containing multiple strategies. It looked at how tournaments work, how strategies are classified, what the existing approaches are.</p>
+<p>Then it started cataloguing: memory-based strategies that track opponent history, stochastic strategies that use randomness, zero-determinant strategies that unilaterally enforce a linear relationship between players’ expected payoffs, evolved strategies optimized through genetic algorithms.</p>
+<blockquote class="blockquote">
+<p><code>I'll help you create a novel and competitive strategy for the Iterated Prisoner's Dilemma! This is an exciting challenge. Let me start by exploring the repository to understand the existing strategies and tournament mechanics.</code></p>
+</blockquote>
+<p>After looking through all those approaches, the agent landed on a pretty specific gap: nobody was doing Bayesian opponent modeling in the straightforward way you’d expect. Lots of strategies adapt. Some keep simple stats like “how often does this opponent cooperate?” Some try to bucket opponents into types. But I didn’t see any that keep an explicit range of beliefs about how cooperative the other player is, and then use how confident (or uncertain) they are in that read to decide when to forgive or punish.</p>
+<blockquote class="blockquote">
+<p><code>Based on my analysis, I'm going to create a strategy that fills a critical gap: Bayesian opponent modeling with uncertainty-aware decision making.</code></p>
+</blockquote>
+<p>That became the core insight: use uncertainty as a guardrail. When you don’t know what you’re dealing with yet, don’t hand out forgiveness cheaply. But once you’ve got enough evidence that an opponent is usually cooperative, you can afford to treat an occasional defection as noise, and forgive it, while still clamping down hard on players who keep defecting.</p>
+</section>
+<section id="claudes-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="claudes-strategy">Claude’s Strategy</h3>
+<p>The strategy Claude Code designed has a simple core idea: model your opponent’s cooperation probability using a <a href="https://en.wikipedia.org/wiki/Beta_distribution">Beta distribution</a>, and let your uncertainty affect how forgiving you are.</p>
+<p>The Beta distribution is perfect for this. You’re uncertain about the opponent’s true cooperation rate, so you maintain a distribution of possible values.</p>
+<ul>
+<li><strong>α (alpha)</strong>: observed cooperations + prior</li>
+<li><strong>β (beta)</strong>: observed defections + prior</li>
+<li><strong>Mean cooperation probability</strong>: <img src="https://latex.codecogs.com/png.latex?%5Cmu%20=%20%5Cfrac%7B%5Calpha%7D%7B%5Calpha%20+%20%5Cbeta%7D"></li>
+<li><strong>Uncertainty (standard deviation)</strong>: <img src="https://latex.codecogs.com/png.latex?%5Csigma%20=%20%5Csqrt%7B%5Cfrac%7B%5Calpha%20%5Cbeta%7D%7B(%5Calpha%20+%20%5Cbeta)%5E2%20(%5Calpha%20+%20%5Cbeta%20+%201)%7D%7D"></li>
+</ul>
+<p>Start with <code>Beta(1,1)</code>, which is completely flat from 0 to 1. You have no idea if they’ll cooperate or not.</p>
+<p>Every time they cooperate, you increment α. Every time they defect, you increment β. The distribution gradually shifts and narrows as you observe more data. After 100 rounds with 70 cooperations, you’ve got <code>Beta(71, 31)</code>, a distribution peaked around 70% cooperation with relatively low uncertainty. After just 5 rounds with 3 cooperations, you’ve got <code>Beta(4, 3)</code>, which is still pretty uncertain.</p>
+<p>Early on, uncertainty is high, which raises the forgiveness threshold, so the strategy is conservative about forgiving. As evidence accumulates, uncertainty shrinks and the threshold falls back toward the base threshold, making forgiveness possible once the estimated cooperation rate is convincingly high.</p>
+<p>The decision rule is straightforward: if the opponent just cooperated, cooperate back. If they just defected, check their cooperation rate. If it’s above your current threshold, forgive them and cooperate. If it’s below, defect.</p>
+<p>This creates adaptive behavior. Against cooperative opponents, you quickly learn they’re trustworthy and maintain cooperation. Against occasionally exploitative opponents, confidence gives them a chance to reform. Against consistently hostile opponents, you become confident in their hostility and stop forgiving.</p>
+<div id="9bb70114" class="cell" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2025-12-14-claude-axelrod-prisoners-dilemma/index_files/figure-html/cell-3-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Claude Code implemented this cleanly, largely thanks to the excellent documentation provided by the library. It wrote the strategy with proper parameter handling, reset logic, and classification metadata. It registered the strategy in the library’s index. It wrote comprehensive tests.</p>
+<p>The test suite is thorough. Basic behavior tests included expectations like “cooperate on first move” and “maintain cooperation with always-cooperate opponent.” Edge case tests against <a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.defector.Defector">Defector</a> and <a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.alternator.Alternator">Alternator</a>. Strategy mechanics tests to verify the Bayesian updating works correctly. A clone test to ensure parameters are preserved.</p>
+</section>
+<section id="iterating-and-improving" class="level3">
+<h3 class="anchored" data-anchor-id="iterating-and-improving">Iterating and Improving</h3>
+<p>After it ran an initial tournament of BayesianForgiver against classic strategies, it decided to tune the strategy’s default parameters:</p>
+<blockquote class="blockquote">
+<p><code>I'll create a tournament script that imports and runs the strategy against others. Let me check if there are existing examples of running tournaments.</code></p>
+</blockquote>
+<p>…</p>
+<blockquote class="blockquote">
+<p><code>Great! The tournament ran successfully! BayesianForgiver ranked 9th out of 15 in the classic tournament. This is decent but there's room for improvement. The results show that the strategy is working but could be tuned better.</code></p>
+</blockquote>
+<p>…</p>
+<blockquote class="blockquote">
+<p><code>The strategy is novel and functional, but let me try tuning the parameters to improve performance</code></p>
+</blockquote>
+<p>…</p>
+<blockquote class="blockquote">
+<p><code>Excellent! The parameter tuning found significantly better parameters! Let me update the strategy with the optimized parameters</code></p>
+</blockquote>
+<p>This landed it at <strong>6/15</strong> in a smaller classic tournament against core strategies:</p>
+<ul>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.TitForTat"><strong>Tit For Tat</strong></a> - The original champion: cooperate first, then mirror opponent’s last move</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.cooperator.Cooperator"><strong>Cooperator</strong></a> - Always cooperates unconditionally</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.defector.Defector"><strong>Defector</strong></a> - Always defects unconditionally</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.grudger.Grudger"><strong>Grudger</strong></a> - Cooperates until the opponent defects once, then defects forever</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.TitFor2Tats"><strong>Tit For 2 Tats</strong></a> - Only defects after two consecutive defections by opponent</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.memoryone.WinStayLoseShift"><strong>Win-Stay Lose-Shift</strong></a> - If the last round produced a good payoff, repeat; if bad, switch</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.memoryone.GTFT"><strong>GTFT</strong></a> - Generous Tit For Tat: occasionally cooperates even after opponent defects</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.rand.Random"><strong>Random</strong></a> - Randomly chooses between cooperation and defection with equal probability</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.SuspiciousTitForTat"><strong>Suspicious Tit For Tat</strong></a> - Like Tit For Tat but starts by defecting instead of cooperating</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.HardTitForTat"><strong>Hard Tit For Tat</strong></a> - Defects after any defection and only cooperates after three consecutive cooperations</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.adaptive.Adaptive"><strong>Adaptive</strong></a> - Learns from history: plays the response that would have maximized its own score</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.apavlov.APavlov2011"><strong>Adaptive Pavlov 2011</strong></a> - Classifies opponents into types and adapts strategy based on opponent classification</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.forgiver.ForgivingTitForTat"><strong>Forgiving Tit For Tat</strong></a> - Like Tit For Tat but forgives defections with 10% probability</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.gobymajority.GoByMajority"><strong>Go By Majority</strong></a> - Cooperates if opponent has cooperated more than defected in history</li>
+</ul>
+<p>In a tournament where each pair of strategies plays 20 separate matches of 200 rounds:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Rank</th>
+<th>Strategy</th>
+<th style="text-align: right;">Avg Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>Grudger</td>
+<td style="text-align: right;">7956.40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td>Win-Stay Lose-Shift</td>
+<td style="text-align: right;">7914.90</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td>Adaptive Pavlov 2011</td>
+<td style="text-align: right;">7880.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td>Tit For 2 Tats</td>
+<td style="text-align: right;">7763.20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td>Forgiving Tit For Tat</td>
+<td style="text-align: right;">7741.95</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>6</strong></td>
+<td><strong>Bayesian Forgiver</strong></td>
+<td style="text-align: right;"><strong>7735.55</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td>Tit For Tat</td>
+<td style="text-align: right;">7733.95</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td>Hard Tit For Tat</td>
+<td style="text-align: right;">7554.35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td>GTFT</td>
+<td style="text-align: right;">7538.10</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td>Go By Majority</td>
+<td style="text-align: right;">7354.30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td>Cooperator</td>
+<td style="text-align: right;">6912.60</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td>Adaptive</td>
+<td style="text-align: right;">6703.55</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td>Suspicious Tit For Tat</td>
+<td style="text-align: right;">6450.65</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td>Random</td>
+<td style="text-align: right;">5713.20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td>Defector</td>
+<td style="text-align: right;">4725.20</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-tournament" class="level3">
+<h3 class="anchored" data-anchor-id="the-tournament">The Tournament</h3>
+<p>I then asked Claude Code to run a comprehensive tournament following the examples from the <a href="https://github.com/Axelrod-Python/tournament">tournament repository</a>.</p>
+<p>BayesianForgiver ranked <strong>93rd</strong> out of 226 strategies. Top 41%.</p>
+<p>Let’s be clear: this isn’t elite performance. The top positions are dominated by evolved strategies based on finite state machines, neural networks, hidden Markov models that were optimized via evolutionary algorithms specifically for IPD success. But here’s what matters: BayesianForgiver introduced a genuinely novel approach and proved it’s competitive with those hand-crafted strategies. It beat some famous names from the literature. And it validated the core insight about certainty-aware forgiveness.</p>
+<p><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.memoryone.WinStayLoseShift">Win-Stay, Lose-Shift</a> (WSLS), also called Pavlov, is one of the landmark strategies in Iterated Prisoner’s Dilemma research. A key modern reference point is <a href="https://pubmed.ncbi.nlm.nih.gov/8316296/">Nowak and Sigmund’s 1993 paper</a>, which highlighted WSLS/Pavlov and showed that it can outperform Tit For Tat in a range of settings. The rule is elegantly simple: if the last round produced a “good” payoff, repeat your previous move; if it produced a “bad” payoff, switch.</p>
+<p>The strategy is famous for its ability to correct mistakes and re-establish cooperation under noise: a single accidental defection doesn’t necessarily lock WSLS into long retaliation cycles, and two WSLS players can often return to mutual cooperation quickly. It has been extensively studied in the theoretical and evolutionary game theory literature.</p>
+<p>WSLS also has a well-known weakness in heterogeneous tournaments. Because it is a deterministic, memory-one rule that reacts only to the last outcome, it can be systematically exploited by certain opponents, such as those that defeat WSLS every other round by keeping it trapped in an alternating pattern. More generally, without modeling longer-term opponent behavior, WSLS can get pulled into unfavorable cycles against particular defection patterns.</p>
+<p><strong>BayesianForgiver ranked above WSLS</strong> in the comprehensive tournament (rank 93 vs.&nbsp;rank 108). This was extremely validating.</p>
+<p>BayesianForgiver doesn’t overreact to single defections; it builds a statistical model. As the game progresses, the Beta distribution captures the opponent’s cooperation pattern. The adaptive threshold prevents getting locked into bad cycles while maintaining cooperation with reasonable opponents.</p>
+</section>
+<section id="agentic-success" class="level3">
+<h3 class="anchored" data-anchor-id="agentic-success">Agentic Success</h3>
+<p>Let’s zoom out and look at what actually happened here.</p>
+<p>Claude Code took an open-ended challenge and executed the full lifecycle: autonomous research through 200+ strategies, novel design creating a Bayesian opponent-modeling strategy, complete implementation with proper structure and tests based on the library’s documentation, self-initiated optimization, iterative improvement raising performance from rank, large-scale validation, and comprehensive documentation of everything.</p>
+<p>This isn’t remarkable because “AI can code.” We know that. It’s remarkable because of what happened in between: the creative ideating, the autonomous decision to optimize, the ability to validate its own work objectively.</p>
+<p>The Iterated Prisoner’s Dilemma turns out to be an ideal testbed for this. It’s <strong>well-defined</strong> with clear rules and objective scoring. It’s <strong>well-studied</strong> with hundreds of existing strategies to learn from. It’s competitive with tournament rankings providing <strong>objective evaluation</strong>. And it’s rich enough that despite all that existing work, <strong>gaps still exist</strong>.</p>
+<p>This combination lets the agent verify its work objectively, learn from existing solutions, iterate based on data, and balance creativity with rigor. Those are exactly the capabilities that matter for real engineering work.</p>
+<p>I think this is generalizable to other problem domains. Remember: agents are just <a href="https://simonwillison.net/2025/Sep/18/agents/">LLMs using tools in a loop</a> and <a href="https://fly.io/blog/everyone-write-an-agent/">you can definitely write your own</a>.</p>
+<p>With a few key requirements, agents are likely to have more success in “creative” endeavors:</p>
+<ol type="1">
+<li><strong>Objective evaluation metric</strong> - The agent needs to know if its solution is good</li>
+<li><strong>Existing corpus of solutions</strong> - Learn from prior art, identify gaps</li>
+<li><strong>Ability to iterate</strong> - Test variations, optimize parameters</li>
+<li><strong>Constrained search space</strong> - Not infinite possibilities, but creative freedom within boundaries</li>
+</ol>
+<p>When you have all four of these, agentic coding can potentially handle (more of) the full loop from problem to solution. The human provides problem framing, constraint setting, pointers to existing work, and final evaluation and review. The agent provides exploration, creative solution design, implementation, empirical validation, and iterative improvement.</p>
+</section>
+<section id="try-it-yourself" class="level3">
+<h3 class="anchored" data-anchor-id="try-it-yourself">Try It Yourself</h3>
+<p>You can install from my <a href="https://github.com/hodgesmr/Axelrod/tree/bayesian-forgiver-strategy">fork</a> to try it yourself:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">uv</span> pip install <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"git+https://github.com/hodgesmr/Axelrod@bayesian-forgiver-strategy"</span></span></code></pre></div></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> axelrod <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> axl</span>
+<span id="cb2-2"></span>
+<span id="cb2-3">players <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb2-4">    axl.BayesianForgiver(),</span>
+<span id="cb2-5">    axl.TitForTat(),</span>
+<span id="cb2-6">    axl.Cooperator(),</span>
+<span id="cb2-7">    axl.Defector(),</span>
+<span id="cb2-8">    axl.Grudger(),</span>
+<span id="cb2-9">    axl.TitFor2Tats(),</span>
+<span id="cb2-10">    axl.WinStayLoseShift(),</span>
+<span id="cb2-11">    axl.GTFT(),</span>
+<span id="cb2-12">    axl.Random(),</span>
+<span id="cb2-13">    axl.SuspiciousTitForTat(),</span>
+<span id="cb2-14">    axl.HardTitForTat(),</span>
+<span id="cb2-15">    axl.Adaptive(),</span>
+<span id="cb2-16">    axl.APavlov2011(),</span>
+<span id="cb2-17">    axl.ForgivingTitForTat(),</span>
+<span id="cb2-18">    axl.GoByMajority(),</span>
+<span id="cb2-19">]</span>
+<span id="cb2-20"></span>
+<span id="cb2-21">tournament <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> axl.Tournament(players<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>players, turns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>, repetitions<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>)</span>
+<span id="cb2-22">results <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> tournament.play(progress_bar<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb2-23"></span>
+<span id="cb2-24"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, name <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(results.ranked_names):</span>
+<span id="cb2-25">    idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> results.players.index(name)</span>
+<span id="cb2-26">    avg_score <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>(results.scores[idx]) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(results.scores[idx])</span>
+<span id="cb2-27">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>name<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>avg_score<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span></code></pre></div></div>
+<p>Can you beat BayesianForgiver with your own strategy?</p>
+
+
+</section>
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2025-12-14-claude-axelrod-prisoners-dilemma/</guid>
+  <pubDate>Sun, 14 Dec 2025 06:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2025-12-14-claude-axelrod-prisoners-dilemma/claude-game-theory.png" medium="image" type="image/png" height="80" width="144"/>
+</item>
 <item>
   <title>Dad</title>
   <dc:creator>Matt Hodges</dc:creator>
@@ -9447,1395 +9809,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</code></pre
   <guid>https://matthodges.com/posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/</guid>
   <pubDate>Sun, 01 Oct 2023 05:00:00 GMT</pubDate>
   <media:content url="https://matthodges.com/posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/BIDEN.png" medium="image" type="image/png" height="81" width="144"/>
-</item>
-<item>
-  <title>Building a Neural Network From Scratch with NumPy</title>
-  <dc:creator>Matt Hodges</dc:creator>
-  <link>https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>This post is adapted from a Jupyter <a href="https://github.com/hodgesmr/neural_network_from_scratch">Notebook found on GitHub</a>.</p>
-<p>The goal of this post is to give a hands-on explanation of how Artificial Neural Networks work. I intentionally avoided frameworks like PyTorch or Tensoflow because I wanted to build a better understanding of what Machine Learning models actually are, what Neural Networks actually are, and how they can be made. This post is a collection of information I wish I had when I began this journey. It touches on a little bit of the math, but I don’t deeply re-explain the math. I try to link out to more explanatory sources where I think it’s valuable. Note: I am not a Machine Learning engineer, nor am I a Data Scientist. I’m a Software Engineer that turned into a political operative (lol). I wrote this for an audience of Software Engineers. Also: I don’t have a GPU and I don’t want to spend a bunch of money renting one from Amazon. This model can be trained and deployed on a modern CPU in a matter of minutes.</p>
-<section id="what-well-be-doing" class="level3">
-<h3 class="anchored" data-anchor-id="what-well-be-doing">What We’ll Be Doing</h3>
-<p>We’re going to build a Neural Network for multi-class classification. All that means is we’re going to make a model takes in images and attempts to label them from a set of options. In our case, we’re going to create a Neural Network that works with the <a href="https://yann.lecun.com/exdb/mnist/">MNIST database of handwritten digits</a>. This database contains 70,000 images of handwritten digits, 0 - 9, and corresponding labels of which digit the handwritten image is. We’ll use 60,000 of the images to train our Neural Network, and 10,000 to test its accuracy. The rest of this post assumes you have the data downloaded to a local <code>data/</code> directory.</p>
-<p>Neural Networks are particularly handy for image classification tasks. There are many other types of Machine Learning out there, but we won’t spend any attention on those.</p>
-</section>
-<section id="background-concepts" class="level3">
-<h3 class="anchored" data-anchor-id="background-concepts">Background Concepts</h3>
-<section id="shape-of-a-neural-network" class="level4">
-<h4 class="anchored" data-anchor-id="shape-of-a-neural-network">Shape of a Neural Network</h4>
-<p>First of all, let’s demystify one thing: Neural Networks are just graphs. Just nodes and edges. If you’ve studied any Computer Science or have a background in Software Engineering, this is probably a familiar conecpet to you. The exact shape of any given Neural Network is dependant on how you build it, but that’s something we get to decide. The graph has an <strong>input layer</strong> that is usually one node per input feature. In our case, <strong>a pixel of an image is a feature</strong>. Next, there are one or more <strong>hidden layers</strong>. Hidden layers are simply nodes in the graph that are in the middle. They take inputs from other nodes, and the give outputs to other nodes. This is the part that makes it Deep Learning. The presence of one or more hidden layers is the “deep” in Deep Learning. There’s no standard rule for the size of a hidden layer, or how many you should have. Finally, there’s an <strong>output layer</strong>. Each node in the output layer corresponds to one label. For example, if a possible label to an image is “cat” then one node in the output layer represents “cat”. We’re going to make a Neural Network that has a bunch of input layer nodes, a single hidden layer with ten nodes, and an output layer with ten nodes, one for each digit 0 - 9.</p>
-<p>Each Nueron (node) has a unique <strong>Weight</strong> and <strong>Bias</strong>, and each layer has an <strong>Activation Function</strong>. The Activation Function defines the output of a neuron given its inputs, and does not change. We’ll talk more about Activation Functions below. As we train our model, we adjust the Weights and Biases.</p>
-<p>Here’s are drawing of a Neural Network with three input nodes, a hidden layer with four nodes, and an output layer with two nodes. This might be how you’d construct a Neural Network that does binary classification: a model that tries to label inputs to one of two options for outputs.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th style="text-align: center;"><img src="https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/artificial_neural_network.svg" class="img-fluid" alt="Artificial Neural Network"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">en:User:Cburnett, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons</td>
-</tr>
-</tbody>
-</table>
-<p>If you’re looking for more explanation of the structure of Neural Networks, “<a href="https://www.3blue1brown.com/lessons/neural-networks">But what is a Neural Network?</a>” by 3Blue1Brown is excellent.</p>
-</section>
-<section id="how-the-neural-network-learns" class="level4">
-<h4 class="anchored" data-anchor-id="how-the-neural-network-learns">How the Neural Network Learns</h4>
-<p>Neural Networks start out very stupid. As we’ll see, they begin with no more “intelligence” than random guessing. Our goal is to <strong>iteratively adjust the network’s Weights and Biases</strong> to make it smarter. This is called <strong>training</strong> and we do it in two steps: <strong>Forward Propagation</strong> and <strong>Back Propagation</strong>.</p>
-<section id="forward-propagation" class="level5">
-<h5 class="anchored" data-anchor-id="forward-propagation">Forward Propagation</h5>
-<p>Think of this step as showing the Neural Network some input, and asking it to classify it. At the beginning, it’s very likely to get it wrong. But, like humans, we need to get things wrong before we know how to get them right. In Forward Propagation, we simply push all our features (pixels) through the Neural Network and ask, “what did you see?” The output is all the answers to that question.</p>
-</section>
-<section id="back-propagation" class="level5">
-<h5 class="anchored" data-anchor-id="back-propagation">Back Propagation</h5>
-<p>Think of this step as showing the Neural Network how right or wrong its answers were. We take all its answers to, “what did you see?” and come up with a measure of how wrong it was. We assign a numeric value to the “how wrong was it?” question with a <a href="https://www.simplilearn.com/tutorials/machine-learning-tutorial/cost-function-in-machine-learning">cost function</a>. From that numerica value, we can work backwards on all the neurons (nodes) to tell them, “you were X wrong, and this specific neuron contributed to Y amount of that error; adjust this neuron’s Weights and Biases by Z amount and try again.”</p>
-<p>3Blue1Brown has another excellent video on the conecepts of Back Propagation: “<a href="https://www.3blue1brown.com/lessons/backpropagation">What is backpropagation really doing?</a>” It’s got some great visuals to show how Forward Propagation pushes data forward through the Neural Network, and how Back Propagation pushes error measures backwards thrrough the Neural Network.</p>
-</section>
-<section id="training" class="level5">
-<h5 class="anchored" data-anchor-id="training">Training</h5>
-<p>And that’s it! Our Neural Network learns by repeatedly making guesses, seeing how wrong it was, and adjusting its Weights and Biases. We repeat this over and over until it is good at the task! This is a lot like how people learn. Show a small child pictures of various farm animals over and over and ask them to name the animals. At first they’re very bad at it, but over time they get very good at it. There’s a lot of research out there that our artifical Neural Network is structured and operates like human brain neurons.</p>
-</section>
-</section>
-<section id="gradient-descent" class="level4">
-<h4 class="anchored" data-anchor-id="gradient-descent">Gradient Descent</h4>
-<p>Gradient Descent is the most math-y piece of all this. Again, 3Blue1Brown has a great video: “<a href="https://www.3blue1brown.com/lessons/gradient-descent">Gradient descent, how neural networks learn</a>”. This is the piece that is the most <em>choose-your-own-adventure</em> for how much you want to actually understand. I recommend diving in at least a little bit.</p>
-<p>Imagine being at a point graph and you want to find which step to take to get to the minimum value. If you’ve taken any calculus before, you know that you can take the slope at the current point to tell you which way the graph is trending, and by how much. If you do this over and over, with small steps, you will approach a local minimum. That’s a 1-dimensional gradient descent. Our plan is to work with lots of repeated steps to get to a minumum of our <a href="https://www.simplilearn.com/tutorials/machine-learning-tutorial/cost-function-in-machine-learning">cost function</a> — the function telling us how bad our predictions are.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th style="text-align: center;"><img src="https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/GradientDescentGradientStep.svg" class="img-fluid" alt="Gradient Descent"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">Reducing Loss: Gradient Descent, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, via <a href="https://developers.google.com/machine-learning/crash-course/reducing-loss/gradient-descent">Google Developers</a></td>
-</tr>
-</tbody>
-</table>
-<p>You can do this in two and three domensions as well. In fact, you can do it in as many dimensions as you need, which is very handy, because image classification has lots of dimensions. Imagine a color image. Its obvious dimensions are the pixel’s X value, Y value, Red value, Green value, Blue value, alpha value, and probably many more.</p>
-<p>Quick aside: <strong>a “tensor” is just a matrix with a high-order of dimensions</strong>.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th style="text-align: center;"><img src="https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/GradientDescent.gif" class="img-fluid" alt="Gradient Descent"></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;"><a href="https://creativecommons.org/publicdomain/zero/1.0/deed.en">CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</a>, via Wikimedia Commons</td>
-</tr>
-</tbody>
-</table>
-<p>Ultimately, we keep moving downward in our many-dimensional cost function to find a minimum value. The lower the cost, the better the prediction.</p>
-</section>
-</section>
-<section id="environment-setup" class="level3">
-<h3 class="anchored" data-anchor-id="environment-setup">Environment Setup</h3>
-<p>As stated, we’re going to build and train a fully functioning Neural Network using only <strong>NumPy</strong>. That said, I’m also going to install <strong>matplotlib</strong> just so that we can visualize some of the work as we go. It’s completely unnecessary to use matplotlib.</p>
-<p>It’s also worth pointing out that I’m developing this in Python 3.10. Other versions of Python 3 probably work, too.</p>
-<div id="d4d686c5" class="cell" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> matplotlib.pyplot <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> plt</span>
-<span id="cb1-2"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> np</span></code></pre></div></div>
-</div>
-</section>
-<section id="our-data" class="level3">
-<h3 class="anchored" data-anchor-id="our-data">Our Data</h3>
-<p>As mentioned, we’re going to be working with the MNIST database of handwritten digits. This is a very handy beginner’s data set because it’s done a lot of the upfront work for us. First of all, the data is normalized: <strong>all images are 28 x 28</strong> and <strong>grayscale</strong>. The standard size is particularly helpful because we’re going to need that to set up the input layer of our Neural Network. In other situations, you’d have to crop or squash or letterbox your images to make them a standard size. This is mostly boilerplate, but some details of the file format that you may wish to know:</p>
-<ul>
-<li>The images are encoded in the <a href="https://www.fon.hum.uva.nl/praat/manual/IDX_file_format.html">IDX file format</a>, which looks for the presence of some magic numbers</li>
-<li>There’s a <a href="http://yann.lecun.com/exdb/mnist/">documented structure</a> to this data set, but that website is often behind HTTP basic auth because people like to script against it; here’s a <a href="https://webcache.googleusercontent.com/search?q=cache:yann.lecun.com/exdb/mnist/">Google cache</a></li>
-<li>The images are gzip’d</li>
-<li>The pixel values are 0 - 255, but we’re going to divide them into floats 0 - 1</li>
-</ul>
-<p>Here, we read in all the training data. We want to structure it into a matrix where each pixel is a row (this will line up with our input layer), and each image is a column. This gives us a matrix with 784 rows (28 x 28) and 60,000 columns.</p>
-<p>This is the least intersting bit of code in the entire post.</p>
-<div id="f92d65fc" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> gzip</span>
-<span id="cb2-2"></span>
-<span id="cb2-3">DATA_DIR <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'./data/'</span></span>
-<span id="cb2-4">TEST_IMAGE_FILE_PATH <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>DATA_DIR<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">/t10k-images-idx3-ubyte.gz'</span></span>
-<span id="cb2-5">TEST_LABEL_FILE_PATH <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>DATA_DIR<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">/t10k-labels-idx1-ubyte.gz'</span></span>
-<span id="cb2-6">TRAINING_IMAGE_FILE_PATH <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>DATA_DIR<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">/train-images-idx3-ubyte.gz'</span></span>
-<span id="cb2-7">TRAINING_LABEL_FILE_PATH <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>DATA_DIR<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">/train-labels-idx1-ubyte.gz'</span></span>
-<span id="cb2-8"></span>
-<span id="cb2-9"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> load_images_and_labels(image_file_path, label_file_path):</span>
-<span id="cb2-10">    labels <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">None</span></span>
-<span id="cb2-11">    image_data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">None</span></span>
-<span id="cb2-12"></span>
-<span id="cb2-13">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> gzip.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(label_file_path, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'r'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> label_file:</span>
-<span id="cb2-14">        <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Verify magic number</span></span>
-<span id="cb2-15">        magic_number_bytes <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> label_file.read(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>)</span>
-<span id="cb2-16">        magic_number <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">int</span>.from_bytes(magic_number_bytes, byteorder<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'big'</span>, signed<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">False</span>)</span>
-<span id="cb2-17">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">assert</span> magic_number <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2049</span></span>
-<span id="cb2-18"></span>
-<span id="cb2-19">        <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Read header telling us the number of labels</span></span>
-<span id="cb2-20">        number_of_labels_bytes <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> label_file.read(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>)</span>
-<span id="cb2-21">        number_of_labels <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">int</span>.from_bytes(</span>
-<span id="cb2-22">            number_of_labels_bytes, byteorder<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'big'</span>, signed<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">False</span></span>
-<span id="cb2-23">        )</span>
-<span id="cb2-24"></span>
-<span id="cb2-25">        <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">buffer</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> label_file.read(number_of_labels)</span>
-<span id="cb2-26">        labels <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> np.frombuffer(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">buffer</span>, dtype<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>np.uint8)</span>
-<span id="cb2-27"></span>
-<span id="cb2-28">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> gzip.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(image_file_path, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'r'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> image_file:</span>
-<span id="cb2-29">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Verify magic number</span></span>
-<span id="cb2-30">            magic_number_bytes <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> image_file.read(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>)</span>
-<span id="cb2-31">            magic_number <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">int</span>.from_bytes(</span>
-<span id="cb2-32">                magic_number_bytes, byteorder<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'big'</span>, signed<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">False</span></span>
-<span id="cb2-33">            )</span>
-<span id="cb2-34">            <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">assert</span> magic_number <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2051</span></span>
-<span id="cb2-35"></span>
-<span id="cb2-36">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Read header telling us the number of images</span></span>
-<span id="cb2-37">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># And check that it matches the number of labels</span></span>
-<span id="cb2-38">            number_of_images_bytes <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> image_file.read(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>)</span>
-<span id="cb2-39">            number_of_images <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">int</span>.from_bytes(</span>
-<span id="cb2-40">                number_of_images_bytes, byteorder<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'big'</span>, signed<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">False</span></span>
-<span id="cb2-41">            )</span>
-<span id="cb2-42">            <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">assert</span> number_of_images <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> number_of_labels</span>
-<span id="cb2-43"></span>
-<span id="cb2-44">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Read the image height header</span></span>
-<span id="cb2-45">            image_height_bytes <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> image_file.read(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>)</span>
-<span id="cb2-46">            image_height <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">int</span>.from_bytes(</span>
-<span id="cb2-47">                image_height_bytes, byteorder<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'big'</span>, signed<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">False</span></span>
-<span id="cb2-48">            )</span>
-<span id="cb2-49"></span>
-<span id="cb2-50">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Read the image width header</span></span>
-<span id="cb2-51">            image_width_bytes <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> image_file.read(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>)</span>
-<span id="cb2-52">            image_width <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">int</span>.from_bytes(</span>
-<span id="cb2-53">                image_width_bytes, byteorder<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'big'</span>, signed<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">False</span></span>
-<span id="cb2-54">            )</span>
-<span id="cb2-55"></span>
-<span id="cb2-56">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># read in the image data</span></span>
-<span id="cb2-57">            <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">buffer</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> image_file.read(image_width <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> image_height <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> number_of_images)</span>
-<span id="cb2-58">            image_data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> np.frombuffer(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">buffer</span>, dtype<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>np.uint8).astype(np.float64) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">255</span></span>
-<span id="cb2-59"></span>
-<span id="cb2-60">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Reshape it to a matrix such that each column is the pixels of the image</span></span>
-<span id="cb2-61">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># So, we end up with a matrix with `image_width*image_height` rows and `number_of_images` colums</span></span>
-<span id="cb2-62">            image_data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> image_data.reshape(</span>
-<span id="cb2-63">                number_of_images, image_width <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> image_height</span>
-<span id="cb2-64">            ).T</span>
-<span id="cb2-65"></span>
-<span id="cb2-66">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> image_data, labels</span></code></pre></div></div>
-</div>
-<p>And show the first image and label:</p>
-<div id="7a4764e8" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1">training_image_data, training_labels <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> load_images_and_labels(TRAINING_IMAGE_FILE_PATH, TRAINING_LABEL_FILE_PATH)</span>
-<span id="cb3-2">first_image_data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> training_image_data[:, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>].reshape((<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">28</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">28</span>))  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># All the rows in the first column, reshaped back to 28 x 28</span></span>
-<span id="cb3-3">first_image_label <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> training_labels[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>]</span>
-<span id="cb3-4"></span>
-<span id="cb3-5"><span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'Label: </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>first_image_label<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>)</span>
-<span id="cb3-6">plt.imshow(first_image_data, cmap<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'gray_r'</span>, vmin<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, vmax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)</span>
-<span id="cb3-7">plt.show()</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Label: 5</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/index_files/figure-html/cell-4-output-2.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="an-untrained-neural-network" class="level3">
-<h3 class="anchored" data-anchor-id="an-untrained-neural-network">An Untrained Neural Network</h3>
-<section id="initializing-weights-and-biases" class="level4">
-<h4 class="anchored" data-anchor-id="initializing-weights-and-biases">Initializing Weights and Biases</h4>
-<p>The first step in creating our Neural Network is to build out Forward Propagation. Since our Neural Network will have an input layer, one hidden layer, and an output layer, we’ll need: * A set of Weights and Biases on the input layer * An Activation Function on the input layer * A set of Weights and Biases on the hidden layer * An Activation Function on the hidden layer</p>
-<p>As mentioned, the Weights and Biases are variable and are determined in the model’s training process. But our model needs to start somewhere. There are a variety of strategies for initializing Weights and Biases. You could initialize to random values, but we’re going to use the <a href="https://towardsdatascience.com/coding-neural-network-parameters-initialization-f7c2d770e874">He method</a> to initialize random Weights, and the <a href="https://cs231n.github.io/neural-networks-2/">common recommendation of Biases initialized to zero</a>.</p>
-<div id="896d9690" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># weights_1 is the matrix of Weights between our input nodes and the first hidden layer</span></span>
-<span id="cb5-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># it has the shape num_labels x image_size</span></span>
-<span id="cb5-3"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#</span></span>
-<span id="cb5-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># biases_1 is the matrix of Biases between our input nodes and the first hidden layer</span></span>
-<span id="cb5-5"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># it has the shape num_labels x 1</span></span>
-<span id="cb5-6"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#</span></span>
-<span id="cb5-7"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># weights_2 is the matrix of Weights between our hidden layer and our output layer</span></span>
-<span id="cb5-8"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># it has the shape num_labels x num_labels</span></span>
-<span id="cb5-9"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">#</span></span>
-<span id="cb5-10"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># biases_2 is the matrix of biases between our hidden layer and our output layer</span></span>
-<span id="cb5-11"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># it has the shape num_labels x 1</span></span>
-<span id="cb5-12"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> init_params(input_layer_size, hidden_layer_size, output_layer_size):</span>
-<span id="cb5-13">    weights_1 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> np.random.randn(</span>
-<span id="cb5-14">        hidden_layer_size,</span>
-<span id="cb5-15">        input_layer_size,</span>
-<span id="cb5-16">    ) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> np.sqrt(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> input_layer_size)</span>
-<span id="cb5-17">    </span>
-<span id="cb5-18">    weights_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> np.random.randn(</span>
-<span id="cb5-19">        hidden_layer_size,</span>
-<span id="cb5-20">        output_layer_size,</span>
-<span id="cb5-21">    ) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> np.sqrt(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> hidden_layer_size)</span>
-<span id="cb5-22"></span>
-<span id="cb5-23">    biases_1 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> np.zeros((hidden_layer_size, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>))</span>
-<span id="cb5-24">    biases_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> np.zeros((output_layer_size, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>))</span>
-<span id="cb5-25"></span>
-<span id="cb5-26">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> weights_1, biases_1, weights_2, biases_2</span></code></pre></div></div>
-</div>
-</section>
-<section id="input-layer-activation-function" class="level4">
-<h4 class="anchored" data-anchor-id="input-layer-activation-function">Input Layer Activation Function</h4>
-<p>Next we need to select an activation function on our input layer. Common options are <a href="https://en.wikipedia.org/wiki/Sigmoid_function">sigmoid</a> and <a href="https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29">ReLU</a>. ReLU is very effective and is a very common choice in computer vision models. Also, it’s incredibly simple to implement, so we’ll go with that.</p>
-<p>All it does is take a value as input, and if the value is less than 0, return 0; if the value is greater than 0, return that value. That’s it! <a href="https://www.aitude.com/comparison-of-sigmoid-tanh-and-relu-activation-functions/">Here’s a handy post comparing ReLU to other activation functions</a>.</p>
-<div id="527eed8a" class="cell" data-execution_count="6">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> relu(value):</span>
-<span id="cb6-2">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> np.maximum(value, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>)</span></code></pre></div></div>
-</div>
-</section>
-<section id="hidden-layer-activation-function" class="level4">
-<h4 class="anchored" data-anchor-id="hidden-layer-activation-function">Hidden Layer Activation Function</h4>
-<p>The last piece we need for our Forward Propagation is an Activation Function on the hidden layer. Remember: this Activation Function is feeding to our output layer, so we need something that generates ten prediction values. A good way to do this is to take our unactivated hidden layer and normalize it such that it outputs “prediction odds” to our output layer. Put another way, if the model is 91% sure an input is the number 5, it should activate the 5’s output node to 0.91, and the sum of all the other predictions should come to 0.09.</p>
-<p>What we’ve just described is called the <a href="https://en.wikipedia.org/wiki/Softmax_function">Softmax function</a>. The mast might look a little strange (<a href="https://towardsdatascience.com/softmax-activation-function-explained-a7e1bc3ad60">here’s a good explainer</a>), but all it’s doing is taking in a set of numbers and normalizing them to be 0 - 1, with a sum of 1.</p>
-<div id="66a326c3" class="cell" data-execution_count="7">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> softmax(inputs):</span>
-<span id="cb7-2">    exponentiated <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> np.exp(inputs)</span>
-<span id="cb7-3">    probabilities <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> exponentiated <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> np.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">sum</span>(exponentiated, axis<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>)</span>
-<span id="cb7-4">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> probabilities</span></code></pre></div></div>
-</div>
-</section>
-<section id="forward-propagation-1" class="level4">
-<h4 class="anchored" data-anchor-id="forward-propagation-1">Forward Propagation</h4>
-<p>We can now combine our initialized Weights and Biases and our Activation Functions to define Forward Propagation. You’ll notice some matrix math in here. Since our features (pixels) are arranged in a matrix, this is much more efficient that piping every pixel through functions one at a time. This becomes particularly true when you’re working with Neural Networks of higher dimensions. <a href="https://www.youtube.com/watch?v=87_7YVCnAOw">Here’s a refresher on matrix dot product</a>. But you can basically think of it as multiplying the neurons in a layer by their weights.</p>
-<div id="33feb5fa" class="cell" data-execution_count="8">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> forward_prop(weights_1, biases_1, weights_2, biases_2, input_layer):</span>
-<span id="cb8-2">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># First, calculate the unactivated values of the neurons in the first hidden layer</span></span>
-<span id="cb8-3">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Dot product weights_1 on input_layer, and then add biases_1</span></span>
-<span id="cb8-4">    unactivated_hidden_layer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> weights_1.dot(input_layer) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> biases_1</span>
-<span id="cb8-5">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Then apply the ReLU activation function, to get our first hidden layer</span></span>
-<span id="cb8-6">    activated_hidden_layer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> relu(unactivated_hidden_layer)</span>
-<span id="cb8-7"></span>
-<span id="cb8-8">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Next calculate the unactivated values of the neurons in the output layer</span></span>
-<span id="cb8-9">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Dot product weights_2 on activated_hidden_layer, and then add biases_2</span></span>
-<span id="cb8-10">    unactivated_output_layer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> weights_2.dot(activated_hidden_layer) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> biases_2</span>
-<span id="cb8-11">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Then apply the softmax activation function, to get our activated output layer</span></span>
-<span id="cb8-12">    output_layer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> softmax(unactivated_output_layer)</span>
-<span id="cb8-13"></span>
-<span id="cb8-14">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> unactivated_hidden_layer, activated_hidden_layer, unactivated_output_layer, output_layer</span></code></pre></div></div>
-</div>
-<p>This is actually all we need to do to have our model make a prediction. If we pass in a matrix of images, it’ll give an <code>output_layer</code> of predicted labels. But remember, we haven’t actually trained it yet, so it’ll make <strong>very bad predictions</strong>. The two types of variables we have, the Weights and Biases, are set to random values. So this thing is going to perform with roughly 10% accuracy (randomly picking one of our ten digits). Let’s see that.</p>
-<p>We can define a measure of accuracy by dividing the number of correct predictions (the labels with the highest value in <code>output_layer</code>) by total number of predictions.</p>
-<div id="6f060dab" class="cell" data-execution_count="9">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> get_predictions(output_layer):</span>
-<span id="cb9-2">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> np.argmax(output_layer, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>)  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># return the index of the max value prediction</span></span>
-<span id="cb9-3"></span>
-<span id="cb9-4"></span>
-<span id="cb9-5"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> get_accuracy(predictions, labels):</span>
-<span id="cb9-6">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> np.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">sum</span>(predictions <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> labels) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> labels.size</span></code></pre></div></div>
-</div>
-<p>Here’s what we get:</p>
-<div id="c8d57e2e" class="cell" data-execution_count="10">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Set up our Neural Network shape</span></span>
-<span id="cb10-2">image_size <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> training_image_data.shape[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>]</span>
-<span id="cb10-3">num_labels <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">len</span>(np.unique(training_labels))</span>
-<span id="cb10-4">hidden_layer_size <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> num_labels</span>
-<span id="cb10-5"></span>
-<span id="cb10-6"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Initialize our Weights and Biases</span></span>
-<span id="cb10-7">weights_1, biases_1, weights_2, biases_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> init_params(image_size, hidden_layer_size, num_labels)</span>
-<span id="cb10-8"></span>
-<span id="cb10-9">( </span>
-<span id="cb10-10">    unactivated_hidden_layer,</span>
-<span id="cb10-11">    activated_hidden_layer,</span>
-<span id="cb10-12">    unactivated_output_layer,</span>
-<span id="cb10-13">    output_layer,</span>
-<span id="cb10-14">) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> forward_prop(</span>
-<span id="cb10-15">    weights_1,</span>
-<span id="cb10-16">    biases_1,</span>
-<span id="cb10-17">    weights_2,</span>
-<span id="cb10-18">    biases_2,</span>
-<span id="cb10-19">    training_image_data,</span>
-<span id="cb10-20">)</span>
-<span id="cb10-21"></span>
-<span id="cb10-22">predictions <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> get_predictions(output_layer)</span>
-<span id="cb10-23">accuracy <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> get_accuracy(predictions, training_labels)</span>
-<span id="cb10-24"></span>
-<span id="cb10-25"><span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'Accuracy: </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>accuracy<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">%'</span>)</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 8.22%</code></pre>
-</div>
-</div>
-</section>
-</section>
-<section id="training-the-neural-network" class="level3">
-<h3 class="anchored" data-anchor-id="training-the-neural-network">Training the Neural Network</h3>
-<p>Now that we have a stupid Neural Network, let’s train it so it can become a smart Neural Network. As mentioned before, Back Propagation is the proces in which we take the predictions from Forward Propagation, measure the error, and adjust our Weights and Biases through Gradient Descent.</p>
-<p>Before we begin, we need one more helper function. We want to compare our known labels to all our predictions, and we can do that with a matrix with values of 1 (100%) at the correct index and 0 (0%) at all the incorrect indexes. We do this with <a href="https://en.wikipedia.org/wiki/One-hot">One-hot encoding</a>.</p>
-<div id="4814221a" class="cell" data-execution_count="11">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> one_hot(num_labels, labels):</span>
-<span id="cb12-2">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a matrix of all zeroes with shape num_images x num_labels</span></span>
-<span id="cb12-3">    one_hot_y <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> np.zeros((labels.size, num_labels))</span>
-<span id="cb12-4">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># For every image row, set Y'th (actual label) column to 1</span></span>
-<span id="cb12-5">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># So, if the first row has label 5, set the 5th column to 1</span></span>
-<span id="cb12-6">    one_hot_y[np.arange(labels.size), labels] <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span></span>
-<span id="cb12-7">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Return the Transposed matrix, so in the above example, the 5th row first column is 1</span></span>
-<span id="cb12-8">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> one_hot_y.T</span></code></pre></div></div>
-</div>
-<div id="25609f81" class="cell" data-execution_count="12">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">one_hot_output <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> one_hot(num_labels, training_labels)</span></code></pre></div></div>
-</div>
-<section id="back-propagation-1" class="level4">
-<h4 class="anchored" data-anchor-id="back-propagation-1">Back Propagation</h4>
-<p>This is where we actually do our Gradient Descent. It contains a little bit of calculus, and I highly adivse you pause here and watch these three videos: * <a href="https://www.3blue1brown.com/lessons/backpropagation">What is backpropagation really doing?</a> * <a href="https://www.3blue1brown.com/lessons/backpropagation-calculus">Backpropagation Calculus</a> * <a href="https://www.youtube.com/watch?v=f-nW8cSa_Ec">Backpropagation for Softmax and Multi-Class Classification | Complete Mathematical Derivation</a></p>
-<p>It’s actually not all that imporant to master the calculus in these videos, but it’s very helpful to see what math is happening. From a high-level: we take the derivatives of our activation functions, and we reverse our matrix multiplication. It’s actually not too daunting. In the end, it gives is a measurement of error, and we use that error to adjust our Weights and Biases.</p>
-<p>Speaking of derivatives, we’re gonna need the derivated of our ReLU Activation Function:</p>
-<div id="69a64a23" class="cell" data-execution_count="13">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># rectified_linear_unit only ever has a slope of 0 (negative X), or 1 (positive X)</span></span>
-<span id="cb14-2"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> derivative_rectified_linear_unit(Z):</span>
-<span id="cb14-3">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> Z <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span></span></code></pre></div></div>
-</div>
-<p>And now we just go backwards through the Neural Network:</p>
-<div id="a6b7cd01" class="cell" data-execution_count="14">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> back_prop(unactivated_hidden_layer, activated_hidden_layer, weights_2, output_layer, one_hot_output, training_image_data):</span>
-<span id="cb15-2">    num_images <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> one_hot_output.size</span>
-<span id="cb15-3"></span>
-<span id="cb15-4">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># The difference between the predictions and the actual labels</span></span>
-<span id="cb15-5">    d_predictions <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> output_layer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> one_hot_output</span>
-<span id="cb15-6"></span>
-<span id="cb15-7">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Take that d_predictions and cary back to the activated hidden layer</span></span>
-<span id="cb15-8">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># And then average over all the neurons</span></span>
-<span id="cb15-9">    d_weights_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> (<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> num_images) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> d_predictions.dot(activated_hidden_layer.T)</span>
-<span id="cb15-10"></span>
-<span id="cb15-11">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Derivative of biases_ 2 is acutally just an average of the abosolute error</span></span>
-<span id="cb15-12">    d_biases_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> (<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> num_images) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> np.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">sum</span>(d_predictions)</span>
-<span id="cb15-13"></span>
-<span id="cb15-14">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Derivative of unactived hidden layer</span></span>
-<span id="cb15-15">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Transpose the 2nd layer weights and dot on the known d_predictions</span></span>
-<span id="cb15-16">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># And multiply that by the derivative of the activation function</span></span>
-<span id="cb15-17">    d_hidden_layer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> weights_2.T.dot(d_predictions) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> derivative_rectified_linear_unit(unactivated_hidden_layer)</span>
-<span id="cb15-18"></span>
-<span id="cb15-19">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Again, take our current derivative and cary it back to the input layer</span></span>
-<span id="cb15-20">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># And average it over all the neurons</span></span>
-<span id="cb15-21">    d_weights_1 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> (<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> num_images) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> d_hidden_layer.dot(training_image_data.T)</span>
-<span id="cb15-22">    </span>
-<span id="cb15-23">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Derivative of biases_1 is like biases_2, but it's a simple average of the abolute error from the hiddle layer</span></span>
-<span id="cb15-24">    d_biases_1 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> (<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span> num_images) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> np.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">sum</span>(d_hidden_layer)</span>
-<span id="cb15-25"></span>
-<span id="cb15-26">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> d_weights_1, d_biases_1, d_weights_2, d_biases_2</span></code></pre></div></div>
-</div>
-</section>
-</section>
-<section id="training-our-model" class="level3">
-<h3 class="anchored" data-anchor-id="training-our-model">Training Our Model</h3>
-<section id="learning-rate" class="level4">
-<h4 class="anchored" data-anchor-id="learning-rate">Learning Rate</h4>
-<p>We’re almost ready to train our model. The last piece here is to actually update our Weights and Biases after Back Propagation. You may be tempted to simply subracts the differences returned by <code>back_prop</code> but it’s not quite so simple. Remember, our Gradient Descent is good at telling us the slope at our current location, but it’s very unlikely to be a straight line. Instead, we’re going to want to take smaller steps so that we don’t over-shoot.</p>
-<p>We need to introduce a variable called <code>learning_rate</code>, sometimes called <strong>alpha</strong>. This is a <a href="https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning)">hyperparameter</a>, which simply means that our model can’t learn the correct value through training; we have to set it ourselves. There are techniques to make this process more efficient, but usually it’s a bit of guess and check. If your model has a very bad time improving, you should try adjusting your learning rate. Common learning rates are between 0.01 and 1. If you’d like to read more about picking a learning rate, <a href="https://www.jeremyjordan.me/nn-learning-rate/">this is a good post</a>.</p>
-<p>Through some trial and error, I found that a learning rate of 0.5 worked pretty well for this model.</p>
-<div id="928e16c7" class="cell" data-execution_count="15">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1">learning_rate <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.5</span></span></code></pre></div></div>
-</div>
-<p>We can use this to update our Weights and Biases:</p>
-<div id="00d851bb" class="cell" data-execution_count="16">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> update_params(weights_1, biases_1, weights_2, biases_2, d_weights_1, d_biases_1, d_weights_2, d_biases_2, learning_rate):</span>
-<span id="cb17-2">    weights_1 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> weights_1 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> learning_rate <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> d_weights_1</span>
-<span id="cb17-3">    biases_1 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> biases_1 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> learning_rate <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> d_biases_1</span>
-<span id="cb17-4">    weights_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> weights_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> learning_rate <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> d_weights_2</span>
-<span id="cb17-5">    biases_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> biases_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span> learning_rate <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span> d_biases_2</span>
-<span id="cb17-6"></span>
-<span id="cb17-7">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> weights_1, biases_1, weights_2, biases_2</span></code></pre></div></div>
-</div>
-</section>
-<section id="training-1" class="level4">
-<h4 class="anchored" data-anchor-id="training-1">Training</h4>
-<p>Now let’s train our model! You might recall that it’ll take many iterations of Forward Propagation and Back Propagation for our model to get smart. But how many iterations? I don’t actually know! Let’s decide right now that we want our model to be at least 90% accurate on the training data. We’ve already got a function to tell us accuracy, so let’s let it train until that reaches 90%.</p>
-<p>This is the slow part, and the part that often benefits from GPUs. But, as you’ll see, this Neural Network trains surpisingly quickly! On my laptop with no GPU and a 2.6 GHz 6-Core Intel Core i7, the model rechease 90% accuracy on the training data in under two minutes!</p>
-<div id="b0f215b0" class="cell" data-execution_count="17">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1">image_size <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> training_image_data.shape[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>]</span>
-<span id="cb18-2">num_labels <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">len</span>(np.unique(training_labels))</span>
-<span id="cb18-3">hidden_layer_size <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> num_labels</span>
-<span id="cb18-4"></span>
-<span id="cb18-5">weights_1, biases_1, weights_2, biases_2 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> init_params(image_size, hidden_layer_size, num_labels)</span>
-<span id="cb18-6"></span>
-<span id="cb18-7">accuracy <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span></span>
-<span id="cb18-8">iteration <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span></span>
-<span id="cb18-9">accuracy_measurements <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> [<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>]  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># A running list of our accuracy for each iteration</span></span>
-<span id="cb18-10"></span>
-<span id="cb18-11"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">while</span> accuracy <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">&lt;</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0.9</span>:</span>
-<span id="cb18-12">    iteration <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span></span>
-<span id="cb18-13"></span>
-<span id="cb18-14">    ( </span>
-<span id="cb18-15">        unactivated_hidden_layer,</span>
-<span id="cb18-16">        activated_hidden_layer,</span>
-<span id="cb18-17">        unactivated_output_layer,</span>
-<span id="cb18-18">        output_layer,</span>
-<span id="cb18-19">    ) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> forward_prop(</span>
-<span id="cb18-20">        weights_1,</span>
-<span id="cb18-21">        biases_1,</span>
-<span id="cb18-22">        weights_2,</span>
-<span id="cb18-23">        biases_2,</span>
-<span id="cb18-24">        training_image_data,</span>
-<span id="cb18-25">    )</span>
-<span id="cb18-26"></span>
-<span id="cb18-27">    one_hot_output <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> one_hot(num_labels, training_labels)</span>
-<span id="cb18-28"></span>
-<span id="cb18-29">    (</span>
-<span id="cb18-30">        d_weights_1,</span>
-<span id="cb18-31">        d_biases_1,</span>
-<span id="cb18-32">        d_weights_2,</span>
-<span id="cb18-33">        d_biases_2,</span>
-<span id="cb18-34">    ) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> back_prop(</span>
-<span id="cb18-35">        unactivated_hidden_layer,</span>
-<span id="cb18-36">        activated_hidden_layer,</span>
-<span id="cb18-37">        weights_2, output_layer,</span>
-<span id="cb18-38">        one_hot_output,</span>
-<span id="cb18-39">        training_image_data,</span>
-<span id="cb18-40">    )</span>
-<span id="cb18-41"></span>
-<span id="cb18-42">    (</span>
-<span id="cb18-43">        weights_1,</span>
-<span id="cb18-44">        biases_1,</span>
-<span id="cb18-45">        weights_2,</span>
-<span id="cb18-46">        biases_2,</span>
-<span id="cb18-47">    ) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> update_params(</span>
-<span id="cb18-48">        weights_1,</span>
-<span id="cb18-49">        biases_1,</span>
-<span id="cb18-50">        weights_2,</span>
-<span id="cb18-51">        biases_2,</span>
-<span id="cb18-52">        d_weights_1,</span>
-<span id="cb18-53">        d_biases_1,</span>
-<span id="cb18-54">        d_weights_2,</span>
-<span id="cb18-55">        d_biases_2,</span>
-<span id="cb18-56">        learning_rate,</span>
-<span id="cb18-57">    )</span>
-<span id="cb18-58"></span>
-<span id="cb18-59">    predictions <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> get_predictions(output_layer)</span>
-<span id="cb18-60">    accuracy <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> get_accuracy(predictions, training_labels)</span>
-<span id="cb18-61"></span>
-<span id="cb18-62">    accuracy_measurements.append(accuracy)</span>
-<span id="cb18-63"></span>
-<span id="cb18-64">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Print out upadtes as we go</span></span>
-<span id="cb18-65">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">if</span> iteration <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span> <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">or</span> iteration <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">%</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">100</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>:  </span>
-<span id="cb18-66">        <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'Iteration: </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>iteration<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;"> | Accuracy: </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>accuracy<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">%'</span>)</span>
-<span id="cb18-67"></span>
-<span id="cb18-68"><span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'Achieved </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>accuracy<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">% accuracy after </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>iteration<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;"> iterations!'</span>)</span>
-<span id="cb18-69"></span>
-<span id="cb18-70"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Plot the accuracy curve</span></span>
-<span id="cb18-71">plt.plot(accuracy_measurements)</span>
-<span id="cb18-72">plt.xlabel(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Iteration'</span>)</span>
-<span id="cb18-73">plt.ylabel(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Accuracy'</span>)</span>
-<span id="cb18-74">plt.ylim(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)</span>
-<span id="cb18-75">plt.show()</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Iteration: 1 | Accuracy: 9.41%
-Iteration: 100 | Accuracy: 72.68%
-Iteration: 200 | Accuracy: 82.50%
-Iteration: 300 | Accuracy: 85.56%
-Iteration: 400 | Accuracy: 87.01%
-Iteration: 500 | Accuracy: 87.85%
-Iteration: 600 | Accuracy: 88.51%
-Iteration: 700 | Accuracy: 88.97%
-Iteration: 800 | Accuracy: 89.37%
-Iteration: 900 | Accuracy: 89.66%
-Iteration: 1000 | Accuracy: 89.90%
-Achieved 90.00% accuracy after 1037 iterations!</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/index_files/figure-html/cell-17-output-2.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Now we have the Weights and Biases for our Neural Network to achieve 90% accuracy against our training data. That’s pretty cool, but the real test to to run images through the model that it’s never seen before. If we overfit the model, it might only be good at recognizing the images it was trained on (kindof like cramming for a test and memorizing the answers without actually learning anything). Let’s run it against our 10,000 test images. At this point we only need to run it through <code>forward_prop</code> because we’re no longer training. This is very fast!</p>
-<div id="d6773362" class="cell" data-execution_count="18">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1">test_image_data, test_labels <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> load_images_and_labels(TEST_IMAGE_FILE_PATH, TEST_LABEL_FILE_PATH)</span>
-<span id="cb20-2">_, _, _, test_output_layer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> forward_prop(</span>
-<span id="cb20-3">        weights_1,</span>
-<span id="cb20-4">        biases_1,</span>
-<span id="cb20-5">        weights_2,</span>
-<span id="cb20-6">        biases_2,</span>
-<span id="cb20-7">        test_image_data,</span>
-<span id="cb20-8">    )</span>
-<span id="cb20-9">test_predictions <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> get_predictions(test_output_layer)</span>
-<span id="cb20-10">test_accuracy <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> get_accuracy(test_predictions, test_labels)</span>
-<span id="cb20-11"><span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'Test Data Set Accuracy: </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>test_accuracy<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">%'</span>)</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Test Data Set Accuracy: 90.32%</code></pre>
-</div>
-</div>
-<p>That’s great! And let’s look at a sample of 10 test images and how they were labeled:</p>
-<div id="ef9539d3" class="cell" data-execution_count="19">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1">fig, axes <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> plt.subplots(nrows<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span>, ncols<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>, figsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">4</span>))</span>
-<span id="cb22-2"></span>
-<span id="cb22-3"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> ax <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> axes.flat:</span>
-<span id="cb22-4">    random_index <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> np.random.randint(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">len</span>(test_labels))</span>
-<span id="cb22-5">    random_test_image_data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> test_image_data[:, random_index].reshape((<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">28</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">28</span>))</span>
-<span id="cb22-6">    random_test_image_label <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> test_labels[random_index]</span>
-<span id="cb22-7">    random_prediction <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> test_predictions[random_index]</span>
-<span id="cb22-8"></span>
-<span id="cb22-9">    ax.imshow(random_test_image_data, cmap<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'gray_r'</span>, vmin<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span>, vmax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)</span>
-<span id="cb22-10">    ax.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">set</span>(title<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f'Actual: </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>random_test_image_label<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">Predicted: </span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>random_prediction<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>)</span>
-<span id="cb22-11"></span>
-<span id="cb22-12">plt.tight_layout()</span>
-<span id="cb22-13">plt.show()</span></code></pre></div></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/index_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Very impressive!</p>
-<p>We’ve successfully built a computer vision Machine Learning model using nothing but NumPy. Hopefully this demystified some of the some of the concepts of Neural Networks!</p>
-</section>
-</section>
-<section id="acknowledgements" class="level3">
-<h3 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h3>
-<p>My first pass at tackling this topic began with Samson Zhang’s “<a href="https://www.youtube.com/watch?v=w8yWXqWQYmU">Building a neural network FROM SCRATCH (no Tensorflow/Pytorch, just numpy &amp; math)</a>”. This post looks a lot like his work, though I hit a number of implementation errors while following along. After digging into the articles and videos linked in this post, I made a number of adjustments to the model’s training to get to this final output.</p>
-</section>
-<section id="license" class="level3">
-<h3 class="anchored" data-anchor-id="license">License</h3>
-<pre><code>Copyright (c) 2023, Matt Hodges
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of Building a Neural Network From Scratch with NumPy nor the names of its
-  contributors may be used to endorse or promote products derived from
-  this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</code></pre>
-
-
-</section>
-
- ]]></description>
-  <guid>https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/</guid>
-  <pubDate>Sun, 06 Aug 2023 05:00:00 GMT</pubDate>
-  <media:content url="https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/neural_network_social.png" medium="image" type="image/png" height="71" width="144"/>
 </item>
 </channel>
 </rss>

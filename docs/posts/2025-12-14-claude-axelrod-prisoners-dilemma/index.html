@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.24">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Matt Hodges">
+<meta name="dcterms.date" content="2025-12-14">
+
+<title>Claude in a Game Theory Tournament</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../img/favicon.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-a6e161b2431e1f94a14e0f5d32135a3c.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-2dbbbc70f266ee9aa1ae849862829066.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="Claude in a Game Theory Tournament">
+<meta property="og:description" content="How Claude Code ran a competitive Iterated Prisoner’s Dilemma strategy">
+<meta property="og:image" content="https://matthodges.com/posts/2025-12-14-claude-axelrod-prisoners-dilemma/claude-game-theory.png">
+<meta property="og:site_name" content="Matt Hodges">
+<meta property="og:image:height" content="1536">
+<meta property="og:image:width" content="2752">
+<meta name="twitter:title" content="Claude in a Game Theory Tournament">
+<meta name="twitter:description" content="How Claude Code ran a competitive Iterated Prisoner’s Dilemma strategy">
+<meta name="twitter:image" content="https://matthodges.com/posts/2025-12-14-claude-axelrod-prisoners-dilemma/claude-game-theory.png">
+<meta name="twitter:image-height" content="1536">
+<meta name="twitter:image-width" content="2752">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://matthodges.com/posts/2025-12-14-claude-axelrod-prisoners-dilemma/" />
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Matt Hodges</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://www.linkedin.com/in/hodgesmr" target="_blank"> 
+<span class="menu-text">LinkedIn</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/hodgesmr" target="_blank"> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../posts.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Claude in a Game Theory Tournament</h1>
+            <p class="subtitle lead">How Claude Code ran a competitive Iterated Prisoner’s Dilemma strategy</p>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Matt Hodges </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 14, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p>I’ve been playing around with Claude Code, and I wanted to see what happens when you give it something genuinely open-ended. Not “implement this feature” or “fix this bug” but something that would typically require actual creativity from a human. Something where the agent needs to look at a landscape of existing solutions, find the gaps, and make something new.</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Prisoner%27s_dilemma#The_iterated_prisoner's_dilemma">Iterated Prisoner’s Dilemma</a> felt perfect for this. It’s a well-studied problem with decades of research and it allows you to objectively measure how good your strategy is by running a tournament. So I gave Claude Code (Sonnet 4.5) one prompt to look at the <a href="https://github.com/Axelrod-Python/Axelrod">Axelrod library’s</a> 200+ IPD strategies, come up with something novel that could actually compete, and build it.</p>
+<section id="time-for-some-game-theory" class="level3">
+<h3 class="anchored" data-anchor-id="time-for-some-game-theory">Time For Some Game Theory</h3>
+<p>The traditional <a href="https://en.wikipedia.org/wiki/Prisoner%27s_dilemma">Prisoner’s Dilemma</a> is one of game theory’s most studied problems. Two players simultaneously choose to either <strong>Cooperate</strong> or <strong>Defect</strong>. The payoff matrix creates a tension between individual and collective benefit:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 34%">
+<col style="width: 33%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>You Cooperate</th>
+<th>You Defect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Opponent Cooperates</strong></td>
+<td>R = 3 (Reward)</td>
+<td>T = 5 (Temptation)</td>
+</tr>
+<tr class="even">
+<td><strong>Opponent Defects</strong></td>
+<td>S = 0 (Sucker’s payoff)</td>
+<td>P = 1 (Punishment)</td>
+</tr>
+</tbody>
+</table>
+<p>The dilemma: mutual cooperation yields 3 points each (Reward), but you’re tempted to defect for 5 points while your opponent gets 0 (Sucker’s payoff). But if you both defect, you each only get 1 point.</p>
+<p><strong>In a one-shot game, rational self-interest says defect.</strong> But what if you play repeatedly?</p>
+<p>In 1980, political scientist <a href="https://en.wikipedia.org/wiki/Robert_Axelrod_(political_scientist)">Robert Axelrod</a> adjusted the idea, and organized a computational tournament where experts across various fields submitted strategies for the <strong>Iterated Prisoner’s Dilemma (IPD)</strong>. The traditional Prisoner’s Dilemma was a single, one-shot game: two players choose cooperate or defect once, receive payoffs, and the interaction ends. Axelrod’s Iterated Prisoner’s Dilemma instead pits many strategies against each other in a round-robin tournament, where each pair plays the same opponent repeatedly over many rounds and total scores are accumulated. Because moves can depend on the history of play, strategies can reward cooperation, punish defection, and recover from mistakes.</p>
+<p>The winner was <a href="https://en.wikipedia.org/wiki/Anatol_Rapoport">Anatol Rapoport</a> and his strategy <strong><a href="https://en.wikipedia.org/wiki/Tit_for_tat">Tit For Tat</a></strong>: start by cooperating, then mirror your opponent’s last move. The simplicity surprised everyone. More complex strategies lost to this extremely basic algorithm.</p>
+<p>Axelrod’s 1984 book <em><a href="https://en.wikipedia.org/wiki/The_Evolution_of_Cooperation">The Evolution of Cooperation</a></em> analyzed why:</p>
+<ul>
+<li><strong>Nice strategies</strong> (never defect first) tended to win in the long run</li>
+<li><strong>Forgiving strategies</strong> (don’t hold grudges forever) did well</li>
+<li><strong>Clear strategies</strong> (opponents can understand your pattern) encouraged cooperation</li>
+<li><strong>Retaliatory strategies</strong> (punish defection) prevented exploitation</li>
+</ul>
+<p>The key discovery was that while the traditional Prisoner’s Dilemma elevated defection as the logical play, the Iterated Prisoner’s Dilemma tended to reward cooperation. These findings influenced fields from evolutionary biology to international relations. If cooperation can emerge from pure self-interest in simple games, perhaps it can explain cooperation in nature and human societies. <a href="https://www.youtube.com/watch?v=mScpHTIi-kM">Veritasium did a great video summarizing the book</a>, but you should read the book!</p>
+<p>The <a href="https://github.com/Axelrod-Python/Axelrod">Axelrod library</a> continues this research. It’s a comprehensive Python framework containing:</p>
+<ul>
+<li>200+ strategy implementations (classic and modern)</li>
+<li>Tournament infrastructure</li>
+<li>Statistical analysis and visualization tools</li>
+<li><a href="https://en.wikipedia.org/wiki/Moran_process">Moran process</a> simulation for evolutionary dynamics</li>
+<li>Support for noise, probabilistic endings, and spatial tournaments</li>
+</ul>
+<p>Strategies range from simple (<a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.TitForTat">Tit For Tat</a>, <a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.grudger.Grudger">Grudger</a>) to complex (neural networks, finite state machines, zero-determinant strategies). It’s maintained by researchers and serves as a testbed for game theory experiments.</p>
+</section>
+<section id="claude-in-the-tournament" class="level3">
+<h3 class="anchored" data-anchor-id="claude-in-the-tournament">Claude In The Tournament</h3>
+<p>So I cloned the Axelrod library and gave Claude Code this prompt:</p>
+<blockquote class="blockquote">
+<p><em>This is the Axelrod python library that implements the tournament-style iterative prisoners’ dilemma popularized by Robert Axelrod in his seminal work The Evolution of Cooperation. We’re going to try to create a novel and competitive strategy, one that stands on its own and can reliably compete with the bests known strategies, like Tit-For-Tat. The repository ships with over 200 strategies already for the tournament. I would like you to think hard about what a novel new strategy could be. This is going to require creativity and thinking outside the box. It’ll likely take some iteration too. Let’s begin. Explore the repository for existing strategies, understand how the tournament system works, and then, once you’ve created a novel and creative idea, implement the new strategy. Once implemented, run it in a tournament to see how it performs against all others.</em></p>
+</blockquote>
+<p>The interesting part here is what I didn’t specify. I didn’t tell it to use any particular approach. I just said: be novel, be competitive, figure it out. This is different from most coding tasks, and different from how I typically advise users getting started with AI tools. It requires the agent to do research, synthesize information, identify opportunities, and validate its own work.</p>
+<p>The agent started by exploring. It read through the strategy implementations systematically, looking through dozens of Python files, each containing multiple strategies. It looked at how tournaments work, how strategies are classified, what the existing approaches are.</p>
+<p>Then it started cataloguing: memory-based strategies that track opponent history, stochastic strategies that use randomness, zero-determinant strategies that unilaterally enforce a linear relationship between players’ expected payoffs, evolved strategies optimized through genetic algorithms.</p>
+<blockquote class="blockquote">
+<p><code>I'll help you create a novel and competitive strategy for the Iterated Prisoner's Dilemma! This is an exciting challenge. Let me start by exploring the repository to understand the existing strategies and tournament mechanics.</code></p>
+</blockquote>
+<p>After looking through all those approaches, the agent landed on a pretty specific gap: nobody was doing Bayesian opponent modeling in the straightforward way you’d expect. Lots of strategies adapt. Some keep simple stats like “how often does this opponent cooperate?” Some try to bucket opponents into types. But I didn’t see any that keep an explicit range of beliefs about how cooperative the other player is, and then use how confident (or uncertain) they are in that read to decide when to forgive or punish.</p>
+<blockquote class="blockquote">
+<p><code>Based on my analysis, I'm going to create a strategy that fills a critical gap: Bayesian opponent modeling with uncertainty-aware decision making.</code></p>
+</blockquote>
+<p>That became the core insight: use uncertainty as a guardrail. When you don’t know what you’re dealing with yet, don’t hand out forgiveness cheaply. But once you’ve got enough evidence that an opponent is usually cooperative, you can afford to treat an occasional defection as noise, and forgive it, while still clamping down hard on players who keep defecting.</p>
+</section>
+<section id="claudes-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="claudes-strategy">Claude’s Strategy</h3>
+<p>The strategy Claude Code designed has a simple core idea: model your opponent’s cooperation probability using a <a href="https://en.wikipedia.org/wiki/Beta_distribution">Beta distribution</a>, and let your uncertainty affect how forgiving you are.</p>
+<p>The Beta distribution is perfect for this. You’re uncertain about the opponent’s true cooperation rate, so you maintain a distribution of possible values.</p>
+<ul>
+<li><strong>α (alpha)</strong>: observed cooperations + prior</li>
+<li><strong>β (beta)</strong>: observed defections + prior</li>
+<li><strong>Mean cooperation probability</strong>: <span class="math inline">\(\mu = \frac{\alpha}{\alpha + \beta}\)</span></li>
+<li><strong>Uncertainty (standard deviation)</strong>: <span class="math inline">\(\sigma = \sqrt{\frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)}}\)</span></li>
+</ul>
+<p>Start with <code>Beta(1,1)</code>, which is completely flat from 0 to 1. You have no idea if they’ll cooperate or not.</p>
+<p>Every time they cooperate, you increment α. Every time they defect, you increment β. The distribution gradually shifts and narrows as you observe more data. After 100 rounds with 70 cooperations, you’ve got <code>Beta(71, 31)</code>, a distribution peaked around 70% cooperation with relatively low uncertainty. After just 5 rounds with 3 cooperations, you’ve got <code>Beta(4, 3)</code>, which is still pretty uncertain.</p>
+<p>Early on, uncertainty is high, which raises the forgiveness threshold, so the strategy is conservative about forgiving. As evidence accumulates, uncertainty shrinks and the threshold falls back toward the base threshold, making forgiveness possible once the estimated cooperation rate is convincingly high.</p>
+<p>The decision rule is straightforward: if the opponent just cooperated, cooperate back. If they just defected, check their cooperation rate. If it’s above your current threshold, forgive them and cooperate. If it’s below, defect.</p>
+<p>This creates adaptive behavior. Against cooperative opponents, you quickly learn they’re trustworthy and maintain cooperation. Against occasionally exploitative opponents, confidence gives them a chance to reform. Against consistently hostile opponents, you become confident in their hostility and stop forgiving.</p>
+<div id="9bb70114" class="cell" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-3-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Claude Code implemented this cleanly, largely thanks to the excellent documentation provided by the library. It wrote the strategy with proper parameter handling, reset logic, and classification metadata. It registered the strategy in the library’s index. It wrote comprehensive tests.</p>
+<p>The test suite is thorough. Basic behavior tests included expectations like “cooperate on first move” and “maintain cooperation with always-cooperate opponent.” Edge case tests against <a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.defector.Defector">Defector</a> and <a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.alternator.Alternator">Alternator</a>. Strategy mechanics tests to verify the Bayesian updating works correctly. A clone test to ensure parameters are preserved.</p>
+</section>
+<section id="iterating-and-improving" class="level3">
+<h3 class="anchored" data-anchor-id="iterating-and-improving">Iterating and Improving</h3>
+<p>After it ran an initial tournament of BayesianForgiver against classic strategies, it decided to tune the strategy’s default parameters:</p>
+<blockquote class="blockquote">
+<p><code>I'll create a tournament script that imports and runs the strategy against others. Let me check if there are existing examples of running tournaments.</code></p>
+</blockquote>
+<p>…</p>
+<blockquote class="blockquote">
+<p><code>Great! The tournament ran successfully! BayesianForgiver ranked 9th out of 15 in the classic tournament. This is decent but there's room for improvement. The results show that the strategy is working but could be tuned better.</code></p>
+</blockquote>
+<p>…</p>
+<blockquote class="blockquote">
+<p><code>The strategy is novel and functional, but let me try tuning the parameters to improve performance</code></p>
+</blockquote>
+<p>…</p>
+<blockquote class="blockquote">
+<p><code>Excellent! The parameter tuning found significantly better parameters! Let me update the strategy with the optimized parameters</code></p>
+</blockquote>
+<p>This landed it at <strong>6/15</strong> in a smaller classic tournament against core strategies:</p>
+<ul>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.TitForTat"><strong>Tit For Tat</strong></a> - The original champion: cooperate first, then mirror opponent’s last move</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.cooperator.Cooperator"><strong>Cooperator</strong></a> - Always cooperates unconditionally</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.defector.Defector"><strong>Defector</strong></a> - Always defects unconditionally</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.grudger.Grudger"><strong>Grudger</strong></a> - Cooperates until the opponent defects once, then defects forever</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.TitFor2Tats"><strong>Tit For 2 Tats</strong></a> - Only defects after two consecutive defections by opponent</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.memoryone.WinStayLoseShift"><strong>Win-Stay Lose-Shift</strong></a> - If the last round produced a good payoff, repeat; if bad, switch</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.memoryone.GTFT"><strong>GTFT</strong></a> - Generous Tit For Tat: occasionally cooperates even after opponent defects</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.rand.Random"><strong>Random</strong></a> - Randomly chooses between cooperation and defection with equal probability</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.SuspiciousTitForTat"><strong>Suspicious Tit For Tat</strong></a> - Like Tit For Tat but starts by defecting instead of cooperating</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.titfortat.HardTitForTat"><strong>Hard Tit For Tat</strong></a> - Defects after any defection and only cooperates after three consecutive cooperations</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.adaptive.Adaptive"><strong>Adaptive</strong></a> - Learns from history: plays the response that would have maximized its own score</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.apavlov.APavlov2011"><strong>Adaptive Pavlov 2011</strong></a> - Classifies opponents into types and adapts strategy based on opponent classification</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.forgiver.ForgivingTitForTat"><strong>Forgiving Tit For Tat</strong></a> - Like Tit For Tat but forgives defections with 10% probability</li>
+<li><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.gobymajority.GoByMajority"><strong>Go By Majority</strong></a> - Cooperates if opponent has cooperated more than defected in history</li>
+</ul>
+<p>In a tournament where each pair of strategies plays 20 separate matches of 200 rounds:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Rank</th>
+<th>Strategy</th>
+<th style="text-align: right;">Avg Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>Grudger</td>
+<td style="text-align: right;">7956.40</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td>Win-Stay Lose-Shift</td>
+<td style="text-align: right;">7914.90</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td>Adaptive Pavlov 2011</td>
+<td style="text-align: right;">7880.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td>Tit For 2 Tats</td>
+<td style="text-align: right;">7763.20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td>Forgiving Tit For Tat</td>
+<td style="text-align: right;">7741.95</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>6</strong></td>
+<td><strong>Bayesian Forgiver</strong></td>
+<td style="text-align: right;"><strong>7735.55</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td>Tit For Tat</td>
+<td style="text-align: right;">7733.95</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td>Hard Tit For Tat</td>
+<td style="text-align: right;">7554.35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td>GTFT</td>
+<td style="text-align: right;">7538.10</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td>Go By Majority</td>
+<td style="text-align: right;">7354.30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td>Cooperator</td>
+<td style="text-align: right;">6912.60</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td>Adaptive</td>
+<td style="text-align: right;">6703.55</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td>Suspicious Tit For Tat</td>
+<td style="text-align: right;">6450.65</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td>Random</td>
+<td style="text-align: right;">5713.20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td>Defector</td>
+<td style="text-align: right;">4725.20</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-tournament" class="level3">
+<h3 class="anchored" data-anchor-id="the-tournament">The Tournament</h3>
+<p>I then asked Claude Code to run a comprehensive tournament following the examples from the <a href="https://github.com/Axelrod-Python/tournament">tournament repository</a>.</p>
+<p>BayesianForgiver ranked <strong>93rd</strong> out of 226 strategies. Top 41%.</p>
+<p>Let’s be clear: this isn’t elite performance. The top positions are dominated by evolved strategies based on finite state machines, neural networks, hidden Markov models that were optimized via evolutionary algorithms specifically for IPD success. But here’s what matters: BayesianForgiver introduced a genuinely novel approach and proved it’s competitive with those hand-crafted strategies. It beat some famous names from the literature. And it validated the core insight about certainty-aware forgiveness.</p>
+<p><a href="https://axelrod.readthedocs.io/en/stable/reference/strategy_index.html#axelrod.strategies.memoryone.WinStayLoseShift">Win-Stay, Lose-Shift</a> (WSLS), also called Pavlov, is one of the landmark strategies in Iterated Prisoner’s Dilemma research. A key modern reference point is <a href="https://pubmed.ncbi.nlm.nih.gov/8316296/">Nowak and Sigmund’s 1993 paper</a>, which highlighted WSLS/Pavlov and showed that it can outperform Tit For Tat in a range of settings. The rule is elegantly simple: if the last round produced a “good” payoff, repeat your previous move; if it produced a “bad” payoff, switch.</p>
+<p>The strategy is famous for its ability to correct mistakes and re-establish cooperation under noise: a single accidental defection doesn’t necessarily lock WSLS into long retaliation cycles, and two WSLS players can often return to mutual cooperation quickly. It has been extensively studied in the theoretical and evolutionary game theory literature.</p>
+<p>WSLS also has a well-known weakness in heterogeneous tournaments. Because it is a deterministic, memory-one rule that reacts only to the last outcome, it can be systematically exploited by certain opponents, such as those that defeat WSLS every other round by keeping it trapped in an alternating pattern. More generally, without modeling longer-term opponent behavior, WSLS can get pulled into unfavorable cycles against particular defection patterns.</p>
+<p><strong>BayesianForgiver ranked above WSLS</strong> in the comprehensive tournament (rank 93 vs.&nbsp;rank 108). This was extremely validating.</p>
+<p>BayesianForgiver doesn’t overreact to single defections; it builds a statistical model. As the game progresses, the Beta distribution captures the opponent’s cooperation pattern. The adaptive threshold prevents getting locked into bad cycles while maintaining cooperation with reasonable opponents.</p>
+</section>
+<section id="agentic-success" class="level3">
+<h3 class="anchored" data-anchor-id="agentic-success">Agentic Success</h3>
+<p>Let’s zoom out and look at what actually happened here.</p>
+<p>Claude Code took an open-ended challenge and executed the full lifecycle: autonomous research through 200+ strategies, novel design creating a Bayesian opponent-modeling strategy, complete implementation with proper structure and tests based on the library’s documentation, self-initiated optimization, iterative improvement raising performance from rank, large-scale validation, and comprehensive documentation of everything.</p>
+<p>This isn’t remarkable because “AI can code.” We know that. It’s remarkable because of what happened in between: the creative ideating, the autonomous decision to optimize, the ability to validate its own work objectively.</p>
+<p>The Iterated Prisoner’s Dilemma turns out to be an ideal testbed for this. It’s <strong>well-defined</strong> with clear rules and objective scoring. It’s <strong>well-studied</strong> with hundreds of existing strategies to learn from. It’s competitive with tournament rankings providing <strong>objective evaluation</strong>. And it’s rich enough that despite all that existing work, <strong>gaps still exist</strong>.</p>
+<p>This combination lets the agent verify its work objectively, learn from existing solutions, iterate based on data, and balance creativity with rigor. Those are exactly the capabilities that matter for real engineering work.</p>
+<p>I think this is generalizable to other problem domains. Remember: agents are just <a href="https://simonwillison.net/2025/Sep/18/agents/">LLMs using tools in a loop</a> and <a href="https://fly.io/blog/everyone-write-an-agent/">you can definitely write your own</a>.</p>
+<p>With a few key requirements, agents are likely to have more success in “creative” endeavors:</p>
+<ol type="1">
+<li><strong>Objective evaluation metric</strong> - The agent needs to know if its solution is good</li>
+<li><strong>Existing corpus of solutions</strong> - Learn from prior art, identify gaps</li>
+<li><strong>Ability to iterate</strong> - Test variations, optimize parameters</li>
+<li><strong>Constrained search space</strong> - Not infinite possibilities, but creative freedom within boundaries</li>
+</ol>
+<p>When you have all four of these, agentic coding can potentially handle (more of) the full loop from problem to solution. The human provides problem framing, constraint setting, pointers to existing work, and final evaluation and review. The agent provides exploration, creative solution design, implementation, empirical validation, and iterative improvement.</p>
+</section>
+<section id="try-it-yourself" class="level3">
+<h3 class="anchored" data-anchor-id="try-it-yourself">Try It Yourself</h3>
+<p>You can install from my <a href="https://github.com/hodgesmr/Axelrod/tree/bayesian-forgiver-strategy">fork</a> to try it yourself:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> pip install <span class="st">"git+https://github.com/hodgesmr/Axelrod@bayesian-forgiver-strategy"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> axelrod <span class="im">as</span> axl</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>players <span class="op">=</span> [</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    axl.BayesianForgiver(),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    axl.TitForTat(),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    axl.Cooperator(),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    axl.Defector(),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    axl.Grudger(),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    axl.TitFor2Tats(),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    axl.WinStayLoseShift(),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    axl.GTFT(),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    axl.Random(),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    axl.SuspiciousTitForTat(),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    axl.HardTitForTat(),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    axl.Adaptive(),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    axl.APavlov2011(),</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    axl.ForgivingTitForTat(),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    axl.GoByMajority(),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>tournament <span class="op">=</span> axl.Tournament(players<span class="op">=</span>players, turns<span class="op">=</span><span class="dv">200</span>, repetitions<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> tournament.play(progress_bar<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, name <span class="kw">in</span> <span class="bu">enumerate</span>(results.ranked_names):</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> results.players.index(name)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    avg_score <span class="op">=</span> <span class="bu">sum</span>(results.scores[idx]) <span class="op">/</span> <span class="bu">len</span>(results.scores[idx])</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss"> : </span><span class="sc">{</span>avg_score<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Can you beat BayesianForgiver with your own strategy?</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<div>
+    <hr>
+    <p class="post-footer">🖤 Thank you for reading a personal blog. This post was written in a specific time and place. I reserve the right to learn new things and to change my mind. This site has no traffic analytics, social trackers, or ads. If you enjoyed this post, please consider sharing it however you like to share posts.</p>
+</div>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/matthodges\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Copyright 2025, Matt Hodges</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
