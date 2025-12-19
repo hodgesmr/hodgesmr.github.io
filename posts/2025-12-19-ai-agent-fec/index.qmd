@@ -1,0 +1,109 @@
+---
+author: "Matt Hodges"
+title: "My New Agentic Campaign Finance Sidekick"
+pagetitle: "My New Agentic Campaign Finance Sidekick"
+subtitle: "Building a campaign finance analyzer using Claude’s Agent Skills"
+image: "claude-fecfile-agent.png"
+date: 2025-12-19
+---
+
+Claude [Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) are pretty neat. They remind me of OpenAI's [function calling](https://platform.openai.com/docs/guides/function-calling). Both are a way to tell the model to run some external process, often with the goal of seeding the context window with deterministic data from outside the LLM system. Function calling does this with a pile of JSON. Agent Skills do it with a pile of Markdown.
+
+[I like to do weird things with campaign finance data](https://matthodges.com/posts/2025-08-02-language-model-embeddings-campaign-donors/), and I thought it'd be nice to have an agentic sidekick to crawl around FEC files with me. There's a ton of prior art here, so it's a great use case for a Skill. The most relevant prior art is Derek Willis's [llm-fecfile](https://github.com/dwillis/llm-fecfile), which wraps Evan Sonderegger's venerable [fecfile](https://github.com/esonderegger/fecfile), and is a plugin for Simon Willison's [LLM CLI tool](https://llm.datasette.io/en/stable/).
+
+So I set out to make an Agent Skill. Except I didn't have to do all that much.
+
+I popped open Claude Code (Opus 4.5) and asked for a plan:
+
+> I have cloned the llm plugin llim-fecfile to @llm-fecfile/ . I would like to convert it to an Agent Skill. Let's break it into tasks.
+
+```
+⏺ Here's the task breakdown for converting llm-fecfile to an Agent Skill:
+
+  Tasks
+
+  | # | Task                                                                       |
+  |---|----------------------------------------------------------------------------|
+  | 1 | Set up `.claude/skills/fec-filing/` with the required layout               |
+  | 2 | Write SKILL.md file with YAML frontmatter and main instructions            |
+  | 3 | Create FORMS.md with specific guidance for F1, F2, F3, F99 filings         |
+  | 4 | Create SCHEDULES.md with field mappings for Schedules A, B, C, D, E        |
+  | 5 | Create script to fetch and display FEC filings using the `fecfile` library |
+  | 6 | Verify Claude can analyze an FEC filing using the new skill                |
+
+
+  Key Conversion Notes
+
+  - Plugin vs Skill: The LLM plugin uses a fragment loader (-f fec:ID). The skill will
+  instead instruct Claude to use a Python script via Bash to fetch filings.
+  - Documentation: The rich analysis instructions in llm_fecfile.py will become markdown
+  reference docs that Claude reads.
+  - Dependencies: The skill will require fecfile to be installed.
+
+  Should I proceed with this plan, or would you like to adjust any tasks?
+```
+
+> Yes, let's go.
+
+From there, it began porting all of Derek's hard work into the necessary Markdown and script structure. Minutes later, I had [claude-fecfile](https://github.com/hodgesmr/claude-fecfile), and you can have it too:
+
+::: {.callout-warning}
+Installing someone else's Agent Skill means you're letting Claude Code run someone else's **prompts** and **code**. I trust me. Do you trust me?
+:::
+
+If you run this:
+
+```bash
+git clone git@github.com:hodgesmr/claude-fecfile.git /tmp/claude-fecfile
+cp -R /tmp/claude-fecfile/.claude/skills/fecfile ~/.claude/skills/
+```
+
+The skill is now available globally in all your Claude Code sessions.
+
+Make sure you also have [uv](https://docs.astral.sh/uv/) installed.
+
+And now you can get the Claude agent to do things like this:
+
+> Show me a table of the contribution counts and totals, by state, in fec filing 1896830
+
+```
+⏺ FEC Filing 1896830 - Contributions by State
+
+  | State | Count |      Total | % of Total |
+  |-------|-------|------------|------------|
+  | UT    |    32 | $35,042.25 |      87.0% |
+  | VA    |     2 |  $2,400.00 |       6.0% |
+  | GA    |     1 |    $750.00 |       1.9% |
+  | MI    |     1 |    $750.00 |       1.9% |
+  | MD    |     2 |    $750.00 |       1.9% |
+  | FL    |     1 |    $600.00 |       1.5% |
+  | TOTAL |    39 | $40,292.25 |       100% |
+
+  Utah dominates with 87% of the total contributions. The committee received from
+  6 states total, with only 7 out-of-state contributions.
+```
+
+And things like this:
+
+> What are the largest expenditures in filing 1896830?
+
+```
+⏺ FEC Filing 1896830 - Largest Expenditures
+
+  | #   | Recipient                  |    Amount | Date       | Purpose          |
+  |-----|----------------------------|-----------|------------|------------------|
+  | 1   | Trump National Doral Hotel | $1,013.61 | 2025-05-19 | RNC training     |
+  | 2   | Uber.com                   |    $19.77 | 2025-05-06 | Travel - Cabfare |
+  |     | TOTAL (itemized)           | $1,033.38 |            |                  |
+
+  Note
+
+  Only 2 expenditures are itemized on Schedule B. The filing shows $21,283.49 in total
+  disbursements, meaning most spending (~$20,250) was below the $200 itemization
+  threshold and appears only in summary totals.
+
+  The largest single itemized expense was for RNC training at Trump National Doral Hotel
+  in May 2025.
+```
+
+Agents!
