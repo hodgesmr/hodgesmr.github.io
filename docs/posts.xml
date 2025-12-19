@@ -31,7 +31,7 @@
 <p>So I set out to make an Agent Skill. Except I didn’t have to do all that much.</p>
 <p>I popped open Claude Code (Opus 4.5) and asked for a plan:</p>
 <blockquote class="blockquote">
-<p>I have cloned the llm plugin llim-fecfile to <span class="citation" data-cites="llm-fecfile">@llm-fecfile</span>/ . I would like to convert it to an Agent Skill. Let’s break it into tasks.</p>
+<p>I have cloned the llm plugin llm-fecfile to <span class="citation" data-cites="llm-fecfile">@llm-fecfile</span>/ . I would like to convert it to an Agent Skill. Let’s break it into tasks.</p>
 </blockquote>
 <pre><code>⏺ Here's the task breakdown for converting llm-fecfile to an Agent Skill:
 
@@ -122,6 +122,19 @@ font-style: inherit;">-R</span> /tmp/claude-fecfile/.claude/skills/fecfile ~/.cl
 
   The largest single itemized expense was for RNC training at Trump National Doral Hotel
   in May 2025.</code></pre>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>FEC filings should be considered <a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/">untrusted content</a>. A malicious campaign sneaking prompt injections into the memo text field of their F99 is probably unlikely, but not impossible.</p>
+</div>
+</div>
 <p>Agents!</p>
 
 
