@@ -9,6 +9,12 @@ date: 2025-12-19
 
 Claude [Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) are pretty neat. They remind me of OpenAI's [function calling](https://platform.openai.com/docs/guides/function-calling). Both are a way to tell the model to run some external process, often with the goal of seeding the context window with deterministic data from outside the LLM system. Function calling does this with a pile of JSON. Agent Skills do it with a pile of Markdown.
 
+::: {.callout-tip}
+## Now Works With Codex!
+
+OpenAI's [Codex CLI](https://developers.openai.com/codex/cli/) now supports the open [Agent Skills standard](https://agentskills.io) so this now works with Claude Code or Codex!
+:::
+
 [I like to do weird things with campaign finance data](https://matthodges.com/posts/2025-08-02-language-model-embeddings-campaign-donors/), and I thought it'd be nice to have an agentic sidekick to crawl around FEC files with me. There's a ton of prior art here, so it's a great use case for a Skill. The most relevant prior art is Derek Willis's [llm-fecfile](https://github.com/dwillis/llm-fecfile), which wraps Evan Sonderegger's venerable [fecfile](https://github.com/esonderegger/fecfile), and is a plugin for Simon Willison's [LLM CLI tool](https://llm.datasette.io/en/stable/).
 
 So I set out to make an Agent Skill. Except I didn't have to do all that much.
@@ -45,24 +51,29 @@ I popped open Claude Code (Opus 4.5) and asked for a plan:
 
 > Yes, let's go.
 
-From there, it began porting all of Derek's hard work into the necessary Markdown and script structure. Minutes later, I had [claude-fecfile](https://github.com/hodgesmr/claude-fecfile), and you can have it too:
+From there, it began porting all of Derek's hard work into the necessary Markdown and script structure. Minutes later, I had [agent-fecfile](https://github.com/hodgesmr/agent-fecfile) (formerly called `claude-fecfile`) and you can have it too:
 
 ::: {.callout-warning}
-Installing someone else's Agent Skill means you're letting Claude Code run someone else's **prompts** and **code**. I trust me. Do you trust me?
+Installing someone else's Agent Skill means you're letting the agent run someone else's **prompts** and **code**. I trust me. Do you trust me?
 :::
 
-If you run this:
+If you run this, the skill is now available globally in all your Claude Code sessions:
 
 ```bash
-git clone git@github.com:hodgesmr/claude-fecfile.git /tmp/claude-fecfile
-cp -R /tmp/claude-fecfile/.claude/skills/fecfile ~/.claude/skills/
+git clone git@github.com:hodgesmr/agent-fecfile.git /tmp/agent-fecfile
+cp -R /tmp/agent-fecfile/skills/fecfile ~/.claude/skills/
 ```
 
-The skill is now available globally in all your Claude Code sessions.
+Or if you run this, the skill is now available globally in all your Codex sessions:
+
+```bash
+git clone git@github.com:hodgesmr/agent-fecfile.git /tmp/agent-fecfile
+cp -R /tmp/agent-fecfile/skills/fecfile ~/.codex/skills/
+```
 
 Make sure you also have [uv](https://docs.astral.sh/uv/) installed.
 
-And now you can get the Claude agent to do things like this:
+And now you can get the agent to do things like this:
 
 > Show me a table of the contribution counts and totals, by state, in fec filing 1896830
 

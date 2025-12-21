@@ -27,6 +27,19 @@
 
 
 <p>Claude <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">Agent Skills</a> are pretty neat. They remind me of OpenAI’s <a href="https://platform.openai.com/docs/guides/function-calling">function calling</a>. Both are a way to tell the model to run some external process, often with the goal of seeding the context window with deterministic data from outside the LLM system. Function calling does this with a pile of JSON. Agent Skills do it with a pile of Markdown.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Now Works With Codex!
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>OpenAI’s <a href="https://developers.openai.com/codex/cli/">Codex CLI</a> now supports the open <a href="https://agentskills.io">Agent Skills standard</a> so this now works with Claude Code or Codex!</p>
+</div>
+</div>
 <p><a href="https://matthodges.com/posts/2025-08-02-language-model-embeddings-campaign-donors/">I like to do weird things with campaign finance data</a>, and I thought it’d be nice to have an agentic sidekick to crawl around FEC files with me. There’s a ton of prior art here, so it’s a great use case for a Skill. The most relevant prior art is Derek Willis’s <a href="https://github.com/dwillis/llm-fecfile">llm-fecfile</a>, which wraps Evan Sonderegger’s venerable <a href="https://github.com/esonderegger/fecfile">fecfile</a>, and is a plugin for Simon Willison’s <a href="https://llm.datasette.io/en/stable/">LLM CLI tool</a>.</p>
 <p>So I set out to make an Agent Skill. Except I didn’t have to do all that much.</p>
 <p>I popped open Claude Code (Opus 4.5) and asked for a plan:</p>
@@ -59,7 +72,7 @@
 <blockquote class="blockquote">
 <p>Yes, let’s go.</p>
 </blockquote>
-<p>From there, it began porting all of Derek’s hard work into the necessary Markdown and script structure. Minutes later, I had <a href="https://github.com/hodgesmr/claude-fecfile">claude-fecfile</a>, and you can have it too:</p>
+<p>From there, it began porting all of Derek’s hard work into the necessary Markdown and script structure. Minutes later, I had <a href="https://github.com/hodgesmr/agent-fecfile">agent-fecfile</a> (formerly called <code>claude-fecfile</code>) and you can have it too:</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -70,21 +83,29 @@ Warning
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Installing someone else’s Agent Skill means you’re letting Claude Code run someone else’s <strong>prompts</strong> and <strong>code</strong>. I trust me. Do you trust me?</p>
+<p>Installing someone else’s Agent Skill means you’re letting the agent run someone else’s <strong>prompts</strong> and <strong>code</strong>. I trust me. Do you trust me?</p>
 </div>
 </div>
-<p>If you run this:</p>
+<p>If you run this, the skill is now available globally in all your Claude Code sessions:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">git</span> clone git@github.com:hodgesmr/claude-fecfile.git /tmp/claude-fecfile</span>
+font-style: inherit;">git</span> clone git@github.com:hodgesmr/agent-fecfile.git /tmp/agent-fecfile</span>
 <span id="cb2-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">cp</span> <span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">-R</span> /tmp/claude-fecfile/.claude/skills/fecfile ~/.claude/skills/</span></code></pre></div></div>
-<p>The skill is now available globally in all your Claude Code sessions.</p>
+font-style: inherit;">-R</span> /tmp/agent-fecfile/skills/fecfile ~/.claude/skills/</span></code></pre></div></div>
+<p>Or if you run this, the skill is now available globally in all your Codex sessions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">git</span> clone git@github.com:hodgesmr/agent-fecfile.git /tmp/agent-fecfile</span>
+<span id="cb3-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cp</span> <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">-R</span> /tmp/agent-fecfile/skills/fecfile ~/.codex/skills/</span></code></pre></div></div>
 <p>Make sure you also have <a href="https://docs.astral.sh/uv/">uv</a> installed.</p>
-<p>And now you can get the Claude agent to do things like this:</p>
+<p>And now you can get the agent to do things like this:</p>
 <blockquote class="blockquote">
 <p>Show me a table of the contribution counts and totals, by state, in fec filing 1896830</p>
 </blockquote>
