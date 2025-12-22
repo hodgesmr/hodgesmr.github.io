@@ -71,6 +71,10 @@ git clone git@github.com:hodgesmr/agent-fecfile.git /tmp/agent-fecfile
 cp -R /tmp/agent-fecfile/skills/fecfile ~/.codex/skills/
 ```
 
+::: {.callout-note}
+New install instructions are documented in the [agent-fecfile repository](https://github.com/hodgesmr/agent-fecfile).
+:::
+
 Make sure you also have [uv](https://docs.astral.sh/uv/) installed.
 
 And now you can get the agent to do things like this:

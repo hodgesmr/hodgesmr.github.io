@@ -104,6 +104,19 @@ background-color: null;
 font-style: inherit;">cp</span> <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">-R</span> /tmp/agent-fecfile/skills/fecfile ~/.codex/skills/</span></code></pre></div></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>New install instructions are documented in the <a href="https://github.com/hodgesmr/agent-fecfile">agent-fecfile repository</a>.</p>
+</div>
+</div>
 <p>Make sure you also have <a href="https://docs.astral.sh/uv/">uv</a> installed.</p>
 <p>And now you can get the agent to do things like this:</p>
 <blockquote class="blockquote">
