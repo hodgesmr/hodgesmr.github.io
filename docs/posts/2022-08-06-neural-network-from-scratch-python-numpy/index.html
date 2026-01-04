@@ -414,7 +414,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="an-untrained-neural-network">An Untrained Neural Network</h3>
 <section id="initializing-weights-and-biases" class="level4">
 <h4 class="anchored" data-anchor-id="initializing-weights-and-biases">Initializing Weights and Biases</h4>
-<p>The first step in creating our Neural Network is to build out Forward Propagation. Since our Neural Network will have an input layer, one hidden layer, and an output layer, we’ll need: * A set of Weights and Biases on the input layer * An Activation Function on the input layer * A set of Weights and Biases on the hidden layer * An Activation Function on the hidden layer</p>
+<p>The first step in creating our Neural Network is to build out Forward Propagation. Since our Neural Network will have an input layer, one hidden layer, and an output layer, we’ll need:</p>
+<ul>
+<li>A set of Weights and Biases on the input layer</li>
+<li>An Activation Function on the input layer</li>
+<li>A set of Weights and Biases on the hidden layer</li>
+<li>An Activation Function on the hidden layer</li>
+</ul>
 <p>As mentioned, the Weights and Biases are variable and are determined in the model’s training process. But our model needs to start somewhere. There are a variety of strategies for initializing Weights and Biases. You could initialize to random values, but we’re going to use the <a href="https://towardsdatascience.com/coding-neural-network-parameters-initialization-f7c2d770e874">He method</a> to initialize random Weights, and the <a href="https://cs231n.github.io/neural-networks-2/">common recommendation of Biases initialized to zero</a>.</p>
 <div id="896d9690" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># weights_1 is the matrix of Weights between our input nodes and the first hidden layer</span></span>
@@ -546,7 +552,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="back-propagation-1" class="level4">
 <h4 class="anchored" data-anchor-id="back-propagation-1">Back Propagation</h4>
-<p>This is where we actually do our Gradient Descent. It contains a little bit of calculus, and I highly adivse you pause here and watch these three videos: * <a href="https://www.3blue1brown.com/lessons/backpropagation">What is backpropagation really doing?</a> * <a href="https://www.3blue1brown.com/lessons/backpropagation-calculus">Backpropagation Calculus</a> * <a href="https://www.youtube.com/watch?v=f-nW8cSa_Ec">Backpropagation for Softmax and Multi-Class Classification | Complete Mathematical Derivation</a></p>
+<p>This is where we actually do our Gradient Descent. It contains a little bit of calculus, and I highly adivse you pause here and watch these three videos:</p>
+<ul>
+<li><a href="https://www.3blue1brown.com/lessons/backpropagation">What is backpropagation really doing?</a></li>
+<li><a href="https://www.3blue1brown.com/lessons/backpropagation-calculus">Backpropagation Calculus</a></li>
+<li><a href="https://www.youtube.com/watch?v=f-nW8cSa_Ec">Backpropagation for Softmax and Multi-Class Classification | Complete Mathematical Derivation</a></li>
+</ul>
 <p>It’s actually not all that imporant to master the calculus in these videos, but it’s very helpful to see what math is happening. From a high-level: we take the derivatives of our activation functions, and we reverse our matrix multiplication. It’s actually not too daunting. In the end, it gives is a measurement of error, and we use that error to adjust our Weights and Biases.</p>
 <p>Speaking of derivatives, we’re gonna need the derivated of our ReLU Activation Function:</p>
 <div id="69a64a23" class="cell" data-execution_count="13">
