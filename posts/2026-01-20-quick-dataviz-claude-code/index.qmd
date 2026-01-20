@@ -60,6 +60,6 @@ It then ran again, successfully, and produced the following graph, both as a PNG
 
 The whole thing took about two minutes from prompt to viz.
 
-I think a lot of people still view tools like Claude Code as something that builds software for people who sell software. But we need to think about them as [general purpose agents that helps us get work done](https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/).
+I think a lot of people still view tools like Claude Code as AI that builds software for people who sell software. But we need to think about them as [general purpose agents that help us get work done](https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/).
 
 Not bad for a single prompt.

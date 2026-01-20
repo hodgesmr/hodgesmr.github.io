@@ -125,7 +125,7 @@ font-style: inherit;">+tables = pd.read_html(StringIO(response.text))</span></sp
 </figure>
 </div>
 <p>The whole thing took about two minutes from prompt to viz.</p>
-<p>I think a lot of people still view tools like Claude Code as something that builds software for people who sell software. But we need to think about them as <a href="https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/">general purpose agents that helps us get work done</a>.</p>
+<p>I think a lot of people still view tools like Claude Code as AI that builds software for people who sell software. But we need to think about them as <a href="https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/">general purpose agents that help us get work done</a>.</p>
 <p>Not bad for a single prompt.</p>
 
 
