@@ -15,7 +15,126 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.8.24</generator>
-<lastBuildDate>Wed, 07 Jan 2026 06:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 20 Jan 2026 06:00:00 GMT</lastBuildDate>
+<item>
+  <title>Quick DataViz With Claude Code</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2026-01-20-quick-dataviz-claude-code/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>I previously wrote about how you can <a href="https://matthodges.com/posts/2025-09-30-visidata/">use VisiData to quickly scrape HTML tabular data</a>. Claude Code with Opus 4.5 is another excellent data exploration sidekick. This is what ‘agentic’ looks like in practice.</p>
+<p>Using the same Federal Reserve <a href="https://www.federalreserve.gov/releases/lbr/current/">list of the largest commercial banks</a>, I started a Claude Code session and prompted:</p>
+<blockquote class="blockquote">
+<p>Can you go to the page at https://www.federalreserve.gov/releases/lbr/current/ and discover the table of large commercial banks; then give me a bar graph of the top 10 by Consol Assets. Use uv for any dependencies you need. You probably want to use pandas read_html() to get the tables and then matplotlib with nice styling to create the viz</p>
+</blockquote>
+<p>It spun for a bit and then produced <a href="https://gist.github.com/hodgesmr/e24559c17b979dffa452851373500292">some Python</a>. Sometimes agents will try to run this kind of thing as a tidy <a href="https://en.wikipedia.org/wiki/Here_document">here document</a>, but not always. So I like to do this sort of thing in a scratch directory that it can toss files in. This time, it tossed a <code>bank_chart.py</code>, which it ran itself like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><span class="ex" style="color: null;
+background-color: null;
+font-style: inherit;">uv</span> run <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-2">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--with</span> pandas <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--with</span> matplotlib <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--with</span> lxml <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--with</span> html5lib <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">--with</span> requests <span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span></span>
+<span id="cb1-7">  python bank_chart.py</span></code></pre></div></div>
+<p>On first run, it realized the Fed has opinions about the <code>User-Agent</code> header (VisiData also hit this issue), so it did the thing everyone does when scripting HTTP calls and made it look like a browser:</p>
+<blockquote class="blockquote">
+<p>The Fed website is blocking the pandas request. I need to use a proper user agent header to fetch the content. Let me use requests to download the HTML first, then parse it with pandas.</p>
+</blockquote>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode diff code-with-copy"><code class="sourceCode diff"><span id="cb2-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">--- a/bank_chart.py</span></span>
+<span id="cb2-2"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">+++ b/bank_chart.py</span></span>
+<span id="cb2-3"><span class="dt" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">@@ -1,6 +1,15 @@</span></span>
+<span id="cb2-4"> import pandas as pd</span>
+<span id="cb2-5"> import matplotlib.pyplot as plt</span>
+<span id="cb2-6"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+import requests</span></span>
+<span id="cb2-7"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+from io import StringIO</span></span>
+<span id="cb2-8"> </span>
+<span id="cb2-9"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">-# Fetch the table from the Federal Reserve page</span></span>
+<span id="cb2-10"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+# Fetch the table from the Federal Reserve page with proper headers</span></span>
+<span id="cb2-11"> url = "https://www.federalreserve.gov/releases/lbr/current/"</span>
+<span id="cb2-12"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">-tables = pd.read_html(url)</span></span>
+<span id="cb2-13"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+headers = {</span></span>
+<span id="cb2-14"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'</span></span>
+<span id="cb2-15"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+}</span></span>
+<span id="cb2-16"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+response = requests.get(url, headers=headers)</span></span>
+<span id="cb2-17"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+response.raise_for_status()</span></span>
+<span id="cb2-18"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-19"><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">+tables = pd.read_html(StringIO(response.text))</span></span></code></pre></div></div>
+<p>It then ran again, successfully, and produced the following graph, both as a PNG and PDF:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2026-01-20-quick-dataviz-claude-code/top10_banks.png" class="img-fluid figure-img"></p>
+<figcaption>Top 10 Large Commercial Banks by Consolidated Assets (Federal Reserve Data, September 2025)</figcaption>
+</figure>
+</div>
+<p>The whole thing took about two minutes from prompt to viz.</p>
+<p>I think a lot of people still view tools like Claude Code as something that builds software for people who sell software. But we need to think about them as <a href="https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/">general purpose agents that helps us get work done</a>.</p>
+<p>Not bad for a single prompt.</p>
+
+
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2026-01-20-quick-dataviz-claude-code/</guid>
+  <pubDate>Tue, 20 Jan 2026 06:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2026-01-20-quick-dataviz-claude-code/top10_banks.png" medium="image" type="image/png" height="96" width="144"/>
+</item>
 <item>
   <title>Campaigns Are Knowledge Workers and the Tools Just Caught Up</title>
   <dc:creator>Matt Hodges</dc:creator>
@@ -7345,57 +7464,6 @@ date
   <guid>https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/</guid>
   <pubDate>Tue, 23 Jul 2024 05:00:00 GMT</pubDate>
   <media:content url="https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/three-skannerz.jpg" medium="image" type="image/jpeg"/>
-</item>
-<item>
-  <title>Amused Entirely To Death</title>
-  <dc:creator>Matt Hodges</dc:creator>
-  <link>https://matthodges.com/posts/2024-07-20-amused-entirely-to-death/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>At this point there’s nothing novel in pointing out that news and politics has devolved into an entertainment competition. But I can’t become so numb to let last week’s Republican National Convention go without comment.</p>
-<p>I won’t get into detailed summaries or link to videos. The Republican National Convention, unsurprisingly, was rife with jingoism, xenophobia, and hate. But what stood out was a primetime performance on the final night:</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-07-20-amused-entirely-to-death/hulk-hogan-trump.jpg" class="img-fluid figure-img"></p>
-<figcaption>Hulk Hogan ripping his shirt off during the 2024 Republican National Convention</figcaption>
-</figure>
-</div>
-<p>If you missed the social media frenzy, the short version is Hulk Hogan took the stage during a primetime speech to say, among many pernicious things:</p>
-<blockquote class="blockquote">
-<p>But what happened last week, when they took a shot at my hero, and they tried to kill the next president of the United States, enough was enough! And I said, ‘Let Trump-A-Mania run wild brother! Let Trump-A-Mania rule again!’</p>
-</blockquote>
-<p>And then he ripped off his shirt and the stadium of suited leaders of the Republican party lost their minds in cheers and applause. Never mind that pundits and Republican leaders assured us that — after the attempted assassination of Donald Trump days prior — this convention would be a message of national unity. Never mind whoever the <em>they</em> are that he’s talking about. Hulk Hogan gave the people what they wanted: a viral-worthy performance that makes you feel something when you press share.</p>
-<p>This moment exemplified a broader issue that has been gradually intensifying. The disgraced former president, after all, is a reality TV character, epitomizing the entertainment-driven nature of modern politics. To note that is not to minimize the harm he has inflicted and will inflict if given another chance. But it’s an apt time to highlight a recurring misdiagnosis of modern Conservative power.</p>
-<section id="our-misdiagnosis-of-conservative-power" class="level3">
-<h3 class="anchored" data-anchor-id="our-misdiagnosis-of-conservative-power">Our Misdiagnosis of Conservative Power</h3>
-<p>As astute online big-brains, we’re frequently high-fiving ourselves for naming the Right’s methods and tactics as Orwellian (despite the fact that most people haven’t actually read <em>Nineteen Eighty-Four</em>). We get those small hits of dopamine by labeling our eroding rights as such. But by and large, power-building of the Trump era isn’t Orwellian at all. Just as Donald Trump himself isn’t Machiavellian at all (a core tenet from <em>The Prince</em> is a firm warning against flatterers — Donald Trump could never). Yes, the Right does deploy assaults that could be lifted directly from Orwell or Bradbury — look no further than the book-banning crusades or the “do not believe what you see” lies from the press briefing rooms. But when evaluating how we got here and why we’re stuck here, it’s instructive to look to Neil Postman’s observations in <a href="https://en.wikipedia.org/wiki/Amusing_Ourselves_to_Death" target="_blank">Amusing Ourselves to Death</a>:</p>
-<blockquote class="blockquote">
-<p>But we had forgotten that alongside Orwell’s dark vision, there was another - slightly older, slightly less well known, equally chilling: Aldous Huxley’s <em>Brave New World</em>. Contrary to common belief even among the educated, Huxley and Orwell did not prophesy the same thing. Orwell warns that we will be overcome by an externally imposed oppression. But in Huxley’s vision, no Big Brother is required to deprive people of their autonomy, maturity and history. As he saw it, people will come to love their oppression, to adore the technologies that undo their capacities to think. What Orwell feared were those who would ban books. What Huxley feared was that there would be no reason to ban a book, for there would be no one who wanted to read one. Orwell feared those who would deprive us of information. <strong>Huxley feared those who would give us so much that we would be reduced to passivity and egoism</strong>. Orwell feared that the truth would be concealed from us. <strong>Huxley feared the truth would be drowned in a sea of irrelevance.</strong> Orwell feared we would become a captive culture. <strong>Huxley feared we would become a trivial culture</strong>, preoccupied with some equivalent of the feelies, the orgy porgy, and the centrifugal bumblepuppy. As Huxley remarked in <em>Brave New World Revisited</em>, the civil libertarians and rationalists who are ever on the alert to oppose tyranny “failed to take into account man’s almost infinite appetite for distractions.” In <em>1984</em>, Huxley added, people are controlled by inflicting pain. <strong>In <em>Brave New World</em>, they are controlled by inflicting pleasure.</strong> In short, Orwell feared that what we fear will ruin us. Huxley feared that what we desire will ruin us.</p>
-</blockquote>
-<p>I’m not particularly interested in arguing that “we’re living in a dystopia, actually”. Despite our collective addiction to devices that incessantly tell us that the world is terrible, I still believe things are getting better over time. And I largely reject the, “no one has had it as bad as we have it” notions from my generational cohort. But we can only pursue the long arc of progress if we continue to care enough to do so. If I was architecting a <strong>#resist</strong> movement of 2024, it would be to resist the trivialization of political power.</p>
-<p>It’s important to reflect on Huxley’s and Postman’s ideas, even if it makes us uncomfortable. So many people today claim they’ve stopped consuming news altogether, but often they simply switch to more entertaining sources that don’t feel like homework. Consider this: how many of your friends can name a single Supreme Court justice without hints? You should start asking! This exercise, which I’ve conducted socially, reveals fascinating results! These observations aren’t about intelligence — they’re about priorities.</p>
-<p>Again, I don’t think I’m pointing out anything novel here. Pundits analyze political events in terms of “energy” and base success on Nielsen viewership metrics. Matt Gaetz and Ted Cruz both have side gigs as podcast hosts. Marjorie Taylor Greene dresses up as Cruella de Vil to scream during the Statue of the Union.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-07-20-amused-entirely-to-death/marjorie-taylor-greene-sotu.jpg" class="img-fluid figure-img"></p>
-<figcaption>Marjorie Taylor Greene dressed up as Cruella de Vil to scream during the Statue of the Union</figcaption>
-</figure>
-</div>
-<p>It’s all incredibly stupid. And it’s helpful to have an appropriate label for what’s been happening for a long time.</p>
-<p>So, when Hulk Hogan took to the stage to frivolously transport the Right’s power-holders back to the 1980s while ripping off his shirt, exalting “Trump-A-Mania” (aptly named), it couldn’t be more clear that ambient Conservative power-building is Huxleyan, not Orwellian. We are amusing ourselves entirely to death.</p>
-<p>Seems bad.</p>
-
-
-</section>
-
- ]]></description>
-  <guid>https://matthodges.com/posts/2024-07-20-amused-entirely-to-death/</guid>
-  <pubDate>Sat, 20 Jul 2024 05:00:00 GMT</pubDate>
-  <media:content url="https://matthodges.com/posts/2024-07-20-amused-entirely-to-death/amused-entirely-to-death.jpg" medium="image" type="image/jpeg"/>
 </item>
 </channel>
 </rss>
