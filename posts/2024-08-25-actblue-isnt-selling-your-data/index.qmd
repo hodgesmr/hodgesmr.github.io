@@ -41,7 +41,7 @@ Campaigns share data for all sorts of reasons. Sometimes their campaign is over 
 
 But again, that's not ActBlue's doing.
 
-💡 **Quick aside:** ActBlue is reporting donations to the Federal Election Commission, as is required in their role as a conduit for campaign funds. There's been concern about the public availability of this data, but it's important to note that [it's illegal for campaigns to use FEC data for soliciations](https://www.fec.gov/updates/sale-or-use-contributor-information/):
+💡 **Quick aside:** ActBlue is reporting donations to the Federal Election Commission, as is required in their role as a conduit for campaign funds. There's been concern about the public availability of this data, but it's important to note that [it's illegal for campaigns to use FEC data for solicitations](https://www.fec.gov/updates/sale-or-use-contributor-information/):
 
 
 > To protect the privacy of individual contributors, the [Federal Election Campaign Act] prohibits the sale or use of any information about those donors, including their names and addresses, for the purpose of soliciting contributions or for commercial purposes. Commission regulations also prohibit the use of this information to solicit donations, including charitable donations.
