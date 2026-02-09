@@ -78,7 +78,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-feea33dab032797709089d8ebc2a6f44.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-9e068ae56a870752cbc0cb05fdbf00e4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -143,6 +143,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     });
   });
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const formats = document.querySelector('.quarto-alternate-formats');
+    if (!formats) return;
+
+    // Choose insertion point: right under the title block header.
+    const titleBlock = document.querySelector('#title-block-header');
+    if (!titleBlock) return;
+
+    // We'll move it only on "phone" widths.
+    const mq = window.matchMedia('(max-width: 767.98px)');
+
+    // Remember original position so we can restore if someone resizes wider.
+    const placeholder = document.createElement('span');
+    placeholder.setAttribute('data-qaf-placeholder', 'true');
+
+    const moveUnderTitle = () => {
+      if (mq.matches) {
+        if (!formats.hasAttribute('data-qaf-moved')) {
+          formats.parentNode.insertBefore(placeholder, formats);
+          titleBlock.insertAdjacentElement('afterend', formats);
+          formats.setAttribute('data-qaf-moved', 'true');
+        }
+      } else {
+        // Restore to original location if we previously moved it.
+        if (formats.hasAttribute('data-qaf-moved') && placeholder.parentNode) {
+          placeholder.parentNode.insertBefore(formats, placeholder);
+          placeholder.remove();
+          formats.removeAttribute('data-qaf-moved');
+        }
+      }
+    };
+
+    moveUnderTitle();
+    mq.addEventListener('change', moveUnderTitle);
+  });
+</script>
 
 
 <meta property="og:title" content="Quick DataViz With Claude Code">
@@ -189,10 +226,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../../posts.html"> 
 <span class="menu-text">Posts</span></a>
   </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="../../posts.xml"> <i class="bi bi-rss" role="img">
-</i> 
-<span class="menu-text"></span></a>
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.xml"> 
+<span class="menu-text">RSS</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../llms.txt"> 
+<span class="menu-text">llms.txt</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->

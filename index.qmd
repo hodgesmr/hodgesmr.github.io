@@ -7,6 +7,11 @@ about:
   image: ./img/photo.jpg
   image-shape: round
   image-width: 150px
+format-links:
+  - html
+  - format: gfm
+    text: Markdown
+    icon: file-code
 ---
 
 ## Work

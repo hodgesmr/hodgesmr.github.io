@@ -84,3 +84,58 @@ div.long-quote {
   border-left: solid #bbbbbb;
   padding-left: 0.4rem;
 }
+
+@media (max-width: 991.98px) {
+  // 1) unhide the margin sidebar itself
+  #quarto-margin-sidebar {
+    display: block !important;
+  }
+
+  // 2) hide the TOC bits (but not the formats list)
+  #quarto-margin-sidebar nav#TOC > h2#toc-title,
+  #quarto-margin-sidebar nav#TOC > ul {
+    display: none !important;
+  }
+
+  // 3) show the formats block
+  #quarto-margin-sidebar .quarto-alternate-formats {
+    display: block !important;
+    margin: 1.5rem 0;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .quarto-alternate-formats {
+    display: block;
+    text-align: left;
+    font-size: 0.8rem;  // slightly smaller overall
+    margin: 1rem 0 1.25rem 0.5rem;
+    padding: 0.75rem 0.9rem;
+    border: none;
+  }
+
+  .quarto-alternate-formats h2 {
+    text-align: left;
+    font-size: 0.8rem; // keep header modest too
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+  }
+
+  .quarto-alternate-formats ul {
+    list-style: none;   // remove bullets
+    padding-left: 0;    // remove indent
+    margin: 0;
+  }
+
+  .quarto-alternate-formats li {
+    padding-bottom: .2rem;
+    line-height: 1.1rem;
+    padding-top: .2rem;
+  }
+
+  .quarto-alternate-formats a {
+    display: inline-block; // keeps icon + text together neatly
+    text-align: left;
+    text-decoration: none !important;
+  }
+}
