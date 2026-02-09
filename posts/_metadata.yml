@@ -8,4 +8,13 @@ format:
     code-block-bg: true
     code-block-border-left: "#3a86ff"
     highlight-style: github
+  gfm:
+    output-ext: md
+    preview-mode: raw
+    fig-format: svg
+format-links:
+  - html
+  - format: gfm
+    text: Markdown
+    icon: file-code
 title-prefix: ""

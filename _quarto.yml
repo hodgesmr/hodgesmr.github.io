@@ -3,6 +3,7 @@ project:
   output-dir: docs
   post-render:
     - "python add-canonicals.py"
+    - "python generate-llms-txt.py"
 
 website:
   title: "Matt Hodges"
@@ -24,8 +25,10 @@ website:
         target: _blank 
       - text: "Posts"
         href: posts.qmd
-      - icon: rss
+      - text: "RSS"
         href: posts.xml
+      - text: "llms.txt"
+        href: llms.txt
   search: 
     location: navbar
     type: overlay
@@ -37,6 +40,43 @@ format:
       - styles.scss
     header-includes: |
       <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const container = document.querySelector('.quarto-alternate-formats li');
+          if (!container) return;
+          
+          let mdUrl;
+          const path = window.location.pathname;
+          if (path.endsWith('.html')) {
+            mdUrl = window.location.origin + path.replace(/\.html$/, '.md');
+          } else {
+            // Directory URL like /posts/2026-01-20-slug/ or /posts/2026-01-20-slug
+            const base = path.endsWith('/') ? path : path + '/';
+            mdUrl = window.location.origin + base + 'index.md';
+          }
+          const prompt = encodeURIComponent(`I'd like to discuss the content from ${mdUrl}`);
+          
+          const links = [
+            {
+              text: 'Chat in ChatGPT',
+              href: `https://chatgpt.com/?q=${prompt}`,
+              icon: '<i class="bi bi-openai"></i>'
+            },
+            {
+              text: 'Chat in Claude', 
+              href: `https://claude.ai/new?q=${prompt}`,
+              icon: '<i class="bi bi-claude"></i>'
+            }
+          ];
+          
+          links.forEach(link => {
+            const li = document.createElement('li');
+            li.className = 'nav-item';
+            li.innerHTML = `<a href="${link.href}" target="_blank">${link.icon} ${link.text}</a>`;
+            container.appendChild(li);
+          });
+        });
+      </script>
     mainfont: Figtree
     fontsize: 1.3em
     grid: 
@@ -46,6 +86,15 @@ format:
     title-prefix: ""
     fig-responsive: true
     fig-format: svg
-
+  gfm:
+    output-ext: md
+    preview-mode: raw
+    fig-format: svg
+format-links:
+  - html
+  - format: gfm
+    text: Markdown
+    icon: file-code
 language: 
   search-box-placeholder: "Search"
+  related-formats-title: "For LLM Agents:"

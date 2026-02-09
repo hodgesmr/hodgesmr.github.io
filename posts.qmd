@@ -11,4 +11,5 @@ listing:
     date-format: iso
     page-size: 100
 search: false
+format-links: false
 ---

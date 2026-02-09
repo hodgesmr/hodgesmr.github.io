@@ -1,0 +1,275 @@
+# About
+
+
+## Work
+
+I am a **Political Technologist** and founder of
+<span class="color-accent">Ilium Strategies</span> working to help
+Democrats build, scale, and innovate with tech. Drawing on over a decade
+of experience at the intersection of Democratic politics and software
+engineering, I partner with organizations, campaigns, and investors to
+amplify their impact. My focusses include product and engineering
+vision, go-to-market technical strategy, donor advising and technical
+diligence, political tech market navigation, ecosystem coordination, and
+AI strategy. I’m particularly interested in developing sustainable,
+scalable models for long-term impact in the political tech sector.
+
+I sit on the **Advisory Board** of <span class="color-accent">Higher
+Ground Labs</span>, an accelerator that invests in early-stage political
+tech companies. In this capacity, I contribute strategic guidance to the
+Higher Ground Labs leadership team, and provide both political and
+technical advice to investment cohort companies.
+
+I was the **Executive Director** of <span class="color-accent">Zinc
+Labs</span>, a political innovation lab at **Zinc Collective** that
+houses the organization’s strategic work in Democratic technology and
+pilot programs. Through a network of campaigns, committees, vendors,
+donors, and subject matter experts, Zinc Labs incubates and invests in
+innovative new programs across the ecosystem. I prioritized investing in
+technology and people to enable collaborative experimentation, technical
+execution, and hypothesis testing.
+
+I was on the **Advisory Board** of
+<span class="color-accent">Quiller</span>, an Artificial Intelligence
+copilot that helps Democrats draft and deploy high quality, effective
+fundraising content. In this capacity, I contributed product,
+technology, and political guidance to the Quiller leadership team.
+Quiller was acquired in 2025.
+
+I was the **Director of Engineering** for
+<span class="color-accent">President Joe Biden</span> on his 2020
+presidential campaign. I joined the campaign in July of 2019, and served
+in that role through the duration of the primary and general election
+cycles. I led a team of software, infrastructure, and security
+engineers, which was charged with delivering innovative new campaign
+tech for headquarters and states programs. We shipped dozens of internal
+and voter-facing products, including an in-house peer-to-peer texter, a
+relational organizing app, a real-time debate transcription service, a
+document and media ingestion and indexing library, a live donation
+tracking web service, a distributed soft-reporting platform, the
+JoeBiden.com web property, hundreds of ETL pipelines, and a cross-region
+data warehouse.
+
+I was a **Senior Software Engineer** on **The Groundwork** platform,
+which served as the application and infrastructure system that powered
+the 2016 presidential campaign of <span class="color-accent">Secretary
+Hillary Clinton</span>. Beginning in 2015, I was the primary engineer
+for multiple campaign-enabling web services for event signups,
+single-click donations, and peer-to-peer fundraising.
+
+I was an **Infrastructure Engineer** at
+<span class="color-accent">Datadog</span> where I architected and
+implemented the internal platform for Incident Response management. This
+tool eventually joined the suite of observability offerings available to
+customers. My team also implemented the organization’s first templated
+deployment pipeline for the organization’s global transition to
+Kubernetes.
+
+I was a **Senior Mobile Engineer** at
+<span class="color-accent">LISNR</span>, where I developed the product’s
+first iOS SDK for the ultrasonic data transport protocol. In 2014 the
+team joined the TechStars accelerator. This toolchain was originally
+designed to allow musicians to embed inaudbile data streams into their
+media. Over time, it became a location-aware second screen immersion
+platform for music festivals, professional sporting events, and feature
+films. It now serves as a payment protocol in partnership with VISA.
+
+I was a **Senior Mobile Engineer** and **Scrum Master** at
+<span class="color-accent">Cardinal Solutions</span>, with the team that
+built Vantiv Accept - a mobile credit card processing application.
+Envisioned as a competitor to Square, the application was deployed to
+retail and grocery point-of-sale systems across the country.
+
+I am a **Named Inventor** on an <span class="color-accent">Augmented
+Reality Patent Application</span> (US20140092241A1) for a “device and
+method for scanning of books and other items for order and inventory
+control”. We created a mobile application that scanned a shelf of books
+in real-time as a user viewed it through the screen. If it identified
+any items out of order, it overlayed the user’s view of the item with a
+red X to indicate a misplacement, and then povided directional guidance
+of where it should be moved.
+
+I have been an **Election Night Reporter** for
+<span class="color-accent">Decision Desk HQ</span>. I gathered live
+results from New Mexico and Ohio Boards of Elections offices to report
+real-time data as they were delivered from precincts. These results were
+featured on Vox and BuzzFeed election night coverage.
+
+I have been a frequent **Open Source Contributor** to
+<span class="color-accent">OpenElections</span>, which is creating the
+first free, comprehensive, standardized, linked set of election results
+data for the United States.
+
+## Media & Appearances
+
+- Deepfakes Are Everywhere, and Many Campaigns Aren’t Prepared  
+  NOTUS, 2025
+
+  \[[Original](https://www.notus.org/technology/deepfakes-campaigns)\]
+  \[[Archive](https://web.archive.org/web/20250922113311/https://www.notus.org/technology/deepfakes-campaigns)\]
+
+- Trump wants an investigation of Democrats’ fundraising. His own campaign has issues  
+  AP, 2025
+
+  \[[Original](https://apnews.com/article/trump-actblue-winred-fundraising-justice-department-3e73d4022bb47e0533f9dcfd35d37371)\]
+  \[[Archive](https://web.archive.org/web/20250602003119/https://apnews.com/article/trump-actblue-winred-fundraising-justice-department-3e73d4022bb47e0533f9dcfd35d37371)\]
+
+- Matt Hodges Modded the LED DNC Bracelets  
+  Wired, 2024
+
+  \[[Original](https://www.wired.com/story/on-the-bus-with-the-rfk-jr-bros/)\]
+  \[[Archive](https://web.archive.org/web/20240829103146/https://www.wired.com/story/on-the-bus-with-the-rfk-jr-bros/)\]
+
+- Big Tech Is Giving Campaigns Both the Venom and the Antidote for GenAI  
+  Wired, 2024
+
+  \[[Original](https://www.wired.com/story/big-tech-microsoft-google-gen-ai-campaigns/)\]
+  \[[Archive](https://web.archive.org/web/20240620113358/https://www.wired.com/story/big-tech-microsoft-google-gen-ai-campaigns/)\]
+
+- AI Guidelines Earn Widespread Support Across the Democratic Political Community  
+  Zinc Labs, 2024
+
+  \[[Original](https://zcpage.com/just-released-quick-start-ai-guidelines-for-democratic-campaigns-2)\]
+  \[[Archive](https://web.archive.org/web/20240603182708/https://zcpage.com/just-released-quick-start-ai-guidelines-for-democratic-campaigns-2)\]
+
+- Podcast: AI’s do’s and dont’s in politics  
+  The Chuck Todd Podcast (Chuck ToddCast) \| NBC News, 2024
+
+  \[[Original](https://overcast.fm/+q9QytcZTs/)\]
+  \[[Archive](https://archive.org/details/chuck_todd_matt_hodges)\]
+
+- Panel: A Responsible and Secure Approach to AI in Democratic Campaigns  
+  Defending Digital Campaigns & Microsoft, 2024
+
+  \[[Original](https://www.bigmarker.com/defending-digital-campaigns1/A-Responsible-and-Secure-Approach-to-Unlocking-AI-s-Potential-for-Democratic-Political-Campaigns)\]
+  \[[Archive](https://web.archive.org/web/20240514202500/https://www.bigmarker.com/defending-digital-campaigns1/A-Responsible-and-Secure-Approach-to-Unlocking-AI-s-Potential-for-Democratic-Political-Campaigns)\]
+
+- The dos and don’ts of campaigning with AI  
+  The Washington Post, 2024
+
+  \[[Original](https://www.washingtonpost.com/politics/2024/05/02/dos-donts-campaigning-with-ai/)\]
+  \[[Archive](https://archive.is/gHgd2)\]
+
+- Quick-Start AI Guidelines for Democratic CampaignsI  
+  Zinc Labs, 2024
+
+  \[[Original](https://AICampaignGuide.com)\]
+  \[[Archive](https://archive.org/details/quick-start-ai-guidelinesfor-democratic-campaigns-may-2024)\]
+
+- Panel: Threats vs Practicality - Realistic Solutions for Securing Campaigns  
+  Google and Defending Digital Campaigns Security Summit, 2024
+
+  \[[Original](https://rsvp.withgoogle.com/events/civics-summit-atx)\]
+  \[[Archive](https://archive.is/BVqoB)\]
+
+- Podcast: Can AI Help Meet Voters Where They Are?  
+  Politics Is Everything, 2023
+
+  \[[Original](https://overcast.fm/+7oLT5vJ0I)\]
+  \[[Archive](https://archive.org/details/politics-is-everything-can-ai-help-meet-voters-where-they-are-ft.-matt-hodges)\]
+
+- AI will change American elections, but not in the obvious way  
+  The Economist, 2023
+
+  \[[Original](https://www.economist.com/united-states/2023/08/31/ai-will-change-american-elections-but-not-in-the-obvious-way)\]
+  \[[Archive](https://web.archive.org/web/20230901164344/https://www.economist.com/united-states/2023/08/31/ai-will-change-american-elections-but-not-in-the-obvious-way)\]
+
+- 1 big thing: Democratic tech vendors go under the cyber microscope  
+  Axios, 2023
+
+  \[[Original](https://www.axios.com/newsletters/axios-codebook-4fc742bf-ba2d-40ff-9035-3e5b6ce57c7f.html)\]
+  \[[Archive](https://web.archive.org/web/20230704122619/https://www.axios.com/newsletters/axios-codebook-4fc742bf-ba2d-40ff-9035-3e5b6ce57c7f.html)\]
+
+- Generative artificial intelligence tools ‘threaten democracy, reality’  
+  The Courier-Mail, 2023
+
+  \[[Original](https://www.couriermail.com.au/news/world/generative-artificial-intelligence-tools-threaten-democracy-reality/news-story/e22ae3edfe6df70a00d89f2338f590cf)\]
+  \[[Archive](https://archive.is/KNQO6)\]
+
+- Matt Hodges, Political Technologist  
+  Uses This, 2023
+
+  \[[Original](https://usesthis.com/interviews/matt.hodges/)\]
+  \[[Archive](https://web.archive.org/web/20230514023613/https://usesthis.com/interviews/matt.hodges/)\]
+
+- A Campaign Aide Didn’t Write That Email. A.I. Did.  
+  The New York Times, 2023
+
+  \[[Original](https://www.nytimes.com/2023/03/28/us/politics/artificial-intelligence-2024-campaigns.html)\]
+  \[[Archive](https://web.archive.org/web/20230328171142/https://www.nytimes.com/2023/03/28/us/politics/artificial-intelligence-2024-campaigns.html)\]
+
+- Welcome Keynote  
+  2022 Election Tech Debrief, 2023
+
+  \[[Original](https://highergroundlabs.com/2022-election-tech-debrief-recap/)\]
+  \[[Archive](https://web.archive.org/web/20230131223348/https://highergroundlabs.com/2022-election-tech-debrief-recap/)\]
+
+- Keynote: Tech Innovation Comes From Those Who Build It  
+  CampaignTech Innovation Summit, 2022
+
+  \[[Original](https://github.com/hodgesmr/2022-campaign-tech-keynote-talent)\]
+
+- Panel: Tech For Good  
+  Unified Jam SXSW, 2022
+
+  \[[Original](https://www.youtube.com/watch?v=0oaOG1840Gs)\]
+  \[[Archive](https://archive.org/details/tech-for-good-unified-jam-2022)\]
+
+- Building Campaign Tech For Early Adoption  
+  Higher Ground Labs, 2021
+
+  \[[Original](https://highergroundlabs.com/creating-campaign-tech/)\]
+  \[[Archive](https://web.archive.org/web/20220809224417/https://highergroundlabs.com/creating-campaign-tech/)\]
+
+- Panel: Securing the 2020 Presidential Campaign  
+  BSides Las Vegas, 2021
+
+  \[[Original](https://www.youtube.com/watch?v=sbVwssCBJ5Q)\]
+  \[[Archive](https://archive.org/details/securing-the-2020-presidential-campaign-threats-challenges-and-a-global-pandemic-bsides-lv-2021)\]
+
+- The Urgent Need For Democratic Tech Talent  
+  Campaigns and Elections, 2021
+
+  \[[Original](https://campaignsandelections.com/campaigntech/the-urgent-need-for-democratic-tech-talent/)\]
+  \[[Archive](https://web.archive.org/web/20230101172355/https://campaignsandelections.com/campaigntech/the-urgent-need-for-democratic-tech-talent/)\]
+
+- Podcast: Building Political Technology  
+  The Great Battlefield, 2021
+
+  \[[Original](https://greatbattlefield.com/episode/building-political-technology-with-matt-hodges-of-biden-for-president/)\]
+  \[[Archive](https://archive.org/details/building-political-technology-with-matt-hodges-of-biden-for-president_202301)\]
+
+- “Wear a Mask” In The Source Code  
+  The Rachel Maddow Show \| MSNBC, 2021
+
+  \[[Archive](https://archive.org/details/maddow-biden-website-code)\]
+
+- The Biden administration quickly revamped the White House website. Here’s how.  
+  The New York Times, 2021
+
+  \[[Original](https://www.nytimes.com/2021/01/20/us/politics/biden-white-house-website.html)\]
+  \[[Archive](https://web.archive.org/web/20230716155230/https://www.nytimes.com/2021/01/20/us/politics/biden-white-house-website.html)\]
+
+- Butler County native, Miami grad played significant role in Biden campaign  
+  The Journal-News, 2021
+
+  \[[Original](https://www.journal-news.com/news/butler-county-native-miami-grad-played-significant-role-in-biden-campaign/IPECO4K5LFGK7MSMVLCUU2FDZE/)\]
+  \[[Archive](https://web.archive.org/web/20210120220953/https://www.journal-news.com/news/butler-county-native-miami-grad-played-significant-role-in-biden-campaign/IPECO4K5LFGK7MSMVLCUU2FDZE/)\]
+
+- 2018 Profile of Ohio’s 1st District  
+  Decision Desk HQ, 2018
+
+  \[[Original](https://decisiondeskhq.com/guest-post-2018-profile-ohios-1st-district/)\]
+  \[[Archive](https://web.archive.org/web/20220807215603/https://decisiondeskhq.com/guest-post-2018-profile-ohios-1st-district/)\]
+
+- The other major hurdle for the Parkland teens: Turning out their peers  
+  The Washington Post, 2018
+
+  \[[Original](https://www.washingtonpost.com/news/politics/wp/2018/06/04/the-other-major-hurdle-for-the-parkland-teens-turning-out-their-peers/)\]
+  \[[Archive](https://web.archive.org/web/20180605080213/https://www.washingtonpost.com/news/politics/wp/2018/06/04/the-other-major-hurdle-for-the-parkland-teens-turning-out-their-peers/)\]
+
+- Podcast: Can Zuck be trusted?  
+  TechieBytes, 2018
+
+  \[[Original](https://www.besttechie.com/can-zuck-be-trusted/)\]
+  \[[Archive](https://archive.org/details/httpswww.besttechie.comcan-zuck-be-trusted)\]

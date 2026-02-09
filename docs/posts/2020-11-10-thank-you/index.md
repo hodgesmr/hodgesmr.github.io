@@ -1,0 +1,18 @@
+# Thank you.
+Matt Hodges
+2020-11-10
+
+It can’t be a cliche because it actually can’t be over-said: working on
+the Biden Campaign has been both the hardest and most rewarding
+experience of my career. It’s a rare opportunity to work on something
+you care deeply about, with amazing people, and to succeed. I said it in
+2016, and in 2018, and I’ll say it again in 2020: the tech was never the
+point. I’m immensely proud of the work we did. The world will never
+fully understand the mountains that this scrappy team was able to move.
+
+To those who invited me in: thank you. To those who pushed me: thank
+you. To those who pushed with me: thank you.
+
+What’s next? I’m going to sleep for a while. I don’t know what’s after
+that, but I won’t be stepping away from the fight for democracy,
+justice, and a better world.

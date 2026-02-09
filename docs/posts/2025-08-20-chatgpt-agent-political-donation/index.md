@@ -1,0 +1,50 @@
+# I Donated to Sherrod Brown via ChatGPT
+Matt Hodges
+2025-08-20
+
+Last month OpenAI announced [ChatGPT
+Agent](https://openai.com/index/introducing-chatgpt-agent/) which, among
+many other things, acts like rubbing LLM onto
+[Selenium](https://www.selenium.dev/). Since the announcement, I wanted
+to try making a political donation right there in the chat without
+building any of my own API or MCP or custom agentic operator weirdware.
+
+It mostly worked:
+
+![A screenshot of ChatGPT in Agent Mode navigating to Sherrod Brown’s
+ActBlue page to make a \$50 donation at my
+request](./chatgpt-sherrod-brown-donation.png)
+
+It Bing’d for Sherrod Brown’s website, waited for the page to load,
+found the donation button for \$50, clicked it, navigated through the
+credit card flow, saw that there was a form that needed more information
+about me, and handed control back to me to complete the task. Here’s
+what that looked like:
+
+![](chatgpt-sherrod-brown-donation.mp4)
+
+I felt a little hesitant typing my credit card info into ChatGPT’s
+little VNC iframe, so I set up a temporary virtual card (a free service
+offered by my credit card provider) that auto-expired after a single
+charge.
+
+This flow is exactly what I expected, but it likely can be automated
+further. OpenAI claims that [the agent holds on to cookies across
+sessions](https://help.openai.com/en/articles/11752874-chatgpt-agent#h_d9ad0b50af),
+so I imagine that if I had previously authenticated to ActBlue in a
+chat, and had [ActBlue
+Express](https://support.actblue.com/donors/help/actblue-express-accounts/),
+the automated session would have just charged the card without my
+intervention. I didn’t try it.
+
+All the standard “what about…” apply here: How do I know the agent found
+the proper donation form? How do I know it didn’t set up recurring
+donations? How do I know it selected \$50 and not \$500? How do I know I
+didn’t end up on a malicious site prompt-injecting me to donate to Jon
+Husted instead? Yes, all the things. In this case, I know because the
+agent handed control back to me and I checked. But a more-automated flow
+might not have given me that opportunity.
+
+A lot of the discourse around AI and LLMs tends to leave out the idea
+that all of this is a UX paradigm shift. I’m eager to see how these
+tools mature and how political campaigns can innovate voter contact.

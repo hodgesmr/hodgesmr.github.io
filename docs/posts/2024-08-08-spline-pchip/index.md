@@ -1,0 +1,112 @@
+# Spline Versus PCHIP
+Matt Hodges
+2024-08-08
+
+Let’s say you’ve got some data points and you make a scatterplot:
+
+![](index_files/figure-commonmark/cell-2-output-1.svg)
+
+You might say *great!* and call it a day. But what if we want to see the
+behavior of the data between these points? Linear interpolation is a
+simple way to connect the dots:
+
+![](index_files/figure-commonmark/cell-3-output-1.svg)
+
+And now at this point you might say *great!* and call it a day. Or, you
+might decide that you can do better than linear interpolation. That sure
+does look like a sine curve. But you’re working with a collection of
+discrete points, and you wouldn’t want to erroneously just plot a sine
+function. Instead, you can reach for a smoother interpolation function,
+such as a spline:
+
+![](index_files/figure-commonmark/cell-4-output-1.svg)
+
+The term “spline” refers to a wide class of functions involving
+interpolation and smoothing. In data viz, we often see the basis spline
+(or, B-spline). Think of spline interpolation like a flexible ruler that
+bends to pass smoothly through all your data points, but in doing so, it
+might sometimes bend too much or too little. Sometimes the spline
+overshoots, introducing peaks or valleys that weren’t there in the
+original data.
+
+![](index_files/figure-commonmark/cell-5-output-1.svg)
+
+Sometimes this is okay! Depending on your data, a spline may be ideal
+for generating a very smooth curve, especially when smoothness is more
+critical than accurately interpolating between every data point. And
+when the underlying function is oscillatory, a spline can capture the
+movement between points quite accurately. But real-world data is often
+not oscillatory.
+
+Let’s say you’ve got a month’s worth of [observed temperatures recorded
+in the Austin
+area](https://matthodges.com/posts/2024-07-30-austin-hot-or-not/):
+
+![](index_files/figure-commonmark/cell-6-output-1.svg)
+
+And because temperatures exist on a continuous distribution, we could do
+a simple linear interpolation to articulate the rates of change between
+points:
+
+![](index_files/figure-commonmark/cell-7-output-1.svg)
+
+But temperatures are unlikely to ascend or descend on linear gradients,
+so we could also try a spline:
+
+![](index_files/figure-commonmark/cell-8-output-1.svg)
+
+That’s a bit more natural, but it looks a bit weird, too. Unlike our
+sine wave sampling from before, the data points here are of real,
+observed, daily maximum temperatures. So it’s a little strange that the
+fit curve overshoots and undershoots those known values. The
+interpolation is smooth, but the shape of the data has not been
+preserved.
+
+![](index_files/figure-commonmark/cell-9-output-1.svg)
+
+While a spline produces smooth curves, the artifacts of overshooting,
+undershooting, or unwanted oscillations between data points can
+misrepresent what the data actually says. Fortunately, we have another
+option: the PCHIP, or Piecewise Cubic Hermite Interpolating Polynomial.
+[Hermite](https://en.wikipedia.org/wiki/Charles_Hermite) refers to a
+method of interpolating data points where both the function values and
+the derivatives at those points are matched.
+
+A PCHIP preserves the shape of the data and avoids oscillations. The
+monotonicity (increasing or decreasing trend) of the data is preserved,
+ensuring no overshoots between data points. I like to think of PCHIP as
+a hand that firmly (but not rigidly) guides a curve through the data
+points without allowing any unnecessary dips or rises.
+
+![](index_files/figure-commonmark/cell-10-output-1.svg)
+
+Looks good! This results in a curve that better captures the shape of
+the function, especially when the slope information is critical. In our
+case, the slope is critical. It makes no sense to have a positive slope
+(overshooting) between points, when the next value decreased.
+
+But PCHIP isn’t always better than Spline. Let’s apply a PCHIP
+interpolation to the oscillating data from before:
+
+![](index_files/figure-commonmark/cell-11-output-1.svg)
+
+It’s not wrong, it’s just a little weird and lumpy. It’s a curve that
+connects the dots, but it somewhat lost the true movement between
+points.
+
+PCHIP can aggressively flattened near local extrema. When you need to
+capture those local extrema — as we did in our temperature plots — PCHIP
+works well. When you need to capture the smooth movements of oscillatory
+data, Spline works well. Sometimes it’s fairly intuitive what you need.
+Sometimes you need to plot it to really see which works better. Other
+times it takes more thought.
+
+Consider the nature of your data. If your data is smooth and continuous,
+like a waveform or a gradient, spline interpolation might work well. If
+your data has sharp changes or you need to preserve the natural shape of
+the data without introducing artifacts, PCHIP might be the better
+choice. In practical applications like elections modeling, financial
+forecasting, or engineering metrics, the choice can have significant
+implications.
+
+Graphs!

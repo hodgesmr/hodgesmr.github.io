@@ -1,0 +1,67 @@
+# Dad
+Matt Hodges
+2025-11-02
+
+On **October 22, 2025** we got the call from Kelsey’s OBGYN that we were
+going to the hospital that night. The due date wasn’t until November 17,
+but it was time to go. We checked in to Labor and Delivery at **10:00 pm
+CT**.
+
+On **October 24, 2025** at **9:08 am CT**, our daughter **Lena** was
+born. Lena’s birthday [is
+`1024`](https://en.wikipedia.org/wiki/1024_(number)).
+
+Kelsey became a mom. I became a dad.
+
+I love Lena so much. I love Kelsey so much.
+
+Lena was admitted to the
+[NICU](https://en.wikipedia.org/wiki/Neonatal_intensive_care_unit) at
+**11:30 am CT** for oxygen support due to [respiratory distress
+syndrome](https://en.wikipedia.org/wiki/Infant_respiratory_distress_syndrome).
+She was put on
+[CPAP](https://en.wikipedia.org/wiki/Continuous_positive_airway_pressure#Pre-term_infants)
+with an [NG tube](https://en.wikipedia.org/wiki/Gastric_intubation).
+
+Kelsey remained on bed rest with postpartum medication and monitoring
+for the next 24 hours.
+
+On **October 25, 2025** at **2:30 pm CT** we saw on Lena’s
+[cam](https://www.angeleyehealth.com/) that she was ready to eat her
+first meal without the NG tube. We began visiting the NICU every three
+hours to do so.
+
+![Lena’s note on the NICU cam letting us know she was ready to
+eat!](lena-cam.jpg)
+
+On **October 26, 2025** at **8:30 am CT** Lena came off oxygen support
+and was breathing all by herself. At around **12:00 pm CT** Kelsey was
+discharged from the hospital.
+
+We then moved into a [Ronald McDonald Family
+Room](https://rmhc-ctx.org/) down the hall from the NICU so that we
+could continue visiting and feeding. What an amazing support resource
+for families.
+
+On **October 27, 2025** at **12:45 pm CT** Lena was discharged from the
+NICU and everyone got to come home.
+
+Many families go through so much more in the NICU. We are so grateful
+for Lena’s strength and progress.
+
+For almost a week now, the three of us have been home, happy, and
+healthy.
+
+We decided that, for now, photos will stay on family devices.
+
+Kelsey and I are extremely fortunate to have the comfort and security to
+take the next few months away from work, together.
+
+I deleted Slack off my phone. Its place on my Home Screen is now
+occupied by a diaper and feeding logging app. I love that.
+
+This post isn’t for anyone in particular. It’s for me. It’s for us.
+
+I am so happy to be home with my family.
+
+I love Lena so much. I love Kelsey so much.

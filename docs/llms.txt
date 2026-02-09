@@ -1,0 +1,32 @@
+# Matt Hodges
+
+> Matt Hodges is a political technologist who leverages over a decade of experience in Democratic campaigns and engineering to drive change.
+
+## Posts
+
+- [Thank you.](https://matthodges.com/posts/2020-11-10-thank-you/index.md): Working on the Biden Campaign was the opportunity of a lifetime.
+- [Exploring the Lambda Calculus with Python](https://matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/index.md): Some basic ideas of the Lambda Calculus, and how to use it to implement a computation system in Python
+- [Building a Neural Network From Scratch with NumPy](https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/index.md): Let's walk through creating a Neural Network from scratch, only using NumPy, and build a model that classifies the MNIST handwritten digit data set.
+- [BIDEN: Binary Inference Dictionaries for Electoral NLP](https://matthodges.com/posts/2023-10-01-BIDEN-binary-inference-dictionaries-for-electoral-nlp/index.md): A compression-based binary classification technique that is fast at both training and inference on common CPU hardware in Python
+- [Language Models on the AI Executive Order](https://matthodges.com/posts/2023-11-01-language-models-ai-executive-order/index.md): Deploying text embeddings and Llama2 to answer questions about the Executive Order on Artificial Intelligence issued by President Biden
+- [Amused Entirely To Death](https://matthodges.com/posts/2024-07-20-amused-entirely-to-death/index.md): What if the imminent danger to our democracy isn't just looming authoritarianism, but also our own insatiable appetite for distraction? Last week’s Republican National Convention provided a stark reminder of this unsettling threat.
+- [How Did Skannerz Work?](https://matthodges.com/posts/2024-07-23-how-did-skannerz-work/index.md): Only 90s kids are now adults who dig through patent filings to understand how their toys worked.
+- [Austin, Texas: Hot or Not?](https://matthodges.com/posts/2024-07-30-austin-hot-or-not/index.md): This summer hasn't felt as hot as last summer. I decided to find out if that was actually true.
+- [Spline Versus PCHIP](https://matthodges.com/posts/2024-08-08-spline-pchip/index.md): Sometimes you want a smooth curve. Sometimes you want a shape-preserving curve.
+- [CSVs Are Kinda Bad. DSVs Are Kinda Good.](https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/index.md): I would simply use delimiter characters to delimit data.
+- [ActBlue Isn't Selling Your Data](https://matthodges.com/posts/2024-08-25-actblue-isnt-selling-your-data/index.md): The campaign you donated to might be sharing your data.
+- [I Cracked And Modded the DNC Bracelet](https://matthodges.com/posts/2024-08-28-cracking-modding-dnc-bracelet/index.md): The Democratic National Convention lit up the United Center with bracelets. I wanted to light mine up at home.
+- [Part 2: Austin Texas, Hot or Not?](https://matthodges.com/posts/2024-12-26-austin-hot-or-not-part-2/index.md): Confronting temperature vibes with graphs, because that tactic always works.
+- [GPT Finally Jumps Out of the System](https://matthodges.com/posts/2025-04-21-openai-o4-mini-high-mu-puzzle/index.md): OpenAI’s o4-mini-high Model Solves the MU Puzzle and Demonstrates Why
+- [Using LLM Embeddings to Normalize User Data](https://matthodges.com/posts/2025-08-02-language-model-embeddings-campaign-donors/index.md): How cosine similarity in embedding space can power high-quality normalization.
+- [I Donated to Sherrod Brown via ChatGPT](https://matthodges.com/posts/2025-08-20-chatgpt-agent-political-donation/index.md): I let the LLM agent send money through ActBlue
+- [Music to Break Models By](https://matthodges.com/posts/2025-08-26-music-to-break-models-by/index.md): Gödelian limits of prompt-safe AI
+- [ChatGPT Got Me Reading Plato](https://matthodges.com/posts/2025-09-23-chatgpt-plato-republic/index.md): Notes, Prompts, and Noble Lies: A New Way to Jump Into Old Philosophy
+- [Scraping the Federal Reserve with VisiData](https://matthodges.com/posts/2025-09-30-visidata/index.md): Big banks, small commands: a one-liner to wrangle the Fed's bank list
+- [Tracking Five Years Of Health Data](https://matthodges.com/posts/2025-10-12-five-years-of-health-data/index.md): A thousand rides, a stack of apps, and actual motivation to get in shape
+- [The Privacy Theater of Hashed PII](https://matthodges.com/posts/2025-10-19-privacy-theater-pii-phone-numbers/index.md): A 2020 MacBook Air can hash every North American phone number in four hours
+- [Dad](https://matthodges.com/posts/2025-11-02-dad/index.md): I love my daughter so much. I love my wife so much.
+- [Claude in a Game Theory Tournament](https://matthodges.com/posts/2025-12-14-claude-axelrod-prisoners-dilemma/index.md): How Claude Code ran a competitive Iterated Prisoner's Dilemma strategy
+- [My New Agentic Campaign Finance Sidekick](https://matthodges.com/posts/2025-12-19-ai-agent-fec/index.md): Building a campaign finance analyzer using Claude’s Agent Skills
+- [Campaigns Are Knowledge Workers and the Tools Just Caught Up](https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/index.md): Agentic AI can change campaign operations. The organizations that outlast November need to lead.
+- [Quick DataViz With Claude Code](https://matthodges.com/posts/2026-01-20-quick-dataviz-claude-code/index.md): General-purpose agents for everyday data tasks
