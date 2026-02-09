@@ -113,18 +113,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   document.addEventListener('DOMContentLoaded', function() {
     const container = document.querySelector('.quarto-alternate-formats li');
     if (!container) return;
-    
-    let mdUrl;
-    const path = window.location.pathname;
-    if (path.endsWith('.html')) {
-      mdUrl = window.location.origin + path.replace(/\.html$/, '.md');
-    } else {
-      // Directory URL like /posts/2026-01-20-slug/ or /posts/2026-01-20-slug
-      const base = path.endsWith('/') ? path : path + '/';
-      mdUrl = window.location.origin + base + 'index.md';
-    }
-    const prompt = encodeURIComponent(`I'd like to discuss the content from ${mdUrl}`);
-    
+
+    // Use the current page URL (includes query string + hash)
+    const pageUrl = window.location.href;
+
+    const prompt = encodeURIComponent(`I'd like to discuss the content from ${pageUrl}`);
+
     const links = [
       {
         text: 'Chat in ChatGPT',
@@ -132,16 +126,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         icon: '<i class="bi bi-openai"></i>'
       },
       {
-        text: 'Chat in Claude', 
+        text: 'Chat in Claude',
         href: `https://claude.ai/new?q=${prompt}`,
         icon: '<i class="bi bi-claude"></i>'
       }
     ];
-    
+
     links.forEach(link => {
       const li = document.createElement('li');
       li.className = 'nav-item';
-      li.innerHTML = `<a href="${link.href}" target="_blank">${link.icon} ${link.text}</a>`;
+      li.innerHTML = `<a href="${link.href}" target="_blank" rel="noopener noreferrer">${link.icon} ${link.text}</a>`;
       container.appendChild(li);
     });
   });
