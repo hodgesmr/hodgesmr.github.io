@@ -6,7 +6,7 @@ format:
     link-external-newwindow: true 
     include-after-body: ./post-footer.html
     code-block-bg: true
-    code-block-border-left: "#3a86ff"
+    code-block-border-left: "#B91C1C"
     highlight-style: github
   gfm:
     output-ext: md

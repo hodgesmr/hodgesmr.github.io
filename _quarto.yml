@@ -1,6 +1,10 @@
 project:
   type: website
   output-dir: docs
+  render:
+    - "*.qmd"
+    - "*.ipynb"
+    - "!CLAUDE.md"
   post-render:
     - "python add-canonicals.py"
     - "python generate-llms-txt.py"
@@ -9,7 +13,7 @@ website:
   title: "Matt Hodges"
   description: "Matt Hodges is a political technologist who leverages over a decade of experience in Democratic campaigns and engineering to drive change."
   image: "img/social.jpg"
-  favicon: "img/favicon.png"
+  favicon: "img/favicon.svg"
   twitter-card: true
   site-url: https://matthodges.com
   open-graph: true
@@ -39,10 +43,12 @@ format:
       - cosmo
       - styles.scss
     header-includes: |
-      <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
       <script>
         document.addEventListener('DOMContentLoaded', function() {
-          const container = document.querySelector('.quarto-alternate-formats li');
+          const container = document.querySelector('.quarto-alternate-formats ul');
           if (!container) return;
 
           // Use the current page URL (includes query string + hash)
@@ -65,7 +71,6 @@ format:
 
           links.forEach(link => {
             const li = document.createElement('li');
-            li.className = 'nav-item';
             li.innerHTML = `<a href="${link.href}" target="_blank" rel="noopener noreferrer">${link.icon} ${link.text}</a>`;
             container.appendChild(li);
           });
@@ -108,10 +113,11 @@ format:
           mq.addEventListener('change', moveUnderTitle);
         });
       </script>
-    mainfont: Figtree
-    fontsize: 1.3em
-    grid: 
-      body-width: 1000px
+    mainfont: Inter
+    monofont: DM Mono
+    fontsize: 1rem
+    grid:
+      body-width: 800px
     toc: true
     link-external-newwindow: true
     title-prefix: ""
