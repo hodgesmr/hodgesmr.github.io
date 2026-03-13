@@ -19,13 +19,14 @@ quarto preview
 quarto render posts/YYYY-MM-DD-slug/index.qmd
 ```
 
-Two Python scripts run automatically as post-render hooks (configured in `_quarto.yml`):
-- `add-canonicals.py` -- injects `<link rel="canonical">` tags into rendered HTML using the sitemap
+A post-render hook runs automatically (configured in `_quarto.yml`):
 - `generate-llms-txt.py` -- generates `docs/llms.txt` from rendered markdown files for LLM consumption
+
+Canonical URLs are handled natively via `canonical-url: true` in `_quarto.yml`.
 
 ## Architecture
 
-- `_quarto.yml` -- site-wide Quarto configuration (metadata, navbar, theme, format options, post-render hooks)
+- `_quarto.yml` -- site-wide Quarto configuration (metadata, navbar, theme, format options, post-render hooks, inline JS for LLM agent links)
 - `index.qmd` -- homepage / about page (uses the `trestles` about template)
 - `posts.qmd` -- post listing page (grid layout, sorted by date descending)
 - `styles.scss` -- custom SCSS overrides on top of the Cosmo Bootswatch theme
@@ -35,7 +36,7 @@ Two Python scripts run automatically as post-render hooks (configured in `_quart
 - `posts/_code-license.qmd` -- BSD license partial included in code-heavy posts
 - `docs/` -- rendered output (committed to git, served by GitHub Pages)
 - `_freeze/` -- Quarto freeze directory storing cached computation results from notebooks
-- `img/` -- site-wide images (photo, favicon, social card)
+- `img/` -- site-wide images (photo, favicon SVG, social card)
 
 ## Post Conventions
 
@@ -50,6 +51,27 @@ Each post renders to both HTML and GFM Markdown (configured in `posts/_metadata.
 ## Python Environment
 
 A `.venv` exists with Python 3.13 and data science packages (numpy, pandas, matplotlib, scipy, etc.). There is no `requirements.txt`; dependencies are managed inside the venv directly.
+
+## Design System
+
+The site uses an editorial aesthetic with three typefaces loaded from Google Fonts:
+- **Inter** -- body text and UI (`$font-family-sans-serif`)
+- **Newsreader** -- italic serif used only for the navbar brand
+- **DM Mono** -- code, dates, and metadata
+
+Color palette is a gray scale (`$gray-100` through `$gray-900`) with blue (`$link-color: #1D4ED8`) for links and interactive elements, and red (`$accent-red: #B91C1C`) as a subtle structural accent (code block borders, active TOC indicator). The `.color-accent` spans on the about page use the blue to highlight organization/entity names.
+
+All interactive elements (links, navbar, TOC, cards) use `$transition-speed: 0.15s` transitions.
+
+## Render Configuration
+
+`_quarto.yml` explicitly renders `*.qmd` and `*.ipynb` files, and excludes `CLAUDE.md`. Both file types must be included since several posts are Jupyter notebooks.
+
+## Inline JavaScript
+
+Two scripts are embedded in `_quarto.yml` via `header-includes`:
+1. **LLM agent link injection** -- appends "Open in ChatGPT" and "Open in Claude" links to the `.quarto-alternate-formats ul` list (labeled "For LLM Agents:")
+2. **Mobile format repositioning** -- moves the alternate-formats section under the title block on viewports below 767.98px, restoring on resize
 
 ## Deployment
 

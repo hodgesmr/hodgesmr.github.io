@@ -6,7 +6,7 @@ project:
     - "*.ipynb"
     - "!CLAUDE.md"
   post-render:
-    - "python add-canonicals.py"
+    # - "python add-canonicals.py"
     - "python generate-llms-txt.py"
 
 website:
@@ -130,3 +130,4 @@ format:
 language: 
   search-box-placeholder: "Search"
   related-formats-title: "For LLM Agents:"
+canonical-url: true
