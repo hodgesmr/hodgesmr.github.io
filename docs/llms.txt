@@ -30,4 +30,4 @@
 - [My New Agentic Campaign Finance Sidekick](https://matthodges.com/posts/2025-12-19-ai-agent-fec/index.md): Building a campaign finance analyzer using Claude’s Agent Skills
 - [Campaigns Are Knowledge Workers and the Tools Just Caught Up](https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/index.md): Agentic AI can change campaign operations. The organizations that outlast November need to lead.
 - [Quick DataViz With Claude Code](https://matthodges.com/posts/2026-01-20-quick-dataviz-claude-code/index.md): General-purpose agents for everyday data tasks
-- [The Feed Framed the Last Election and AI Answers Will Frame the Next](https://matthodges.com/posts/2026-03-20-democrats-answer-layer/index.md): Democrats need to start building for the answer layer.
+- [The Feed Framed the Last Election and AI Answers Will Frame the Next](https://matthodges.com/posts/2026-03-20-democrats-answer-layer/index.md): Democrats need to start building for the AI answer layer.

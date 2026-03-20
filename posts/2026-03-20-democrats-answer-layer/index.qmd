@@ -2,7 +2,7 @@
 author: "Matt Hodges"
 title: "The Feed Framed the Last Election and AI Answers Will Frame the Next"
 pagetitle: "The Feed Framed the Last Election and AI Answers Will Frame the Next"
-subtitle: "Democrats need to start building for the answer layer."
+subtitle: "Democrats need to start building for the AI answer layer."
 image: "dems-aeo.jpeg"
 date: 2026-03-20
 format:
