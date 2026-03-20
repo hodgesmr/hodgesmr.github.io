@@ -129,5 +129,5 @@ format:
     fig-format: svg
 language: 
   search-box-placeholder: "Search"
-  related-formats-title: "For LLM Agents:"
+  related-formats-title: "For LLMs:"
 canonical-url: true
