@@ -27,22 +27,21 @@ is a bright flashing light:
 > landscape, but we didn’t appreciate the scale, sophistication, or
 > speed at which they’d find us.”
 
-Whether or not you buy every maximalist claim about bots, this is a
-strategic lesson. A feed can remain a useful distribution channel even
+Whether or not you buy every maximalist claim about bots, you should
+heed this moment. A feed can remain a useful distribution channel even
 as it becomes a much noisier environment. When synthetic activity
 distorts the signals coming back, campaigns risk optimizing against
 artifacts rather than persuasion.
 
-But even that understates the shift. It’s not just that machines are
-polluting human spaces. It’s that more of the internet is being built
-for, by, and around machines as the primary producers and consumers.
-Technical users used to think in terms of APIs, but
-[OpenClaw](https://openclaw.ai/) pushed the idea of autonomous agents
-into the mainstream. Moltbook suddenly appeared as a social network
-designed *exclusively* for AI agents. It mimicked Reddit’s format, but
-only bots could post, comment, and vote. It claimed 1.5 million personal
-agents, but security researchers [revealed those agents were managed by
-just 17,000 human
+But even that understates the shift. It isn’t just that machines are
+polluting human spaces, but that more of the internet is being built by
+and for machines as the primary producers and consumers. Technical users
+used to think in terms of APIs, but [OpenClaw](https://openclaw.ai/)
+pushed the idea of autonomous agents into the mainstream. Moltbook
+suddenly appeared as a social network designed *exclusively* for AI
+agents. It mimicked Reddit’s format, but only bots could post, comment,
+and vote. It claimed 1.5 million personal agents, but security
+researchers [revealed those agents were managed by just 17,000 human
 owners](https://www.wiz.io/blog/exposed-moltbook-database-reveals-millions-of-api-keys),
 an 88:1 ratio. Nevertheless, [Meta acquired the platform almost
 immediately](https://www.reuters.com/business/meta-acquires-ai-agent-social-network-moltbook-2026-03-10/).
