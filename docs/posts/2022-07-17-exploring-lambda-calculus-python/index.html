@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-eca9f94a52043cf3a526da7a21d79288.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-3f4eec234fef77937233c6d78dc16568.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-73f62f8f7bb4c35d4a835cebc7eabdb0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -110,73 +110,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&amp;display=swap" rel="stylesheet">
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const container = document.querySelector('.quarto-alternate-formats ul');
-    if (!container) return;
-
-    // Use the current page URL (includes query string + hash)
-    const pageUrl = window.location.href;
-
-    const prompt = encodeURIComponent(`I'd like to discuss the content from ${pageUrl}`);
-
-    const links = [
-      {
-        text: 'Open in ChatGPT',
-        href: `https://chatgpt.com/?q=${prompt}`,
-        icon: '<i class="bi bi-openai"></i>'
-      },
-      {
-        text: 'Open in Claude',
-        href: `https://claude.ai/new?q=${prompt}`,
-        icon: '<i class="bi bi-claude"></i>'
-      }
-    ];
-
-    links.forEach(link => {
-      const li = document.createElement('li');
-      li.innerHTML = `<a href="${link.href}" target="_blank" rel="noopener noreferrer">${link.icon} ${link.text}</a>`;
-      container.appendChild(li);
-    });
-  });
-</script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const formats = document.querySelector('.quarto-alternate-formats');
-    if (!formats) return;
-
-    // Choose insertion point: right under the title block header.
-    const titleBlock = document.querySelector('#title-block-header');
-    if (!titleBlock) return;
-
-    // We'll move it only on "phone" widths.
-    const mq = window.matchMedia('(max-width: 767.98px)');
-
-    // Remember original position so we can restore if someone resizes wider.
-    const placeholder = document.createElement('span');
-    placeholder.setAttribute('data-qaf-placeholder', 'true');
-
-    const moveUnderTitle = () => {
-      if (mq.matches) {
-        if (!formats.hasAttribute('data-qaf-moved')) {
-          formats.parentNode.insertBefore(placeholder, formats);
-          titleBlock.insertAdjacentElement('afterend', formats);
-          formats.setAttribute('data-qaf-moved', 'true');
-        }
-      } else {
-        // Restore to original location if we previously moved it.
-        if (formats.hasAttribute('data-qaf-moved') && placeholder.parentNode) {
-          placeholder.parentNode.insertBefore(formats, placeholder);
-          placeholder.remove();
-          formats.removeAttribute('data-qaf-moved');
-        }
-      }
-    };
-
-    moveUnderTitle();
-    mq.addEventListener('change', moveUnderTitle);
-  });
-</script>
 
 
 <meta property="og:title" content="Exploring the Lambda Calculus with Python">
@@ -264,7 +197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </div>
     
   
-  </header><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+  </header><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
@@ -281,7 +214,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s Next?</a></li>
   <li><a href="#license" id="toc-license" class="nav-link" data-scroll-target="#license">License</a></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div></nav>
+<div class="quarto-alternate-formats"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-07-17-exploring-lambda-calculus-python/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content quarto-banner-title-block" id="quarto-document-content">
