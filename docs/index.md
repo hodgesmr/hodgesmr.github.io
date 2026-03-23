@@ -140,8 +140,6 @@ data for the United States.
 - [The dos and don’ts of campaigning with AI](https://www.washingtonpost.com/politics/2024/05/02/dos-donts-campaigning-with-ai/)  
   The Washington Post, 2024
 
-  [Archive](https://archive.is/gHgd2)
-
 - [Quick-Start AI Guidelines for Democratic CampaignsI](https://AICampaignGuide.com)  
   Zinc Labs, 2024
 
@@ -149,8 +147,6 @@ data for the United States.
 
 - [Panel: Threats vs Practicality - Realistic Solutions for Securing Campaigns](https://rsvp.withgoogle.com/events/civics-summit-atx)  
   Google and Defending Digital Campaigns Security Summit, 2024
-
-  [Archive](https://archive.is/BVqoB)
 
 - [Podcast: Can AI Help Meet Voters Where They Are?](https://overcast.fm/+7oLT5vJ0I)  
   Politics Is Everything, 2023
@@ -169,8 +165,6 @@ data for the United States.
 
 - [Generative artificial intelligence tools ‘threaten democracy, reality’](https://www.couriermail.com.au/news/world/generative-artificial-intelligence-tools-threaten-democracy-reality/news-story/e22ae3edfe6df70a00d89f2338f590cf)  
   The Courier-Mail, 2023
-
-  [Archive](https://archive.is/KNQO6)
 
 - [Matt Hodges, Political Technologist](https://usesthis.com/interviews/matt.hodges/)  
   Uses This, 2023
