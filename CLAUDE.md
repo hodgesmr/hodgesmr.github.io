@@ -19,14 +19,11 @@ quarto preview
 quarto render posts/YYYY-MM-DD-slug/index.qmd
 ```
 
-A post-render hook runs automatically (configured in `_quarto.yml`):
-- `generate-llms-txt.py` -- generates `docs/llms.txt` from rendered markdown files for LLM consumption
-
 Canonical URLs are handled natively via `canonical-url: true` in `_quarto.yml`.
 
 ## Architecture
 
-- `_quarto.yml` -- site-wide Quarto configuration (metadata, navbar, theme, format options, post-render hooks, inline JS for LLM agent links)
+- `_quarto.yml` -- site-wide Quarto configuration (metadata, navbar, theme, format options, post-render hooks)
 - `index.qmd` -- homepage / about page (uses the `trestles` about template)
 - `posts.qmd` -- post listing page (grid layout, sorted by date descending)
 - `styles.scss` -- custom SCSS overrides on top of the Cosmo Bootswatch theme
@@ -67,11 +64,11 @@ All interactive elements (links, navbar, TOC, cards) use `$transition-speed: 0.1
 
 `_quarto.yml` explicitly renders `*.qmd` and `*.ipynb` files, and excludes `CLAUDE.md`. Both file types must be included since several posts are Jupyter notebooks.
 
-## Inline JavaScript
+## Post-Render Scripts
 
-Two scripts are embedded in `_quarto.yml` via `header-includes`:
-1. **LLM agent link injection** -- appends "Open in ChatGPT" and "Open in Claude" links to the `.quarto-alternate-formats ul` list (labeled "For LLM Agents:")
-2. **Mobile format repositioning** -- moves the alternate-formats section under the title block on viewports below 767.98px, restoring on resize
+Two post-render scripts run automatically (configured in `_quarto.yml`):
+1. `generate-llms-txt.py` -- generates `docs/llms.txt` from rendered markdown files for LLM consumption
+2. `generate-ai-links.py` -- injects static "Open in ChatGPT" and "Open in Claude" links into the `.quarto-alternate-formats` section of each rendered HTML page, using the canonical URL
 
 ## Deployment
 

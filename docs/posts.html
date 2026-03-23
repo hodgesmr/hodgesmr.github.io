@@ -46,7 +46,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-7b5add0eaabc7baa65cfa74b59528959.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-e5f72a80b498e616e4612e8ce3cd9e63.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-d250c0984b7bc3c259d8c69780750b99.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,73 +105,6 @@ ul.task-list li input[type="checkbox"] {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&amp;display=swap" rel="stylesheet">
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const container = document.querySelector('.quarto-alternate-formats ul');
-    if (!container) return;
-
-    // Use the current page URL (includes query string + hash)
-    const pageUrl = window.location.href;
-
-    const prompt = encodeURIComponent(`I'd like to discuss the content from ${pageUrl}`);
-
-    const links = [
-      {
-        text: 'Open in ChatGPT',
-        href: `https://chatgpt.com/?q=${prompt}`,
-        icon: '<i class="bi bi-openai"></i>'
-      },
-      {
-        text: 'Open in Claude',
-        href: `https://claude.ai/new?q=${prompt}`,
-        icon: '<i class="bi bi-claude"></i>'
-      }
-    ];
-
-    links.forEach(link => {
-      const li = document.createElement('li');
-      li.innerHTML = `<a href="${link.href}" target="_blank" rel="noopener noreferrer">${link.icon} ${link.text}</a>`;
-      container.appendChild(li);
-    });
-  });
-</script>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const formats = document.querySelector('.quarto-alternate-formats');
-    if (!formats) return;
-
-    // Choose insertion point: right under the title block header.
-    const titleBlock = document.querySelector('#title-block-header');
-    if (!titleBlock) return;
-
-    // We'll move it only on "phone" widths.
-    const mq = window.matchMedia('(max-width: 767.98px)');
-
-    // Remember original position so we can restore if someone resizes wider.
-    const placeholder = document.createElement('span');
-    placeholder.setAttribute('data-qaf-placeholder', 'true');
-
-    const moveUnderTitle = () => {
-      if (mq.matches) {
-        if (!formats.hasAttribute('data-qaf-moved')) {
-          formats.parentNode.insertBefore(placeholder, formats);
-          titleBlock.insertAdjacentElement('afterend', formats);
-          formats.setAttribute('data-qaf-moved', 'true');
-        }
-      } else {
-        // Restore to original location if we previously moved it.
-        if (formats.hasAttribute('data-qaf-moved') && placeholder.parentNode) {
-          placeholder.parentNode.insertBefore(formats, placeholder);
-          placeholder.remove();
-          formats.removeAttribute('data-qaf-moved');
-        }
-      }
-    };
-
-    moveUnderTitle();
-    mq.addEventListener('change', moveUnderTitle);
-  });
-</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>

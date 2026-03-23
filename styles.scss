@@ -411,7 +411,7 @@ td {
   border-bottom: 1px solid $gray-200;
 }
 
-// ── Alternate formats sidebar ───────────────────────
+// ── Alternate formats ────────────────────────────────
 
 .quarto-alternate-formats a {
   color: $gray-900 !important;
@@ -421,6 +421,12 @@ td {
   }
 }
 
+// Mobile duplicate is hidden by default (shown only on small screens)
+.quarto-alternate-formats-mobile {
+  display: none;
+}
+
+// Tablet: keep sidebar visible for alternate-formats only (hide TOC)
 @media (max-width: 991.98px) {
   #quarto-margin-sidebar {
     display: block !important;
@@ -435,39 +441,50 @@ td {
   }
 }
 
+// Mobile: hide sidebar copy, show the mobile duplicate after the title
 @media (max-width: 767.98px) {
-  .quarto-alternate-formats {
+  #quarto-margin-sidebar {
+    display: none !important;
+  }
+
+  .quarto-alternate-formats-mobile {
     display: block;
     text-align: left;
     font-size: 0.8rem;
     margin: 1rem 0 1.5rem 0;
     padding: 0.75rem 1rem;
     border: none;
-  }
 
-  .quarto-alternate-formats h2 {
-    text-align: left;
-    font-size: 0.8rem;
-    border-bottom: none !important;
-    padding-bottom: 0 !important;
-  }
+    // Center the block on the about/trestles page
+    .about-entity & {
+      width: fit-content;
+      margin: 1rem auto 1.5rem auto;
+    }
 
-  .quarto-alternate-formats ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-  }
+    h2 {
+      text-align: left;
+      font-size: 0.8rem;
+      border-bottom: none !important;
+      padding-bottom: 0 !important;
+    }
 
-  .quarto-alternate-formats li {
-    padding-bottom: 0.25rem;
-    line-height: 1.3;
-    padding-top: 0.25rem;
-  }
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
 
-  .quarto-alternate-formats a {
-    display: inline-block;
-    text-align: left;
-    text-decoration: none !important;
-    color: $gray-900 !important;
+    li {
+      padding-bottom: 0.25rem;
+      line-height: 1.3;
+      padding-top: 0.25rem;
+    }
+
+    a {
+      display: inline-block;
+      text-align: left;
+      text-decoration: none !important;
+      color: $gray-900 !important;
+    }
   }
 }
