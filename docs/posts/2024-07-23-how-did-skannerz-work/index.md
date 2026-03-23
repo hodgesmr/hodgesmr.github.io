@@ -78,9 +78,7 @@ We’ve got 1000 possible values (000-999 across digits 3, 4, and 5 in our
 product code) to identify 126 monsters. The patent goes on to explain
 how the magic of division solves this problem:
 
-$$
-\frac{1000}{126} = 7.94
-$$
+$$\frac{1000}{126} = 7.94$$
 
 And there was much rejoicing.
 
@@ -104,9 +102,7 @@ Item Mode.
 Similarly, there were 24 items in the game + 1 for healing. So 25 items.
 Again, we’ve got 1000 values to work with:
 
-$$
-\frac{1000}{25} = 40
-$$
+$$\frac{1000}{25} = 40$$
 
 So a range of 40 numbers can be used to define each item. Item 1
 corresponds to the range of numbers from 000 through 039, Item 2

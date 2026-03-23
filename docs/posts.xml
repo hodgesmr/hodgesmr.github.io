@@ -14,7 +14,7 @@
 <title>Matt Hodges</title>
 <link>https://matthodges.com/posts.html</link>
 </image>
-<generator>quarto-1.8.27</generator>
+<generator>quarto-1.9.36</generator>
 <lastBuildDate>Fri, 20 Mar 2026 05:00:00 GMT</lastBuildDate>
 <item>
   <title>The Feed Framed the Last Election and AI Answers Will Frame the Next</title>
@@ -1606,7 +1606,7 @@ font-style: inherit;">-o</span> feddata.json</span></code></pre></div></div>
 </figure>
 </div>
 <p>It Bing’d for Sherrod Brown’s website, waited for the page to load, found the donation button for $50, clicked it, navigated through the credit card flow, saw that there was a form that needed more information about me, and handed control back to me to complete the task. Here’s what that looked like:</p>
-<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="chatgpt-sherrod-brown-donation.mp4"></video></div>
+<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="chatgpt-sherrod-brown-donation.mp4"></video></div>
 <p>I felt a little hesitant typing my credit card info into ChatGPT’s little VNC iframe, so I set up a temporary virtual card (a free service offered by my credit card provider) that auto-expired after a single charge.</p>
 <p>This flow is exactly what I expected, but it likely can be automated further. OpenAI claims that <a href="https://help.openai.com/en/articles/11752874-chatgpt-agent#h_d9ad0b50af">the agent holds on to cookies across sessions</a>, so I imagine that if I had previously authenticated to ActBlue in a chat, and had <a href="https://support.actblue.com/donors/help/actblue-express-accounts/">ActBlue Express</a>, the automated session would have just charged the card without my intervention. I didn’t try it.</p>
 <p>All the standard “what about…” apply here: How do I know the agent found the proper donation form? How do I know it didn’t set up recurring donations? How do I know it selected $50 and not $500? How do I know I didn’t end up on a malicious site prompt-injecting me to donate to Jon Husted instead? Yes, all the things. In this case, I know because the agent handed control back to me and I checked. But a more-automated flow might not have given me that opportunity.</p>
@@ -5346,9 +5346,9 @@ Below Average: 137</code></pre>
 </ul>
 <p>There was no guarantee that my IR receiver also operated this way, but spoiler alert: it did!</p>
 <p>I grabbed a jumper cable and touched one end to the IR’s <img src="https://latex.codecogs.com/png.latex?GND"> pin and ran the other side across one of the LED’s cathodes:</p>
-<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="06-led-cathode.mp4"></video></div>
+<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="06-led-cathode.mp4"></video></div>
 <p>Great. So the batteries still have some juice (a lot of posts suggested this thing would be dead by the time I got it home) and I know the polarity and pinouts of the LEDs. And all the LEDs are in series, so that’s nice. I also learned that the LEDs are interrupted in their path to ground, not their path to positive voltage, which is extra nice since the IR <img src="https://latex.codecogs.com/png.latex?V_%7Bout%7D"> is active low. That means I can create a voltage drop from the LED’s anode to cathode by tying the cathode to <img src="https://latex.codecogs.com/png.latex?V_%7Bout%7D">, so when the IR receiver gets a signal and pulls <img src="https://latex.codecogs.com/png.latex?V_%7Bout%7D"> low, the LED should light up. And so I did! I grabbed the first remote I could find in my living room, and pointed it at the receiver:</p>
-<div class="quarto-video"><video id="video_shortcode_videojs_video2" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="07-led-ir.mp4"></video></div>
+<div class="quarto-video"><video id="video_shortcode_videojs_video2" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="07-led-ir.mp4"></video></div>
 <p>It blinks! You’ll notice that the LEDs aren’t as bright as when they had a direct jump to ground. That’s because <img src="https://latex.codecogs.com/png.latex?V_%7Bout%7D"> is still higher than <img src="https://latex.codecogs.com/png.latex?GND"> so the voltage difference is a lot smaller. Which means the light doesn’t get as bright.</p>
 <p>That’s okay! This is a cheap crack and mod, so onward. After a bit more poking on the board, I found a surface-mounted resistor in series with the blue pinout from the LEDs. I soldered the IR signal jumper to that resistor, because we’re Team Blue.</p>
 <div class="quarto-figure quarto-figure-center">
@@ -5358,9 +5358,9 @@ Below Average: 137</code></pre>
 </figure>
 </div>
 <p>Not my best work. I’m better at through-hole soldering. But it works!</p>
-<div class="quarto-video"><video id="video_shortcode_videojs_video3" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="09-soldered-ir.mp4"></video></div>
+<div class="quarto-video"><video id="video_shortcode_videojs_video3" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="09-soldered-ir.mp4"></video></div>
 <p>I closed the case back up, shut myself in a windowless bathroom, turned off the lights,<sup>2</sup> and clicked my remote:</p>
-<div class="quarto-video"><video id="video_shortcode_videojs_video4" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="10-dark-ir.mp4"></video></div>
+<div class="quarto-video"><video id="video_shortcode_videojs_video4" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="10-dark-ir.mp4"></video></div>
 <p>Now all I need to do is blast Beyoncé’s <em>“Freedom”</em> and I can relive the 2024 Democratic National Convention whenever I want.</p>
 <p>I learned a lot!</p>
 

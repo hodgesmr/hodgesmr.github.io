@@ -541,6 +541,7 @@ I think that’s pretty cool!
 ### License
 
     Copyright (c) 2023, Matt Hodges
+
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without

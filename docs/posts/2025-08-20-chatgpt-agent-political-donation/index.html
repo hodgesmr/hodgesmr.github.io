@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,6 +11,9 @@
 
 <title>I Donated to Sherrod Brown via ChatGPT</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -35,15 +38,14 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../img/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ad6f884a67f4c658fbb8f98329abe5cd.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-eca9f94a52043cf3a526da7a21d79288.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-1bf61e27adf127e57fea6d29ee3232bf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-3f4eec234fef77937233c6d78dc16568.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="../../site_libs/quarto-contrib/videojs/video.min.js"></script>
 <link href="../../site_libs/quarto-contrib/videojs/video-js.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
@@ -255,7 +257,7 @@ ul.task-list li input[type="checkbox"] {
 </figure>
 </div>
 <p>It Bing’d for Sherrod Brown’s website, waited for the page to load, found the donation button for $50, clicked it, navigated through the credit card flow, saw that there was a form that needed more information about me, and handed control back to me to complete the task. Here’s what that looked like:</p>
-<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="chatgpt-sherrod-brown-donation.mp4"></video></div>
+<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="chatgpt-sherrod-brown-donation.mp4"></video></div>
 <p>I felt a little hesitant typing my credit card info into ChatGPT’s little VNC iframe, so I set up a temporary virtual card (a free service offered by my credit card provider) that auto-expired after a single charge.</p>
 <p>This flow is exactly what I expected, but it likely can be automated further. OpenAI claims that <a href="https://help.openai.com/en/articles/11752874-chatgpt-agent#h_d9ad0b50af">the agent holds on to cookies across sessions</a>, so I imagine that if I had previously authenticated to ActBlue in a chat, and had <a href="https://support.actblue.com/donors/help/actblue-express-accounts/">ActBlue Express</a>, the automated session would have just charged the card without my intervention. I didn’t try it.</p>
 <p>All the standard “what about…” apply here: How do I know the agent found the proper donation form? How do I know it didn’t set up recurring donations? How do I know it selected $50 and not $500? How do I know I didn’t end up on a malicious site prompt-injecting me to donate to Jon Husted instead? Yes, all the things. In this case, I know because the agent handed control back to me and I checked. But a more-automated flow might not have given me that opportunity.</p>

@@ -147,14 +147,14 @@ string:
 So if you start with exactly 1 B (in “AB”), then after using Rule 2
 (k) times and Rule 3 (m) times (in any order), the total B‑count will
 be  
-$$
-   1\cdot2^k \;-\;3\,m
-$$ because you’ve doubled the B’s (k) times and subtracted three B’s
-each time you applied Rule 3. To end up with zero B’s (as you must,
-since “AC” has no B’s) you’d need  
-$$
-   2^k \;=\;3\,m.
-$$ But $2^k$ is never divisible by 3, so there is **no** choice of
+
+$$   1\cdot2^k \;-\;3\,m$$
+because you’ve doubled the B’s (k) times and subtracted three B’s each
+time you applied Rule 3. To end up with zero B’s (as you must, since
+“AC” has no B’s) you’d need  
+
+$$   2^k \;=\;3\,m.$$
+But $2^k$ is never divisible by 3, so there is **no** choice of
 nonnegative integers $k,m$ making $2^k=3m$. In other words, you can
 never get rid of that single initial B; no finite sequence of these
 rules will turn “AB” into “AC.”

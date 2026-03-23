@@ -415,6 +415,7 @@ references at the top of the post for further reading!
 ### License
 
     Copyright (c) 2022, Matt Hodges
+
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
