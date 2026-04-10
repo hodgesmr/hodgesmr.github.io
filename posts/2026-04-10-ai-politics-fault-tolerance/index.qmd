@@ -40,7 +40,7 @@ Engineers who build reliable systems distinguish between three things:
 
 The goal is to prevent faults from becoming failures. You'll never eliminate faults entirely.
 
-A useful way to think about "hallucinations" is as a fault-to-error chain. The **fault** is that an LLM component can operate with missing or ambiguous grounding, whether that's a bad retrieval result, a failed tool call, or a prompt that under-specifies what "true" means. The **error** is what you see: a fluent, confident claim that isn't actually supported. Whether that error becomes a **failure** depends on what happens next. Is there a review step? Can the wrongness be detected? Can it be undone?
+A useful way to think about "hallucinations" is as a fault-to-error chain. The **fault** is that an LLM component can operate with missing or ambiguous grounding, whether that's a bad retrieval result, a failed tool call, or a prompt that under-specifies what "true" means. The **error** is what you see: a fluent, confident claim that isn't actually supported. Whether that error becomes a **failure** depends on what happens next. Is there a review step? Can the wrongness be detected? Can it be undone? Does it even need to be?
 
 Campaign workflows are socio-technical systems. Tools plus people plus process plus incentives. When we talk about [human-in-the-loop](https://en.wikipedia.org/wiki/Human-in-the-loop) we need to mean that humans aren't external "reviewers" bolted onto the end. They're part of the system's detection and recovery mechanisms.
 

@@ -81,7 +81,7 @@ tool call, or a prompt that under-specifies what “true” means. The
 **error** is what you see: a fluent, confident claim that isn’t actually
 supported. Whether that error becomes a **failure** depends on what
 happens next. Is there a review step? Can the wrongness be detected? Can
-it be undone?
+it be undone? Does it even need to be?
 
 Campaign workflows are socio-technical systems. Tools plus people plus
 process plus incentives. When we talk about
