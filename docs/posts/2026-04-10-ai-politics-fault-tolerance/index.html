@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Matt Hodges">
+<meta name="dcterms.date" content="2026-04-10">
+
+<title>Surviving Hallucinations: AI Fault Tolerance for Campaigns</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../img/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-eca9f94a52043cf3a526da7a21d79288.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-73f62f8f7bb4c35d4a835cebc7eabdb0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&amp;display=swap" rel="stylesheet">
+
+
+<meta property="og:title" content="Surviving Hallucinations: AI Fault Tolerance for Campaigns">
+<meta property="og:description" content="Building AI workflows that campaigns can trust under pressure">
+<meta property="og:image" content="https://matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/ai-politics-fault-tolerant.jpeg">
+<meta property="og:site_name" content="Matt Hodges">
+<meta name="twitter:title" content="Surviving Hallucinations: AI Fault Tolerance for Campaigns">
+<meta name="twitter:description" content="Building AI workflows that campaigns can trust under pressure">
+<meta name="twitter:image" content="https://matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/ai-politics-fault-tolerant.jpeg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Matt Hodges</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://www.linkedin.com/in/hodgesmr" target="_blank"> 
+<span class="menu-text">LinkedIn</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/hodgesmr" target="_blank"> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.xml"> 
+<span class="menu-text">RSS</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../llms.txt"> 
+<span class="menu-text">llms.txt</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Surviving Hallucinations: AI Fault Tolerance for Campaigns</h1>
+            <p class="subtitle lead">Building AI workflows that campaigns can trust under pressure</p>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Matt Hodges </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">April 10, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div class="quarto-alternate-formats quarto-alternate-formats-mobile"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div class="quarto-alternate-formats"><h2>For LLMs:</h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div></div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p>Every conversation about AI in campaigns eventually hits the same wall: <em>what about hallucinations?</em></p>
+<p>It’s a fair question. These models can confidently produce wrong information. They may invent quotes, fabricate statistics, and do it all in the same tone they use to tell you the truth. The problem isn’t hypothetical.</p>
+<p>But “what about hallucinations” usually carries an implied bar where the technology must never produce wrong outputs before we can use it. That’s a bar that will never be met. Not this year, probably not ever. If we treat it as a prerequisite for adoption, then we guarantee paralysis.</p>
+<p>In <a href="https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/">my previous post</a>, I argued that agentic AI can now handle a lot of the mechanical knowledge work that buries campaign staff. The hallucination objection is the most common reason people give for not starting. So it’s worth taking seriously on its own terms.</p>
+<p>Campaigns don’t get the luxury of perfect conditions. You ship under deadline, on messy inputs, with decisions that compound. The practical question around AI becomes whether we can adopt imperfect tools <em>intentionally</em>, in ways that make mistakes visible and cheap to fix, without turning every fault into a public disaster. The good news is yes, we can.</p>
+<p><a href="https://en.wikipedia.org/wiki/Reliability_engineering">Reliability engineering</a> offers a useful frame here, and there’s a well-developed discipline around <a href="https://en.wikipedia.org/wiki/Fault_tolerance">building systems that remain resilient</a> even when individual components aren’t. Campaigns need to borrow it because the payoff is concrete. So much of campaign labor is taking messy piles of inputs and turning them into something a decision-maker can act on. Agents can handle that mechanical work, freeing staff for the judgment, relationships, and persuasion that humans are actually good at. But those gains only hold if the systems around the tools are designed well. The AI companies are <a href="https://www.anthropic.com/research/trustworthy-agents">converging on similar thinking</a>, acknowledging that agent safety depends on the whole system, model and deployment alike. That’s a good sign, but it also means the organizations deploying agents have design work to do on their end.</p>
+<section id="the-automated-staffer" class="level3">
+<h3 class="anchored" data-anchor-id="the-automated-staffer">The Automated Staffer</h3>
+<p>A chatbot can act like a staffer who drafts things for your review. An agent can act like a staffer who can also push the buttons.</p>
+<p>The second one needs more supervision, not less. But you wouldn’t refuse to hire staff because they might make mistakes. You’d build workflows that catch mistakes before they matter. You’d give a new hire a review process, a style guide, limited permissions, and a manager who checks their work before it goes out the door. Agents deserve the same treatment.</p>
+<p>Reliability isn’t the absence of failure. Reliability is what happens when things go wrong.</p>
+</section>
+<section id="faults-errors-and-failures" class="level3">
+<h3 class="anchored" data-anchor-id="faults-errors-and-failures">Faults, Errors, and Failures</h3>
+<p>Engineers who build reliable systems distinguish between three things:</p>
+<ul>
+<li>A <strong>fault</strong> is a cause. Something goes wrong inside the system.<br>
+</li>
+<li>An <strong>error</strong> is an incorrect internal state or output. The system produces something wrong.<br>
+</li>
+<li>A <strong>failure</strong> is when that error escapes the system boundary and causes harm.</li>
+</ul>
+<p>The goal is to prevent faults from becoming failures. You’ll never eliminate faults entirely.</p>
+<p>A useful way to think about “hallucinations” is as a fault-to-error chain. The <strong>fault</strong> is that an LLM component can operate with missing or ambiguous grounding, whether that’s a bad retrieval result, a failed tool call, or a prompt that under-specifies what “true” means. The <strong>error</strong> is what you see: a fluent, confident claim that isn’t actually supported. Whether that error becomes a <strong>failure</strong> depends on what happens next. Is there a review step? Can the wrongness be detected? Can it be undone?</p>
+<p>Campaign workflows are socio-technical systems. Tools plus people plus process plus incentives. When we talk about <a href="https://en.wikipedia.org/wiki/Human-in-the-loop">human-in-the-loop</a> we need to mean that humans aren’t external “reviewers” bolted onto the end. They’re part of the system’s detection and recovery mechanisms.</p>
+<p>The important design work is in what happens <em>before</em> a human ever sees the output. The best workflows don’t rely on a busy staffer noticing a subtle error in polished prose. They rely on guardrails that automatically block, flag, or constrain entire classes of failure through provenance requirements, schema checks, permission boundaries, and rollback-by-default execution. Humans become the final layer, not the first and only.</p>
+<p>So the design question is whether the workflow reliably puts a human in the right place, with the right context, before the output can matter. Picture a staffer staring at a polished paragraph with no sources, at 1am, with a launch deadline at 7am. That’s a coin flip at best. Now picture a Comms Director reviewing a draft that includes links to sources, highlighted claims, and a clean diff against the previous draft, with a clear review runbook. That’s a system.</p>
+</section>
+<section id="recovering-from-a-near-miss" class="level3">
+<h3 class="anchored" data-anchor-id="recovering-from-a-near-miss">Recovering From a Near-Miss</h3>
+<p>Consider this scenario: A Field Director asks an agent to pull canvass notes from the previous week and identify patterns. The agent clusters the notes and surfaces a theme: <em>“Voters in precinct 12 are concerned about the new development on Oak Street.”</em> Except there’s no development on Oak Street. The agent conflated two different conversations, one about a proposed rezoning and one about road construction, and invented a coherent narrative that didn’t exist.</p>
+<p>But the workflow caught it before anyone had to. The system automatically checked whether the cited canvass notes actually contained the claims the summary made. The notes didn’t mention any “development on Oak Street,” so the summary arrived on the Field Director’s screen with that claim flagged. Because the output included links to sources, the Field Director didn’t have to take the summary on faith the way she would have with a clean paragraph and no provenance. She clicked through, confirmed the mismatch in thirty seconds, and corrected it before it went to the Campaign Manager. No one sent organizers to knock doors about a fictional construction project.</p>
+<p>Synthesizing a coherent narrative from fifty scattered canvass notes is open-ended, exactly the kind of work where LLMs confabulate. Checking whether a specific source document contains a specific claim is far more constrained. The model has the text in front of it and the question is narrow. “Does note #37 mention a development on Oak Street?” is a much easier question to answer reliably than “what are voters in precinct 12 worried about?” Same reason you’d trust a staffer to verify a quote appears in a document even if you wouldn’t trust them to write the analysis.</p>
+<p>The fault happened. The error was visible. The system did triage before a human ever had to. The human had context and the means to verify. The correction was cheap. And the Field Director still got a usable summary of fifty canvass notes in minutes, work that would have taken an afternoon by hand. That’s an example of fault-recoverable design doing its job. The agent did real work. The system caught the one thing it got wrong.</p>
+</section>
+<section id="three-system-postures" class="level3">
+<h3 class="anchored" data-anchor-id="three-system-postures">Three System Postures</h3>
+<p>Every workflow falls into one of three postures, and most campaigns have no idea which one they’re in.</p>
+<section id="fault-tolerant" class="level4">
+<h4 class="anchored" data-anchor-id="fault-tolerant">Fault-Tolerant</h4>
+<p>The system keeps working at an acceptable level even when faults happen. Quality drops, but it doesn’t break. Think of a video call that drops to audio-only when bandwidth dips. You lose fidelity, not function.</p>
+<p>For campaign AI work, fault tolerance means some weirdness is acceptable because it doesn’t change the real outcome. You’re using a training simulation for new canvassers. The model invents a detail, <em>“she mentioned her three dogs,”</em> when no such thing was in the scenario. Does it matter? The training objective is practicing conversation technique, not memorizing fake voter details. The fault is tolerable because the purpose survives.</p>
+</section>
+<section id="fault-recoverable" class="level4">
+<h4 class="anchored" data-anchor-id="fault-recoverable">Fault-Recoverable</h4>
+<p>The system may produce wrongness, but it makes that wrongness visible and makes fixing it cheap. When you type a shipping address into an online checkout, the form sometimes suggests a corrected version. You see the suggestion, fix it if it’s wrong, and confirm before anything ships. The fault is visible, the fix is trivial, and the workflow puts confirmation before action.</p>
+<p>This is the posture most campaign AI work should target first. The agent drafts a canvass script, staff reviews and deploys. The agent summarizes a policy document, comms and policy leads check it before publishing. The agent clusters canvass notes, the field director sanity-checks before circulating insights.</p>
+<p>Each of these is the same pattern of taking a messy pile of inputs, turning it into something legible, then presenting it to a human who can take action. The agent handles the mechanical work in minutes. The review step takes a fraction of that. Staff get time back for the things that actually win campaigns.</p>
+<p>Fault-recoverable doesn’t have to mean “a person reads everything.” Sometimes it means requiring the agent to produce artifacts the system can validate automatically. Instead of asking for a narrative, require a machine-checkable intermediate: a diff, a structured payload, or a set of cited claims. Then let automated validators gate execution. If the diff is too large, the citations don’t resolve, the quote can’t be found in the source text, or the numbers don’t match the referenced table, the system rejects the run and forces a retry or escalation.</p>
+<p>A lot of campaign work can be fault-recoverable by default if you design validation as an unavoidable step in the workflow rather than an optional one.</p>
+</section>
+<section id="fault-intolerant" class="level4">
+<h4 class="anchored" data-anchor-id="fault-intolerant">Fault-Intolerant</h4>
+<p>Faults turn into failures because the system lacks detection, prevention, or safe rollback. The worst version is silent wrongness. It looks correct, so people trust it and act on it.</p>
+<p>In 2024, New York City rolled out <a href="https://www.reuters.com/technology/new-york-city-defends-ai-chatbot-that-advised-entrepreneurs-break-laws-2024-04-04/">MyCity</a>, an AI chatbot intended to help small-business owners navigate city rules. It was caught giving confident, incorrect guidance that could have pushed people into violating discrimination laws. The wrongness arrived through an authoritative interface, with no provenance and no checkpoint before people acted. The system made it easy to trust and hard to verify.</p>
+<p>Campaigns have plenty of analogous workflows:</p>
+<ul>
+<li><strong>Auto-posting to social without review.</strong> Wrong content becomes a press story.<br>
+</li>
+<li><strong>An auto-generated metrics deck treated as ground truth.</strong> Bad numbers drive bad decisions for weeks before anyone notices.<br>
+</li>
+<li><strong>Silent bulk updates.</strong> An agent (or even a human) tags or edits the wrong universe in a CRM, and the error only shows up downstream.</li>
+</ul>
+<p>The danger shape is “generate, then act” with nothing reliable in between. If it’s irreversible, believable, and scalable, assume it’s fault-intolerant until you’ve built the system to tolerate it or recover from it.</p>
+</section>
+</section>
+<section id="three-fault-classes" class="level3">
+<h3 class="anchored" data-anchor-id="three-fault-classes">Three Fault Classes</h3>
+<p>Three kinds of AI mistakes deserve specific attention because they map cleanly to different controls.</p>
+<section id="fabricated-facts-numbers-and-quotes" class="level4">
+<h4 class="anchored" data-anchor-id="fabricated-facts-numbers-and-quotes">Fabricated Facts, Numbers, and Quotes</h4>
+<p>The model invents a polling number, a fundraising total, a policy stat, a vote percentage. Or worse, it produces a “quote” that sounds real but is misattributed, out of context, or entirely invented.</p>
+<p>The output is believable and shareable, which means humans propagate it. By the time someone checks, it’s already in the talking points. Oppo research “findings” get repeated in a press call before verification, and now you’ve spread misinformation with your name on it.</p>
+<p>Anything treated as factual should be source-grounded. Instead of deploying an agent to analyze a data store and narrate the trends, have it write a Python script or SQL query to analyze the data. If the code is wrong, it errors out with a visible fault. Then validate the result: the query must run, the counts must reconcile, totals must match known control numbers, and the output must be reproducible. Code gives you checkable invariants and a repeatable pipeline. Free-form narration gives you plausible-sounding prose with nothing to verify against.</p>
+</section>
+<section id="misapplied-rules-and-procedures" class="level4">
+<h4 class="anchored" data-anchor-id="misapplied-rules-and-procedures">Misapplied Rules and Procedures</h4>
+<p>The model gives confident but wrong guidance on compliance requirements, field standard operating procedures, data handling rules, or platform policies. Staff treat it as an oracle. Someone does the wrong thing because the AI told them to.</p>
+<p>One wrong answer about disclaimer requirements becomes a pattern across dozens of pieces of content before anyone catches it. The liability compounds.</p>
+<p>Require explicit authority gates before procedural guidance becomes action. Legal, compliance, or field lead signoff. Constrain the agent to a closed corpus so it can only answer based on uploaded documents like the employee handbook or the process guide, and require it to cite them. Never deploy as a self-serve compliance oracle with no human checkpoint.</p>
+</section>
+<section id="persona-and-context-fabrication" class="level4">
+<h4 class="anchored" data-anchor-id="persona-and-context-fabrication">Persona and Context Fabrication</h4>
+<p>The model invents voter traits or preferences. It backfills missing context with plausible-sounding but made-up details. It confuses two real people or “completes” a record with guessed attributes.</p>
+<p>In explicitly fictional contexts this is fine. Training simulations benefit from invented personas. Voter contact based on fabricated attributes is a different story entirely.</p>
+<p>Enforce hard boundaries between synthetic personas and real records. Inferred attributes can be valuable in production data, but they need to carry their provenance with them. Label them as inferred, make them easy to review in bulk, and make them easy to roll back. More importantly, downstream systems that automate based on these fields need to respect the distinction. An inferred tag can inform a draft or surface a recommendation for review. But be thoughtful about whether it should trigger automated outreach. If a staffer can’t tell at a glance which fields came from a source and which came from a model, or if an automated workflow treats both the same, you’ve rebuilt the fault-intolerant pattern with extra steps.</p>
+</section>
+</section>
+<section id="when-ai-can-push-the-buttons" class="level3">
+<h3 class="anchored" data-anchor-id="when-ai-can-push-the-buttons">When AI Can Push the Buttons</h3>
+<p>When the system can take actions, not just produce text, the fault tolerance calculus changes.</p>
+<p><strong>Blast radius goes up.</strong> A chatbot hallucination affects one person reading one output. An agent hallucination can propagate across hundreds of records or thousands of messages before anyone notices.</p>
+<p><strong>Silent failures become common.</strong> With a chatbot, you see the output. With an agent, you might only see “task completed.” The action happened, but you don’t know if it happened correctly. It “worked” but changed the wrong thing.</p>
+<p><strong>Compounding harm becomes possible.</strong> One bad assumption early in an agent workflow can cascade into many downstream actions. The agent tagged a segment wrong, then drafted messages to that segment, then scheduled those messages, each step building on the original error.</p>
+<p>So the question every campaign needs to answer for every workflow: what can this thing touch, and under what conditions?</p>
+</section>
+<section id="the-permission-ladder" class="level3">
+<h3 class="anchored" data-anchor-id="the-permission-ladder">The Permission Ladder</h3>
+<p>Not all agent capabilities carry the same risk. Think of it as a ladder.</p>
+<p><strong>Read-only agents</strong> retrieve, summarize, and draft. They pull information from systems and produce outputs for human review. Everything goes through a review gate before it affects anything, which makes them naturally compatible with fault-recoverable workflows. This is where you start.</p>
+<p><strong>Write agents</strong> update records, tag voters, create documents in shared systems. These require recoverability infrastructure. Versioning, audit logs, reversible actions. Without those, writes can be silent and irreversible, which is the definition of fault-intolerant.</p>
+<p><strong>Send/publish agents</strong> dispatch email, SMS, social posts, or any mass communication. Once something reaches an external audience it’s effectively irreversible. Approvals, undo windows, staged rollouts, and human confirmation before send are the minimum. A <a href="https://read.technically.dev/p/i-let-claude-code-autonomously-run">recent experiment</a> where someone gave an agent autonomous control of a Meta Ads account with a $1,500 budget illustrates the risk. The agent iterated on ad creative and produced detailed daily reasoning logs, but it optimized for cost per lead while ignoring lead quality for over two weeks. It had access to the quality data the entire time. It just wasn’t told to look at it. The objective was too narrow, and no one had built in a quality gate to catch what the metric didn’t measure.</p>
+<p><strong>Compliance, money, and security agents</strong> handle payments, legal disclaimers, access controls, data exports. Processing contribution refunds, generating FEC disclaimers, managing access to voter file exports. Treat these as high-consequence by default. These might be out of bounds for your organization.</p>
+<p>Start with the minimum permission set. Expand deliberately as you build confidence and controls. A workflow that’s been running read-only agents successfully for a month may have earned the right to expand to write access with guardrails. A workflow that starts at send/publish without that foundation has no recovery path when something goes wrong.</p>
+</section>
+<section id="the-shadow-ai-trap" class="level3">
+<h3 class="anchored" data-anchor-id="the-shadow-ai-trap">The Shadow AI Trap</h3>
+<p>If you don’t give staff a safe path to use these tools, they’ll use them unsafely in the dark.</p>
+<p>People will improvise workarounds in private. Pasting voter data into ChatGPT. Running compliance questions through free-tier tools with no audit trail. Building workflows that work until they don’t, with no one watching.</p>
+<p>When there’s no official path to using AI responsibly, people use it irresponsibly where you can’t see it. Then something breaks trust in public, and you’re explaining to reporters why a compliance violation went out on 50,000 mailers or why a fabricated quote made it into a press release.</p>
+<p>When that happens, someone will want to find the root cause. The temptation is to stop at “the staffer made a mistake” or now, “the AI made a mistake”. But in almost every case, <a href="https://iamevan.me/blog/the-theory-behind-understanding-failure/#there-is-no-root-cause">the root cause is that your processes weren’t robust enough to prevent that mistake</a>.</p>
+<p>This is why the “no AI” policy doesn’t work. Giving staff clear defaults and guardrails keeps experimentation from becoming liability. But defaults only work if people use them, which means training, not just tooling.</p>
+<p>The people already experimenting in the shadows are often the best candidates to help build the guardrails.</p>
+</section>
+<section id="what-to-do-now" class="level3">
+<h3 class="anchored" data-anchor-id="what-to-do-now">What To Do Now</h3>
+<p>This is a broad map. You don’t need to implement everything at once.</p>
+<p><strong>If you’re in leadership,</strong> the permission ladder is your starting framework. Don’t give agents send or publish access until you’ve seen them succeed at read-only. Expand deliberately. For party committees and major organizations, agentic AI is infrastructure that deserves the same rigor as your data or fundraising stack. The permission ladder applies to your vendor relationships too. What can your tools read, write, and send on your behalf?</p>
+<p><strong>If you’re the person building the first workflows,</strong> start fault-recoverable. Agent drafts, human approves before anything publishes. Require links to sources. Add sophistication later, after you’ve learned where the faults actually show up. Document what works. The campaigns and organizations that publish their patterns, what failed, what succeeded, what controls they built, become the R&amp;D layer for everyone else.</p>
+<p><strong>If you’re a staffer already using ChatGPT in private,</strong> you’re not the problem, you’re ahead of the curve. Come forward. Tell your manager you want guardrails. Ask for a review process and clear rules about what’s okay. The conversation you’re afraid to have is the one that keeps the campaign out of the news for the wrong reasons, and it’s also how you become the person who shapes how your team uses these tools.</p>
+<p><strong>If you’re a vendor or tool-builder,</strong> audit trails, permission scopes, undo windows, and review queues should be defaults, not upsells. The campaigns adopting agents seriously will choose platforms that make fault-recoverable workflows easy to build.</p>
+</section>
+<section id="the-litmus-test" class="level3">
+<h3 class="anchored" data-anchor-id="the-litmus-test">The Litmus Test</h3>
+<p>As you deploy an agent into a campaign workflow, ask:</p>
+<ul>
+<li>Is the output or action reversible? What’s the undo window?<br>
+</li>
+<li>Are failures observable before harm, or silent?<br>
+</li>
+<li>What’s the blast radius if it’s wrong? One draft, or everyone’s phones?<br>
+</li>
+<li>Does the workflow make verification the default path?<br>
+</li>
+<li>Do humans get the context they need at the decision point? Sources, links, diffs?<br>
+</li>
+<li>What can this thing read, write, and send, and is that permission set minimal?</li>
+</ul>
+<p>Rule of thumb: if it’s irreversible, believable, and systemic, treat it as fault-intolerant until you are confident your system is designed to tolerate it or recover from it.</p>
+</section>
+<section id="the-stakes" class="level3">
+<h3 class="anchored" data-anchor-id="the-stakes">The Stakes</h3>
+<p>The “what about hallucinations” objection is usually about something deeper than hallucinations. It’s about whether you can rely on something you don’t fully understand. That’s legitimate.</p>
+<p>Campaigns already run on partial information, <a href="https://en.wikipedia.org/wiki/The_American_Voter">messy inputs</a>, and <a href="https://www.nytimes.com/2025/03/01/us/politics/democrats-voter-data.html">tools that fail at inconvenient moments</a>. Agentic AI introduces a new kind of risk because it can scale mistakes in ways that a staffer with a spreadsheet can’t. But the discipline for handling that risk isn’t new. Define what can go wrong. Build detection and recovery. Bound the blast radius. Put humans in the right places with the right context.</p>
+<p>Waiting for agents that never hallucinate means waiting forever. In the meantime, the mechanical work keeps piling up, staffers keep burning out, and the campaigns that figure out fault-tolerant and fault-recoverable workflows first will compound that advantage cycle after cycle.</p>
+<p>Faults will happen. Failures don’t have to.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<div>
+    <hr>
+    <p class="post-footer">🖤 Thank you for reading a personal blog. This post was written in a specific time and place. I reserve the right to learn new things and to change my mind. This site has no traffic analytics, social trackers, or ads. If you enjoyed this post, please consider sharing it however you like to share posts.</p>
+</div>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/matthodges\.com");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Copyright 2026, Matt Hodges</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

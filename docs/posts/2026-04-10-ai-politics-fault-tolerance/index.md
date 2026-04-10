@@ -1,0 +1,457 @@
+# Surviving Hallucinations: AI Fault Tolerance for Campaigns
+Matt Hodges
+2026-04-10
+
+Every conversation about AI in campaigns eventually hits the same wall:
+*what about hallucinations?*
+
+It’s a fair question. These models can confidently produce wrong
+information. They may invent quotes, fabricate statistics, and do it all
+in the same tone they use to tell you the truth. The problem isn’t
+hypothetical.
+
+But “what about hallucinations” usually carries an implied bar where the
+technology must never produce wrong outputs before we can use it. That’s
+a bar that will never be met. Not this year, probably not ever. If we
+treat it as a prerequisite for adoption, then we guarantee paralysis.
+
+In [my previous
+post](https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/), I
+argued that agentic AI can now handle a lot of the mechanical knowledge
+work that buries campaign staff. The hallucination objection is the most
+common reason people give for not starting. So it’s worth taking
+seriously on its own terms.
+
+Campaigns don’t get the luxury of perfect conditions. You ship under
+deadline, on messy inputs, with decisions that compound. The practical
+question around AI becomes whether we can adopt imperfect tools
+*intentionally*, in ways that make mistakes visible and cheap to fix,
+without turning every fault into a public disaster. The good news is
+yes, we can.
+
+[Reliability
+engineering](https://en.wikipedia.org/wiki/Reliability_engineering)
+offers a useful frame here, and there’s a well-developed discipline
+around [building systems that remain
+resilient](https://en.wikipedia.org/wiki/Fault_tolerance) even when
+individual components aren’t. Campaigns need to borrow it because the
+payoff is concrete. So much of campaign labor is taking messy piles of
+inputs and turning them into something a decision-maker can act on.
+Agents can handle that mechanical work, freeing staff for the judgment,
+relationships, and persuasion that humans are actually good at. But
+those gains only hold if the systems around the tools are designed well.
+The AI companies are [converging on similar
+thinking](https://www.anthropic.com/research/trustworthy-agents),
+acknowledging that agent safety depends on the whole system, model and
+deployment alike. That’s a good sign, but it also means the
+organizations deploying agents have design work to do on their end.
+
+### The Automated Staffer
+
+A chatbot can act like a staffer who drafts things for your review. An
+agent can act like a staffer who can also push the buttons.
+
+The second one needs more supervision, not less. But you wouldn’t refuse
+to hire staff because they might make mistakes. You’d build workflows
+that catch mistakes before they matter. You’d give a new hire a review
+process, a style guide, limited permissions, and a manager who checks
+their work before it goes out the door. Agents deserve the same
+treatment.
+
+Reliability isn’t the absence of failure. Reliability is what happens
+when things go wrong.
+
+### Faults, Errors, and Failures
+
+Engineers who build reliable systems distinguish between three things:
+
+- A **fault** is a cause. Something goes wrong inside the system.  
+- An **error** is an incorrect internal state or output. The system
+  produces something wrong.  
+- A **failure** is when that error escapes the system boundary and
+  causes harm.
+
+The goal is to prevent faults from becoming failures. You’ll never
+eliminate faults entirely.
+
+A useful way to think about “hallucinations” is as a fault-to-error
+chain. The **fault** is that an LLM component can operate with missing
+or ambiguous grounding, whether that’s a bad retrieval result, a failed
+tool call, or a prompt that under-specifies what “true” means. The
+**error** is what you see: a fluent, confident claim that isn’t actually
+supported. Whether that error becomes a **failure** depends on what
+happens next. Is there a review step? Can the wrongness be detected? Can
+it be undone?
+
+Campaign workflows are socio-technical systems. Tools plus people plus
+process plus incentives. When we talk about
+[human-in-the-loop](https://en.wikipedia.org/wiki/Human-in-the-loop) we
+need to mean that humans aren’t external “reviewers” bolted onto the
+end. They’re part of the system’s detection and recovery mechanisms.
+
+The important design work is in what happens *before* a human ever sees
+the output. The best workflows don’t rely on a busy staffer noticing a
+subtle error in polished prose. They rely on guardrails that
+automatically block, flag, or constrain entire classes of failure
+through provenance requirements, schema checks, permission boundaries,
+and rollback-by-default execution. Humans become the final layer, not
+the first and only.
+
+So the design question is whether the workflow reliably puts a human in
+the right place, with the right context, before the output can matter.
+Picture a staffer staring at a polished paragraph with no sources, at
+1am, with a launch deadline at 7am. That’s a coin flip at best. Now
+picture a Comms Director reviewing a draft that includes links to
+sources, highlighted claims, and a clean diff against the previous
+draft, with a clear review runbook. That’s a system.
+
+### Recovering From a Near-Miss
+
+Consider this scenario: A Field Director asks an agent to pull canvass
+notes from the previous week and identify patterns. The agent clusters
+the notes and surfaces a theme: *“Voters in precinct 12 are concerned
+about the new development on Oak Street.”* Except there’s no development
+on Oak Street. The agent conflated two different conversations, one
+about a proposed rezoning and one about road construction, and invented
+a coherent narrative that didn’t exist.
+
+But the workflow caught it before anyone had to. The system
+automatically checked whether the cited canvass notes actually contained
+the claims the summary made. The notes didn’t mention any “development
+on Oak Street,” so the summary arrived on the Field Director’s screen
+with that claim flagged. Because the output included links to sources,
+the Field Director didn’t have to take the summary on faith the way she
+would have with a clean paragraph and no provenance. She clicked
+through, confirmed the mismatch in thirty seconds, and corrected it
+before it went to the Campaign Manager. No one sent organizers to knock
+doors about a fictional construction project.
+
+Synthesizing a coherent narrative from fifty scattered canvass notes is
+open-ended, exactly the kind of work where LLMs confabulate. Checking
+whether a specific source document contains a specific claim is far more
+constrained. The model has the text in front of it and the question is
+narrow. “Does note \#37 mention a development on Oak Street?” is a much
+easier question to answer reliably than “what are voters in precinct 12
+worried about?” Same reason you’d trust a staffer to verify a quote
+appears in a document even if you wouldn’t trust them to write the
+analysis.
+
+The fault happened. The error was visible. The system did triage before
+a human ever had to. The human had context and the means to verify. The
+correction was cheap. And the Field Director still got a usable summary
+of fifty canvass notes in minutes, work that would have taken an
+afternoon by hand. That’s an example of fault-recoverable design doing
+its job. The agent did real work. The system caught the one thing it got
+wrong.
+
+### Three System Postures
+
+Every workflow falls into one of three postures, and most campaigns have
+no idea which one they’re in.
+
+#### Fault-Tolerant
+
+The system keeps working at an acceptable level even when faults happen.
+Quality drops, but it doesn’t break. Think of a video call that drops to
+audio-only when bandwidth dips. You lose fidelity, not function.
+
+For campaign AI work, fault tolerance means some weirdness is acceptable
+because it doesn’t change the real outcome. You’re using a training
+simulation for new canvassers. The model invents a detail, *“she
+mentioned her three dogs,”* when no such thing was in the scenario. Does
+it matter? The training objective is practicing conversation technique,
+not memorizing fake voter details. The fault is tolerable because the
+purpose survives.
+
+#### Fault-Recoverable
+
+The system may produce wrongness, but it makes that wrongness visible
+and makes fixing it cheap. When you type a shipping address into an
+online checkout, the form sometimes suggests a corrected version. You
+see the suggestion, fix it if it’s wrong, and confirm before anything
+ships. The fault is visible, the fix is trivial, and the workflow puts
+confirmation before action.
+
+This is the posture most campaign AI work should target first. The agent
+drafts a canvass script, staff reviews and deploys. The agent summarizes
+a policy document, comms and policy leads check it before publishing.
+The agent clusters canvass notes, the field director sanity-checks
+before circulating insights.
+
+Each of these is the same pattern of taking a messy pile of inputs,
+turning it into something legible, then presenting it to a human who can
+take action. The agent handles the mechanical work in minutes. The
+review step takes a fraction of that. Staff get time back for the things
+that actually win campaigns.
+
+Fault-recoverable doesn’t have to mean “a person reads everything.”
+Sometimes it means requiring the agent to produce artifacts the system
+can validate automatically. Instead of asking for a narrative, require a
+machine-checkable intermediate: a diff, a structured payload, or a set
+of cited claims. Then let automated validators gate execution. If the
+diff is too large, the citations don’t resolve, the quote can’t be found
+in the source text, or the numbers don’t match the referenced table, the
+system rejects the run and forces a retry or escalation.
+
+A lot of campaign work can be fault-recoverable by default if you design
+validation as an unavoidable step in the workflow rather than an
+optional one.
+
+#### Fault-Intolerant
+
+Faults turn into failures because the system lacks detection,
+prevention, or safe rollback. The worst version is silent wrongness. It
+looks correct, so people trust it and act on it.
+
+In 2024, New York City rolled out
+[MyCity](https://www.reuters.com/technology/new-york-city-defends-ai-chatbot-that-advised-entrepreneurs-break-laws-2024-04-04/),
+an AI chatbot intended to help small-business owners navigate city
+rules. It was caught giving confident, incorrect guidance that could
+have pushed people into violating discrimination laws. The wrongness
+arrived through an authoritative interface, with no provenance and no
+checkpoint before people acted. The system made it easy to trust and
+hard to verify.
+
+Campaigns have plenty of analogous workflows:
+
+- **Auto-posting to social without review.** Wrong content becomes a
+  press story.  
+- **An auto-generated metrics deck treated as ground truth.** Bad
+  numbers drive bad decisions for weeks before anyone notices.  
+- **Silent bulk updates.** An agent (or even a human) tags or edits the
+  wrong universe in a CRM, and the error only shows up downstream.
+
+The danger shape is “generate, then act” with nothing reliable in
+between. If it’s irreversible, believable, and scalable, assume it’s
+fault-intolerant until you’ve built the system to tolerate it or recover
+from it.
+
+### Three Fault Classes
+
+Three kinds of AI mistakes deserve specific attention because they map
+cleanly to different controls.
+
+#### Fabricated Facts, Numbers, and Quotes
+
+The model invents a polling number, a fundraising total, a policy stat,
+a vote percentage. Or worse, it produces a “quote” that sounds real but
+is misattributed, out of context, or entirely invented.
+
+The output is believable and shareable, which means humans propagate it.
+By the time someone checks, it’s already in the talking points. Oppo
+research “findings” get repeated in a press call before verification,
+and now you’ve spread misinformation with your name on it.
+
+Anything treated as factual should be source-grounded. Instead of
+deploying an agent to analyze a data store and narrate the trends, have
+it write a Python script or SQL query to analyze the data. If the code
+is wrong, it errors out with a visible fault. Then validate the result:
+the query must run, the counts must reconcile, totals must match known
+control numbers, and the output must be reproducible. Code gives you
+checkable invariants and a repeatable pipeline. Free-form narration
+gives you plausible-sounding prose with nothing to verify against.
+
+#### Misapplied Rules and Procedures
+
+The model gives confident but wrong guidance on compliance requirements,
+field standard operating procedures, data handling rules, or platform
+policies. Staff treat it as an oracle. Someone does the wrong thing
+because the AI told them to.
+
+One wrong answer about disclaimer requirements becomes a pattern across
+dozens of pieces of content before anyone catches it. The liability
+compounds.
+
+Require explicit authority gates before procedural guidance becomes
+action. Legal, compliance, or field lead signoff. Constrain the agent to
+a closed corpus so it can only answer based on uploaded documents like
+the employee handbook or the process guide, and require it to cite them.
+Never deploy as a self-serve compliance oracle with no human checkpoint.
+
+#### Persona and Context Fabrication
+
+The model invents voter traits or preferences. It backfills missing
+context with plausible-sounding but made-up details. It confuses two
+real people or “completes” a record with guessed attributes.
+
+In explicitly fictional contexts this is fine. Training simulations
+benefit from invented personas. Voter contact based on fabricated
+attributes is a different story entirely.
+
+Enforce hard boundaries between synthetic personas and real records.
+Inferred attributes can be valuable in production data, but they need to
+carry their provenance with them. Label them as inferred, make them easy
+to review in bulk, and make them easy to roll back. More importantly,
+downstream systems that automate based on these fields need to respect
+the distinction. An inferred tag can inform a draft or surface a
+recommendation for review. But be thoughtful about whether it should
+trigger automated outreach. If a staffer can’t tell at a glance which
+fields came from a source and which came from a model, or if an
+automated workflow treats both the same, you’ve rebuilt the
+fault-intolerant pattern with extra steps.
+
+### When AI Can Push the Buttons
+
+When the system can take actions, not just produce text, the fault
+tolerance calculus changes.
+
+**Blast radius goes up.** A chatbot hallucination affects one person
+reading one output. An agent hallucination can propagate across hundreds
+of records or thousands of messages before anyone notices.
+
+**Silent failures become common.** With a chatbot, you see the output.
+With an agent, you might only see “task completed.” The action happened,
+but you don’t know if it happened correctly. It “worked” but changed the
+wrong thing.
+
+**Compounding harm becomes possible.** One bad assumption early in an
+agent workflow can cascade into many downstream actions. The agent
+tagged a segment wrong, then drafted messages to that segment, then
+scheduled those messages, each step building on the original error.
+
+So the question every campaign needs to answer for every workflow: what
+can this thing touch, and under what conditions?
+
+### The Permission Ladder
+
+Not all agent capabilities carry the same risk. Think of it as a ladder.
+
+**Read-only agents** retrieve, summarize, and draft. They pull
+information from systems and produce outputs for human review.
+Everything goes through a review gate before it affects anything, which
+makes them naturally compatible with fault-recoverable workflows. This
+is where you start.
+
+**Write agents** update records, tag voters, create documents in shared
+systems. These require recoverability infrastructure. Versioning, audit
+logs, reversible actions. Without those, writes can be silent and
+irreversible, which is the definition of fault-intolerant.
+
+**Send/publish agents** dispatch email, SMS, social posts, or any mass
+communication. Once something reaches an external audience it’s
+effectively irreversible. Approvals, undo windows, staged rollouts, and
+human confirmation before send are the minimum. A [recent
+experiment](https://read.technically.dev/p/i-let-claude-code-autonomously-run)
+where someone gave an agent autonomous control of a Meta Ads account
+with a \$1,500 budget illustrates the risk. The agent iterated on ad
+creative and produced detailed daily reasoning logs, but it optimized
+for cost per lead while ignoring lead quality for over two weeks. It had
+access to the quality data the entire time. It just wasn’t told to look
+at it. The objective was too narrow, and no one had built in a quality
+gate to catch what the metric didn’t measure.
+
+**Compliance, money, and security agents** handle payments, legal
+disclaimers, access controls, data exports. Processing contribution
+refunds, generating FEC disclaimers, managing access to voter file
+exports. Treat these as high-consequence by default. These might be out
+of bounds for your organization.
+
+Start with the minimum permission set. Expand deliberately as you build
+confidence and controls. A workflow that’s been running read-only agents
+successfully for a month may have earned the right to expand to write
+access with guardrails. A workflow that starts at send/publish without
+that foundation has no recovery path when something goes wrong.
+
+### The Shadow AI Trap
+
+If you don’t give staff a safe path to use these tools, they’ll use them
+unsafely in the dark.
+
+People will improvise workarounds in private. Pasting voter data into
+ChatGPT. Running compliance questions through free-tier tools with no
+audit trail. Building workflows that work until they don’t, with no one
+watching.
+
+When there’s no official path to using AI responsibly, people use it
+irresponsibly where you can’t see it. Then something breaks trust in
+public, and you’re explaining to reporters why a compliance violation
+went out on 50,000 mailers or why a fabricated quote made it into a
+press release.
+
+When that happens, someone will want to find the root cause. The
+temptation is to stop at “the staffer made a mistake” or now, “the AI
+made a mistake”. But in almost every case, [the root cause is that your
+processes weren’t robust enough to prevent that
+mistake](https://iamevan.me/blog/the-theory-behind-understanding-failure/#there-is-no-root-cause).
+
+This is why the “no AI” policy doesn’t work. Giving staff clear defaults
+and guardrails keeps experimentation from becoming liability. But
+defaults only work if people use them, which means training, not just
+tooling.
+
+The people already experimenting in the shadows are often the best
+candidates to help build the guardrails.
+
+### What To Do Now
+
+This is a broad map. You don’t need to implement everything at once.
+
+**If you’re in leadership,** the permission ladder is your starting
+framework. Don’t give agents send or publish access until you’ve seen
+them succeed at read-only. Expand deliberately. For party committees and
+major organizations, agentic AI is infrastructure that deserves the same
+rigor as your data or fundraising stack. The permission ladder applies
+to your vendor relationships too. What can your tools read, write, and
+send on your behalf?
+
+**If you’re the person building the first workflows,** start
+fault-recoverable. Agent drafts, human approves before anything
+publishes. Require links to sources. Add sophistication later, after
+you’ve learned where the faults actually show up. Document what works.
+The campaigns and organizations that publish their patterns, what
+failed, what succeeded, what controls they built, become the R&D layer
+for everyone else.
+
+**If you’re a staffer already using ChatGPT in private,** you’re not the
+problem, you’re ahead of the curve. Come forward. Tell your manager you
+want guardrails. Ask for a review process and clear rules about what’s
+okay. The conversation you’re afraid to have is the one that keeps the
+campaign out of the news for the wrong reasons, and it’s also how you
+become the person who shapes how your team uses these tools.
+
+**If you’re a vendor or tool-builder,** audit trails, permission scopes,
+undo windows, and review queues should be defaults, not upsells. The
+campaigns adopting agents seriously will choose platforms that make
+fault-recoverable workflows easy to build.
+
+### The Litmus Test
+
+As you deploy an agent into a campaign workflow, ask:
+
+- Is the output or action reversible? What’s the undo window?  
+- Are failures observable before harm, or silent?  
+- What’s the blast radius if it’s wrong? One draft, or everyone’s
+  phones?  
+- Does the workflow make verification the default path?  
+- Do humans get the context they need at the decision point? Sources,
+  links, diffs?  
+- What can this thing read, write, and send, and is that permission set
+  minimal?
+
+Rule of thumb: if it’s irreversible, believable, and systemic, treat it
+as fault-intolerant until you are confident your system is designed to
+tolerate it or recover from it.
+
+### The Stakes
+
+The “what about hallucinations” objection is usually about something
+deeper than hallucinations. It’s about whether you can rely on something
+you don’t fully understand. That’s legitimate.
+
+Campaigns already run on partial information, [messy
+inputs](https://en.wikipedia.org/wiki/The_American_Voter), and [tools
+that fail at inconvenient
+moments](https://www.nytimes.com/2025/03/01/us/politics/democrats-voter-data.html).
+Agentic AI introduces a new kind of risk because it can scale mistakes
+in ways that a staffer with a spreadsheet can’t. But the discipline for
+handling that risk isn’t new. Define what can go wrong. Build detection
+and recovery. Bound the blast radius. Put humans in the right places
+with the right context.
+
+Waiting for agents that never hallucinate means waiting forever. In the
+meantime, the mechanical work keeps piling up, staffers keep burning
+out, and the campaigns that figure out fault-tolerant and
+fault-recoverable workflows first will compound that advantage cycle
+after cycle.
+
+Faults will happen. Failures don’t have to.

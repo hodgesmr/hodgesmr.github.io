@@ -15,7 +15,172 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.9.36</generator>
-<lastBuildDate>Fri, 20 Mar 2026 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 10 Apr 2026 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>Surviving Hallucinations: AI Fault Tolerance for Campaigns</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>Every conversation about AI in campaigns eventually hits the same wall: <em>what about hallucinations?</em></p>
+<p>It’s a fair question. These models can confidently produce wrong information. They may invent quotes, fabricate statistics, and do it all in the same tone they use to tell you the truth. The problem isn’t hypothetical.</p>
+<p>But “what about hallucinations” usually carries an implied bar where the technology must never produce wrong outputs before we can use it. That’s a bar that will never be met. Not this year, probably not ever. If we treat it as a prerequisite for adoption, then we guarantee paralysis.</p>
+<p>In <a href="https://matthodges.com/posts/2026-01-07-ai-agents-campaigns/">my previous post</a>, I argued that agentic AI can now handle a lot of the mechanical knowledge work that buries campaign staff. The hallucination objection is the most common reason people give for not starting. So it’s worth taking seriously on its own terms.</p>
+<p>Campaigns don’t get the luxury of perfect conditions. You ship under deadline, on messy inputs, with decisions that compound. The practical question around AI becomes whether we can adopt imperfect tools <em>intentionally</em>, in ways that make mistakes visible and cheap to fix, without turning every fault into a public disaster. The good news is yes, we can.</p>
+<p><a href="https://en.wikipedia.org/wiki/Reliability_engineering">Reliability engineering</a> offers a useful frame here, and there’s a well-developed discipline around <a href="https://en.wikipedia.org/wiki/Fault_tolerance">building systems that remain resilient</a> even when individual components aren’t. Campaigns need to borrow it because the payoff is concrete. So much of campaign labor is taking messy piles of inputs and turning them into something a decision-maker can act on. Agents can handle that mechanical work, freeing staff for the judgment, relationships, and persuasion that humans are actually good at. But those gains only hold if the systems around the tools are designed well. The AI companies are <a href="https://www.anthropic.com/research/trustworthy-agents">converging on similar thinking</a>, acknowledging that agent safety depends on the whole system, model and deployment alike. That’s a good sign, but it also means the organizations deploying agents have design work to do on their end.</p>
+<section id="the-automated-staffer" class="level3">
+<h3 class="anchored" data-anchor-id="the-automated-staffer">The Automated Staffer</h3>
+<p>A chatbot can act like a staffer who drafts things for your review. An agent can act like a staffer who can also push the buttons.</p>
+<p>The second one needs more supervision, not less. But you wouldn’t refuse to hire staff because they might make mistakes. You’d build workflows that catch mistakes before they matter. You’d give a new hire a review process, a style guide, limited permissions, and a manager who checks their work before it goes out the door. Agents deserve the same treatment.</p>
+<p>Reliability isn’t the absence of failure. Reliability is what happens when things go wrong.</p>
+</section>
+<section id="faults-errors-and-failures" class="level3">
+<h3 class="anchored" data-anchor-id="faults-errors-and-failures">Faults, Errors, and Failures</h3>
+<p>Engineers who build reliable systems distinguish between three things:</p>
+<ul>
+<li>A <strong>fault</strong> is a cause. Something goes wrong inside the system.<br>
+</li>
+<li>An <strong>error</strong> is an incorrect internal state or output. The system produces something wrong.<br>
+</li>
+<li>A <strong>failure</strong> is when that error escapes the system boundary and causes harm.</li>
+</ul>
+<p>The goal is to prevent faults from becoming failures. You’ll never eliminate faults entirely.</p>
+<p>A useful way to think about “hallucinations” is as a fault-to-error chain. The <strong>fault</strong> is that an LLM component can operate with missing or ambiguous grounding, whether that’s a bad retrieval result, a failed tool call, or a prompt that under-specifies what “true” means. The <strong>error</strong> is what you see: a fluent, confident claim that isn’t actually supported. Whether that error becomes a <strong>failure</strong> depends on what happens next. Is there a review step? Can the wrongness be detected? Can it be undone?</p>
+<p>Campaign workflows are socio-technical systems. Tools plus people plus process plus incentives. When we talk about <a href="https://en.wikipedia.org/wiki/Human-in-the-loop">human-in-the-loop</a> we need to mean that humans aren’t external “reviewers” bolted onto the end. They’re part of the system’s detection and recovery mechanisms.</p>
+<p>The important design work is in what happens <em>before</em> a human ever sees the output. The best workflows don’t rely on a busy staffer noticing a subtle error in polished prose. They rely on guardrails that automatically block, flag, or constrain entire classes of failure through provenance requirements, schema checks, permission boundaries, and rollback-by-default execution. Humans become the final layer, not the first and only.</p>
+<p>So the design question is whether the workflow reliably puts a human in the right place, with the right context, before the output can matter. Picture a staffer staring at a polished paragraph with no sources, at 1am, with a launch deadline at 7am. That’s a coin flip at best. Now picture a Comms Director reviewing a draft that includes links to sources, highlighted claims, and a clean diff against the previous draft, with a clear review runbook. That’s a system.</p>
+</section>
+<section id="recovering-from-a-near-miss" class="level3">
+<h3 class="anchored" data-anchor-id="recovering-from-a-near-miss">Recovering From a Near-Miss</h3>
+<p>Consider this scenario: A Field Director asks an agent to pull canvass notes from the previous week and identify patterns. The agent clusters the notes and surfaces a theme: <em>“Voters in precinct 12 are concerned about the new development on Oak Street.”</em> Except there’s no development on Oak Street. The agent conflated two different conversations, one about a proposed rezoning and one about road construction, and invented a coherent narrative that didn’t exist.</p>
+<p>But the workflow caught it before anyone had to. The system automatically checked whether the cited canvass notes actually contained the claims the summary made. The notes didn’t mention any “development on Oak Street,” so the summary arrived on the Field Director’s screen with that claim flagged. Because the output included links to sources, the Field Director didn’t have to take the summary on faith the way she would have with a clean paragraph and no provenance. She clicked through, confirmed the mismatch in thirty seconds, and corrected it before it went to the Campaign Manager. No one sent organizers to knock doors about a fictional construction project.</p>
+<p>Synthesizing a coherent narrative from fifty scattered canvass notes is open-ended, exactly the kind of work where LLMs confabulate. Checking whether a specific source document contains a specific claim is far more constrained. The model has the text in front of it and the question is narrow. “Does note #37 mention a development on Oak Street?” is a much easier question to answer reliably than “what are voters in precinct 12 worried about?” Same reason you’d trust a staffer to verify a quote appears in a document even if you wouldn’t trust them to write the analysis.</p>
+<p>The fault happened. The error was visible. The system did triage before a human ever had to. The human had context and the means to verify. The correction was cheap. And the Field Director still got a usable summary of fifty canvass notes in minutes, work that would have taken an afternoon by hand. That’s an example of fault-recoverable design doing its job. The agent did real work. The system caught the one thing it got wrong.</p>
+</section>
+<section id="three-system-postures" class="level3">
+<h3 class="anchored" data-anchor-id="three-system-postures">Three System Postures</h3>
+<p>Every workflow falls into one of three postures, and most campaigns have no idea which one they’re in.</p>
+<section id="fault-tolerant" class="level4">
+<h4 class="anchored" data-anchor-id="fault-tolerant">Fault-Tolerant</h4>
+<p>The system keeps working at an acceptable level even when faults happen. Quality drops, but it doesn’t break. Think of a video call that drops to audio-only when bandwidth dips. You lose fidelity, not function.</p>
+<p>For campaign AI work, fault tolerance means some weirdness is acceptable because it doesn’t change the real outcome. You’re using a training simulation for new canvassers. The model invents a detail, <em>“she mentioned her three dogs,”</em> when no such thing was in the scenario. Does it matter? The training objective is practicing conversation technique, not memorizing fake voter details. The fault is tolerable because the purpose survives.</p>
+</section>
+<section id="fault-recoverable" class="level4">
+<h4 class="anchored" data-anchor-id="fault-recoverable">Fault-Recoverable</h4>
+<p>The system may produce wrongness, but it makes that wrongness visible and makes fixing it cheap. When you type a shipping address into an online checkout, the form sometimes suggests a corrected version. You see the suggestion, fix it if it’s wrong, and confirm before anything ships. The fault is visible, the fix is trivial, and the workflow puts confirmation before action.</p>
+<p>This is the posture most campaign AI work should target first. The agent drafts a canvass script, staff reviews and deploys. The agent summarizes a policy document, comms and policy leads check it before publishing. The agent clusters canvass notes, the field director sanity-checks before circulating insights.</p>
+<p>Each of these is the same pattern of taking a messy pile of inputs, turning it into something legible, then presenting it to a human who can take action. The agent handles the mechanical work in minutes. The review step takes a fraction of that. Staff get time back for the things that actually win campaigns.</p>
+<p>Fault-recoverable doesn’t have to mean “a person reads everything.” Sometimes it means requiring the agent to produce artifacts the system can validate automatically. Instead of asking for a narrative, require a machine-checkable intermediate: a diff, a structured payload, or a set of cited claims. Then let automated validators gate execution. If the diff is too large, the citations don’t resolve, the quote can’t be found in the source text, or the numbers don’t match the referenced table, the system rejects the run and forces a retry or escalation.</p>
+<p>A lot of campaign work can be fault-recoverable by default if you design validation as an unavoidable step in the workflow rather than an optional one.</p>
+</section>
+<section id="fault-intolerant" class="level4">
+<h4 class="anchored" data-anchor-id="fault-intolerant">Fault-Intolerant</h4>
+<p>Faults turn into failures because the system lacks detection, prevention, or safe rollback. The worst version is silent wrongness. It looks correct, so people trust it and act on it.</p>
+<p>In 2024, New York City rolled out <a href="https://www.reuters.com/technology/new-york-city-defends-ai-chatbot-that-advised-entrepreneurs-break-laws-2024-04-04/">MyCity</a>, an AI chatbot intended to help small-business owners navigate city rules. It was caught giving confident, incorrect guidance that could have pushed people into violating discrimination laws. The wrongness arrived through an authoritative interface, with no provenance and no checkpoint before people acted. The system made it easy to trust and hard to verify.</p>
+<p>Campaigns have plenty of analogous workflows:</p>
+<ul>
+<li><strong>Auto-posting to social without review.</strong> Wrong content becomes a press story.<br>
+</li>
+<li><strong>An auto-generated metrics deck treated as ground truth.</strong> Bad numbers drive bad decisions for weeks before anyone notices.<br>
+</li>
+<li><strong>Silent bulk updates.</strong> An agent (or even a human) tags or edits the wrong universe in a CRM, and the error only shows up downstream.</li>
+</ul>
+<p>The danger shape is “generate, then act” with nothing reliable in between. If it’s irreversible, believable, and scalable, assume it’s fault-intolerant until you’ve built the system to tolerate it or recover from it.</p>
+</section>
+</section>
+<section id="three-fault-classes" class="level3">
+<h3 class="anchored" data-anchor-id="three-fault-classes">Three Fault Classes</h3>
+<p>Three kinds of AI mistakes deserve specific attention because they map cleanly to different controls.</p>
+<section id="fabricated-facts-numbers-and-quotes" class="level4">
+<h4 class="anchored" data-anchor-id="fabricated-facts-numbers-and-quotes">Fabricated Facts, Numbers, and Quotes</h4>
+<p>The model invents a polling number, a fundraising total, a policy stat, a vote percentage. Or worse, it produces a “quote” that sounds real but is misattributed, out of context, or entirely invented.</p>
+<p>The output is believable and shareable, which means humans propagate it. By the time someone checks, it’s already in the talking points. Oppo research “findings” get repeated in a press call before verification, and now you’ve spread misinformation with your name on it.</p>
+<p>Anything treated as factual should be source-grounded. Instead of deploying an agent to analyze a data store and narrate the trends, have it write a Python script or SQL query to analyze the data. If the code is wrong, it errors out with a visible fault. Then validate the result: the query must run, the counts must reconcile, totals must match known control numbers, and the output must be reproducible. Code gives you checkable invariants and a repeatable pipeline. Free-form narration gives you plausible-sounding prose with nothing to verify against.</p>
+</section>
+<section id="misapplied-rules-and-procedures" class="level4">
+<h4 class="anchored" data-anchor-id="misapplied-rules-and-procedures">Misapplied Rules and Procedures</h4>
+<p>The model gives confident but wrong guidance on compliance requirements, field standard operating procedures, data handling rules, or platform policies. Staff treat it as an oracle. Someone does the wrong thing because the AI told them to.</p>
+<p>One wrong answer about disclaimer requirements becomes a pattern across dozens of pieces of content before anyone catches it. The liability compounds.</p>
+<p>Require explicit authority gates before procedural guidance becomes action. Legal, compliance, or field lead signoff. Constrain the agent to a closed corpus so it can only answer based on uploaded documents like the employee handbook or the process guide, and require it to cite them. Never deploy as a self-serve compliance oracle with no human checkpoint.</p>
+</section>
+<section id="persona-and-context-fabrication" class="level4">
+<h4 class="anchored" data-anchor-id="persona-and-context-fabrication">Persona and Context Fabrication</h4>
+<p>The model invents voter traits or preferences. It backfills missing context with plausible-sounding but made-up details. It confuses two real people or “completes” a record with guessed attributes.</p>
+<p>In explicitly fictional contexts this is fine. Training simulations benefit from invented personas. Voter contact based on fabricated attributes is a different story entirely.</p>
+<p>Enforce hard boundaries between synthetic personas and real records. Inferred attributes can be valuable in production data, but they need to carry their provenance with them. Label them as inferred, make them easy to review in bulk, and make them easy to roll back. More importantly, downstream systems that automate based on these fields need to respect the distinction. An inferred tag can inform a draft or surface a recommendation for review. But be thoughtful about whether it should trigger automated outreach. If a staffer can’t tell at a glance which fields came from a source and which came from a model, or if an automated workflow treats both the same, you’ve rebuilt the fault-intolerant pattern with extra steps.</p>
+</section>
+</section>
+<section id="when-ai-can-push-the-buttons" class="level3">
+<h3 class="anchored" data-anchor-id="when-ai-can-push-the-buttons">When AI Can Push the Buttons</h3>
+<p>When the system can take actions, not just produce text, the fault tolerance calculus changes.</p>
+<p><strong>Blast radius goes up.</strong> A chatbot hallucination affects one person reading one output. An agent hallucination can propagate across hundreds of records or thousands of messages before anyone notices.</p>
+<p><strong>Silent failures become common.</strong> With a chatbot, you see the output. With an agent, you might only see “task completed.” The action happened, but you don’t know if it happened correctly. It “worked” but changed the wrong thing.</p>
+<p><strong>Compounding harm becomes possible.</strong> One bad assumption early in an agent workflow can cascade into many downstream actions. The agent tagged a segment wrong, then drafted messages to that segment, then scheduled those messages, each step building on the original error.</p>
+<p>So the question every campaign needs to answer for every workflow: what can this thing touch, and under what conditions?</p>
+</section>
+<section id="the-permission-ladder" class="level3">
+<h3 class="anchored" data-anchor-id="the-permission-ladder">The Permission Ladder</h3>
+<p>Not all agent capabilities carry the same risk. Think of it as a ladder.</p>
+<p><strong>Read-only agents</strong> retrieve, summarize, and draft. They pull information from systems and produce outputs for human review. Everything goes through a review gate before it affects anything, which makes them naturally compatible with fault-recoverable workflows. This is where you start.</p>
+<p><strong>Write agents</strong> update records, tag voters, create documents in shared systems. These require recoverability infrastructure. Versioning, audit logs, reversible actions. Without those, writes can be silent and irreversible, which is the definition of fault-intolerant.</p>
+<p><strong>Send/publish agents</strong> dispatch email, SMS, social posts, or any mass communication. Once something reaches an external audience it’s effectively irreversible. Approvals, undo windows, staged rollouts, and human confirmation before send are the minimum. A <a href="https://read.technically.dev/p/i-let-claude-code-autonomously-run">recent experiment</a> where someone gave an agent autonomous control of a Meta Ads account with a $1,500 budget illustrates the risk. The agent iterated on ad creative and produced detailed daily reasoning logs, but it optimized for cost per lead while ignoring lead quality for over two weeks. It had access to the quality data the entire time. It just wasn’t told to look at it. The objective was too narrow, and no one had built in a quality gate to catch what the metric didn’t measure.</p>
+<p><strong>Compliance, money, and security agents</strong> handle payments, legal disclaimers, access controls, data exports. Processing contribution refunds, generating FEC disclaimers, managing access to voter file exports. Treat these as high-consequence by default. These might be out of bounds for your organization.</p>
+<p>Start with the minimum permission set. Expand deliberately as you build confidence and controls. A workflow that’s been running read-only agents successfully for a month may have earned the right to expand to write access with guardrails. A workflow that starts at send/publish without that foundation has no recovery path when something goes wrong.</p>
+</section>
+<section id="the-shadow-ai-trap" class="level3">
+<h3 class="anchored" data-anchor-id="the-shadow-ai-trap">The Shadow AI Trap</h3>
+<p>If you don’t give staff a safe path to use these tools, they’ll use them unsafely in the dark.</p>
+<p>People will improvise workarounds in private. Pasting voter data into ChatGPT. Running compliance questions through free-tier tools with no audit trail. Building workflows that work until they don’t, with no one watching.</p>
+<p>When there’s no official path to using AI responsibly, people use it irresponsibly where you can’t see it. Then something breaks trust in public, and you’re explaining to reporters why a compliance violation went out on 50,000 mailers or why a fabricated quote made it into a press release.</p>
+<p>When that happens, someone will want to find the root cause. The temptation is to stop at “the staffer made a mistake” or now, “the AI made a mistake”. But in almost every case, <a href="https://iamevan.me/blog/the-theory-behind-understanding-failure/#there-is-no-root-cause">the root cause is that your processes weren’t robust enough to prevent that mistake</a>.</p>
+<p>This is why the “no AI” policy doesn’t work. Giving staff clear defaults and guardrails keeps experimentation from becoming liability. But defaults only work if people use them, which means training, not just tooling.</p>
+<p>The people already experimenting in the shadows are often the best candidates to help build the guardrails.</p>
+</section>
+<section id="what-to-do-now" class="level3">
+<h3 class="anchored" data-anchor-id="what-to-do-now">What To Do Now</h3>
+<p>This is a broad map. You don’t need to implement everything at once.</p>
+<p><strong>If you’re in leadership,</strong> the permission ladder is your starting framework. Don’t give agents send or publish access until you’ve seen them succeed at read-only. Expand deliberately. For party committees and major organizations, agentic AI is infrastructure that deserves the same rigor as your data or fundraising stack. The permission ladder applies to your vendor relationships too. What can your tools read, write, and send on your behalf?</p>
+<p><strong>If you’re the person building the first workflows,</strong> start fault-recoverable. Agent drafts, human approves before anything publishes. Require links to sources. Add sophistication later, after you’ve learned where the faults actually show up. Document what works. The campaigns and organizations that publish their patterns, what failed, what succeeded, what controls they built, become the R&amp;D layer for everyone else.</p>
+<p><strong>If you’re a staffer already using ChatGPT in private,</strong> you’re not the problem, you’re ahead of the curve. Come forward. Tell your manager you want guardrails. Ask for a review process and clear rules about what’s okay. The conversation you’re afraid to have is the one that keeps the campaign out of the news for the wrong reasons, and it’s also how you become the person who shapes how your team uses these tools.</p>
+<p><strong>If you’re a vendor or tool-builder,</strong> audit trails, permission scopes, undo windows, and review queues should be defaults, not upsells. The campaigns adopting agents seriously will choose platforms that make fault-recoverable workflows easy to build.</p>
+</section>
+<section id="the-litmus-test" class="level3">
+<h3 class="anchored" data-anchor-id="the-litmus-test">The Litmus Test</h3>
+<p>As you deploy an agent into a campaign workflow, ask:</p>
+<ul>
+<li>Is the output or action reversible? What’s the undo window?<br>
+</li>
+<li>Are failures observable before harm, or silent?<br>
+</li>
+<li>What’s the blast radius if it’s wrong? One draft, or everyone’s phones?<br>
+</li>
+<li>Does the workflow make verification the default path?<br>
+</li>
+<li>Do humans get the context they need at the decision point? Sources, links, diffs?<br>
+</li>
+<li>What can this thing read, write, and send, and is that permission set minimal?</li>
+</ul>
+<p>Rule of thumb: if it’s irreversible, believable, and systemic, treat it as fault-intolerant until you are confident your system is designed to tolerate it or recover from it.</p>
+</section>
+<section id="the-stakes" class="level3">
+<h3 class="anchored" data-anchor-id="the-stakes">The Stakes</h3>
+<p>The “what about hallucinations” objection is usually about something deeper than hallucinations. It’s about whether you can rely on something you don’t fully understand. That’s legitimate.</p>
+<p>Campaigns already run on partial information, <a href="https://en.wikipedia.org/wiki/The_American_Voter">messy inputs</a>, and <a href="https://www.nytimes.com/2025/03/01/us/politics/democrats-voter-data.html">tools that fail at inconvenient moments</a>. Agentic AI introduces a new kind of risk because it can scale mistakes in ways that a staffer with a spreadsheet can’t. But the discipline for handling that risk isn’t new. Define what can go wrong. Build detection and recovery. Bound the blast radius. Put humans in the right places with the right context.</p>
+<p>Waiting for agents that never hallucinate means waiting forever. In the meantime, the mechanical work keeps piling up, staffers keep burning out, and the campaigns that figure out fault-tolerant and fault-recoverable workflows first will compound that advantage cycle after cycle.</p>
+<p>Faults will happen. Failures don’t have to.</p>
+
+
+</section>
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/</guid>
+  <pubDate>Fri, 10 Apr 2026 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/ai-politics-fault-tolerant.jpeg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>The Feed Framed the Last Election and AI Answers Will Frame the Next</title>
   <dc:creator>Matt Hodges</dc:creator>
@@ -6472,951 +6637,6 @@ font-style: inherit;">'/tmp/data.dsv'</span>)</span>
   <guid>https://matthodges.com/posts/2024-08-08-spline-pchip/</guid>
   <pubDate>Thu, 08 Aug 2024 05:00:00 GMT</pubDate>
   <media:content url="https://matthodges.com/posts/2024-08-08-spline-pchip/pchip-annotated.png" medium="image" type="image/png" height="97" width="144"/>
-</item>
-<item>
-  <title>Austin, Texas: Hot or Not?</title>
-  <dc:creator>Matt Hodges</dc:creator>
-  <link>https://matthodges.com/posts/2024-07-30-austin-hot-or-not/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>I live in Austin, Texas. And last summer I felt like:</p>
-<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/so-damn-hot.webp" class="img-fluid" alt="It's so damn hot"></p>
-<p>But this year, I’ve felt more like:</p>
-<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/white-claw.webp" class="img-fluid" alt="White Claw"></p>
-<p>And earlier today I thought aloud to the group chat:</p>
-<blockquote class="blockquote">
-<p>I need to look up if Austin is being weird this year. Last year we got to like 50 consecutive days over 100. I don’t think we’ve cracked 100 yet this year? Is there a website that answers this question?</p>
-</blockquote>
-<p>Last year the heat was so bad that local news outlets were keeping a <a href="https://www.kxan.com/weather/weather-blog/july-2023-100-degrees-streak/">running tally</a> of how many consecutive days we broke 100°F. It turns out we had 45 straight days of triple-digit heat in 2023, which began on July 8 and continued through August 22. I’m writing this on July 30, 2024 and I can’t recall a single day above 100°F yet this year.</p>
-<p>Year-vs-year location based time series temperature data absolutely seems like a thing that should exist. Every month or so someone posts the updated <a href="https://www.nytimes.com/2023/09/07/learning/whats-going-on-in-this-graph-sept-13-2023.html">doom surface air temperature graph</a>, so surely I can just look that data up for my location, right?</p>
-<p>On <a href="https://weather.gov">weather.gov</a> you can get your <a href="https://www.weather.gov/ewx/climategraphs">own version of this graph</a>. Pretty cool! But only for the current year:</p>
-<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/austin-bergstrom-temps-2024.png" class="img-fluid" alt="Austin/San Antonio WFO Climate Graphs"></p>
-<p>You can also get tabular historic data within monthly windows that sometimes come as html and sometimes come as PDF. Also cool. But not convenient:</p>
-<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/austin-tabular-weather.png" class="img-fluid" alt="Climatological Data for Austin-Bergstrom Airport Area, TX - June 2024"></p>
-<p>After about 15 minutes of clicking, I couldn’t find a great way to generate the viz I was looking for; and I couldn’t get an easy data export. Maybe there’s a one-click way to get CSVs, but I didn’t find it. But after about 5 more minutes of googling, I did find the National Oceanic and Atmostpheric Administration’s <a href="https://www.ncei.noaa.gov/cdo-web/">Climate Data Online</a> portal, which has an <a href="https://www.ncdc.noaa.gov/cdo-web/webservices/v2">API</a>.</p>
-<blockquote class="blockquote">
-<p>NCDC’s Climate Data Online (CDO) offers web services that provide access to current data. This API is for developers looking to create their own scripts or programs that use the CDO database of weather and climate data.</p>
-</blockquote>
-<p>Hey, that sounds like me!</p>
-<p>The API needs an <a href="https://www.ncdc.noaa.gov/cdo-web/token">access token</a>. Wonderfully, all I needed to do was type in my email address and roughly one second later an access token landed in my inbox. LFG.</p>
-<p>From here it took a bit more reading to grok what data is available and in what formats, but I eventually found out about GHCND, or the <a href="https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily">Global Historical Climatology Network daily</a>:</p>
-<blockquote class="blockquote">
-<p>The Global Historical Climatology Network daily (GHCNd) is an integrated database of daily climate summaries from land surface stations across the globe. GHCNd is made up of daily climate records from numerous sources that have been integrated and subjected to a common suite of quality assurance reviews.</p>
-</blockquote>
-<p>That sounds like it might contain what I’m looking for.</p>
-<p>Next, there are a lot of ways to filter this data by location, but <code>stationid</code> caught my attention. I found <a href="https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt">this list of GHCND stations</a> and decided to go with <code>AUSTIN BERGSTROM INTL AP</code> because it’s the same location from the tabular data above. It has the identifier <code>USW00013904</code>.</p>
-<p>After a quick <code>pip install requests pandas matplotlib</code> and tossing my token into a <code>NCDC_CDO_TOKEN</code> environment variable, we’re ready to jam.</p>
-<p>First let’s get a function to grab some data. I’m intersted in comparing year over year, so let’s grab a year at a time.</p>
-<div id="1b1947dc" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> os</span>
-<span id="cb1-2"></span>
-<span id="cb1-3"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> matplotlib.patches <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> mpatches</span>
-<span id="cb1-4"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">from</span> matplotlib <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> pyplot <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> plt</span>
-<span id="cb1-5"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> pd</span>
-<span id="cb1-6"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> requests</span>
-<span id="cb1-7"></span>
-<span id="cb1-8"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> get_max_temps(year, limit<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">366</span>):</span>
-<span id="cb1-9">    token <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> os.getenv(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"NCDC_CDO_TOKEN"</span>)</span>
-<span id="cb1-10">    start_date <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>year<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">-01-01"</span></span>
-<span id="cb1-11">    end_date <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>year<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">-12-31"</span></span>
-<span id="cb1-12">    url <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"https://www.ncdc.noaa.gov/cdo-web/api/v2/data"</span></span>
-<span id="cb1-13">    params <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> {</span>
-<span id="cb1-14">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"datasetid"</span>: <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"GHCND"</span>,</span>
-<span id="cb1-15">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"stationid"</span>: <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"GHCND:USW00013904"</span>,</span>
-<span id="cb1-16">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"startdate"</span>: start_date,</span>
-<span id="cb1-17">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"enddate"</span>: end_date,</span>
-<span id="cb1-18">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"datatypeid"</span>: <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"TMAX"</span>,  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># max temp</span></span>
-<span id="cb1-19">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"units"</span>: <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"standard"</span>,  <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># 🇺🇸</span></span>
-<span id="cb1-20">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"limit"</span>: limit,  </span>
-<span id="cb1-21">    }</span>
-<span id="cb1-22">    headers <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> {</span>
-<span id="cb1-23">        <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"token"</span>: token  </span>
-<span id="cb1-24">    }</span>
-<span id="cb1-25"></span>
-<span id="cb1-26">    response <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> requests.get(url, headers<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>headers, params<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>params)</span>
-<span id="cb1-27">    data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> response.json()</span>
-<span id="cb1-28">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> data</span></code></pre></div></div>
-</div>
-<p>Let’s look at the first three:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">get_max_temps(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2024</span>, limit<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span>)</span></code></pre></div></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb3-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">{</span></span>
-<span id="cb3-2">    <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"metadata"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">{</span></span>
-<span id="cb3-3">        <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"resultset"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">{</span></span>
-<span id="cb3-4">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"offset"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-5">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"count"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">209</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-6">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"limit"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span></span>
-<span id="cb3-7">        <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">}</span></span>
-<span id="cb3-8">    <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">},</span></span>
-<span id="cb3-9">    <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"results"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">[</span></span>
-<span id="cb3-10">        <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">{</span></span>
-<span id="cb3-11">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"date"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2024-01-01T00:00:00"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-12">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"datatype"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"TMAX"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-13">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"station"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"GHCND:USW00013904"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-14">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"attributes"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">",,W,2400"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-15">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"value"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">58.0</span></span>
-<span id="cb3-16">        <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">}</span><span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-17">        <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">{</span></span>
-<span id="cb3-18">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"date"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2024-01-02T00:00:00"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-19">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"datatype"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"TMAX"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-20">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"station"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"GHCND:USW00013904"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-21">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"attributes"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">",,W,2400"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-22">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"value"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">53.0</span></span>
-<span id="cb3-23">        <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">}</span><span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-24">        <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">{</span></span>
-<span id="cb3-25">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"date"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2024-01-03T00:00:00"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-26">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"datatype"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"TMAX"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-27">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"station"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"GHCND:USW00013904"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-28">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"attributes"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">",,W,2400"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">,</span></span>
-<span id="cb3-29">            <span class="dt" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">"value"</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">:</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">51.0</span></span>
-<span id="cb3-30">        <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">}</span></span>
-<span id="cb3-31">    <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">]</span></span>
-<span id="cb3-32"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">}</span></span></code></pre></div></div>
-<p>Great! We can pull from the <code>date</code> and the <code>value</code> fields. Let’s grab all of 2024 and shove it into a DataFrame.</p>
-<div id="6b48b882" class="cell" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> to_df(data):</span>
-<span id="cb4-2">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Extract date and truncate off the time part</span></span>
-<span id="cb4-3">    dates <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> [item[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"date"</span>][:<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>] <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> item <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> data[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"results"</span>]]</span>
-<span id="cb4-4"></span>
-<span id="cb4-5">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Grab the max temp value for each date</span></span>
-<span id="cb4-6">    max_temps <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> [item[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"value"</span>] <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> item <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> data[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"results"</span>]]</span>
-<span id="cb4-7"></span>
-<span id="cb4-8">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a DataFrame</span></span>
-<span id="cb4-9">    df <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> pd.DataFrame({<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"date"</span>: dates,<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"max_temp"</span>: max_temps})</span>
-<span id="cb4-10"></span>
-<span id="cb4-11">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Set the `date` col as a datetime and make it the index</span></span>
-<span id="cb4-12">    df[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"date"</span>] <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> pd.to_datetime(df[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"date"</span>])</span>
-<span id="cb4-13">    df.set_index(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"date"</span>, inplace<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">True</span>)</span>
-<span id="cb4-14">    </span>
-<span id="cb4-15">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> df</span></code></pre></div></div>
-</div>
-<p>Quick spot check:</p>
-<div id="3ead4ccd" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">df_2024 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> to_df(get_max_temps(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2024</span>))</span>
-<span id="cb5-2"></span>
-<span id="cb5-3"><span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f"Head:</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\n</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>df_2024<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span>head()<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"</span>)</span>
-<span id="cb5-4"><span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f"Tail:</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\n</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>df_2024<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span>tail()<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"</span>)</span>
-<span id="cb5-5"><span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">f"Format:</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\n</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">{</span>df_2024<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.</span>dtypes<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">}</span><span class="ss" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"</span>)</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Head:
-            max_temp
-date                
-2024-01-01      58.0
-2024-01-02      53.0
-2024-01-03      51.0
-2024-01-04      58.0
-2024-01-05      67.0
-Tail:
-            max_temp
-date                
-2024-07-23      82.0
-2024-07-24      89.0
-2024-07-25      88.0
-2024-07-26      89.0
-2024-07-27      86.0
-Format:
-max_temp    float64
-dtype: object</code></pre>
-</div>
-</div>
-<p>Awesome. I’m writing this on <code>2024-07-30</code> and it’s got data up through <code>2024-07-27</code>. Good enough for me!</p>
-<p>Now to actually get at what I was trying to do this whole time. I’m going to grab DataFrames for 2023 and 2024, and plot a time series of each.</p>
-<div id="23460fda" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">df_2023 <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> to_df(get_max_temps(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2023</span>))</span>
-<span id="cb7-2"></span>
-<span id="cb7-3"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Adjust 2023 dates to match the 2024 index</span></span>
-<span id="cb7-4"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># This is how we shift the graph to overlap</span></span>
-<span id="cb7-5"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># If you don't do this, 2024 comes after, not on top of, 2023</span></span>
-<span id="cb7-6">df_2023.index <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> df_2023.index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">map</span>(<span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">lambda</span> x: x.replace(year<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2024</span>))</span>
-<span id="cb7-7"></span>
-<span id="cb7-8"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Plot the data</span></span>
-<span id="cb7-9">fig, ax <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> plt.subplots(figsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">6</span>))</span>
-<span id="cb7-10">df_2023.plot(ax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>ax, color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"black"</span>, legend<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2023"</span>)</span>
-<span id="cb7-11">df_2024.plot(ax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>ax, color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"red"</span>, legend<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2024"</span>)</span>
-<span id="cb7-12"></span>
-<span id="cb7-13"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Sett x-axis to display month labels</span></span>
-<span id="cb7-14">ax.set_xticks(</span>
-<span id="cb7-15">    pd.date_range(</span>
-<span id="cb7-16">        start<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>df_2023.index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">min</span>(),</span>
-<span id="cb7-17">        end<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>df_2023.index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">max</span>(),</span>
-<span id="cb7-18">        freq<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'MS'</span>,</span>
-<span id="cb7-19">    )</span>
-<span id="cb7-20">)</span>
-<span id="cb7-21">ax.set_xticklabels(</span>
-<span id="cb7-22">    pd.date_range(</span>
-<span id="cb7-23">        start<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>df_2023.index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">min</span>(),</span>
-<span id="cb7-24">        end<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>df_2023.index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">max</span>(),</span>
-<span id="cb7-25">        freq<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'MS'</span>,</span>
-<span id="cb7-26">    ).strftime(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'%B'</span>)</span>
-<span id="cb7-27">)</span>
-<span id="cb7-28"></span>
-<span id="cb7-29"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Formatting</span></span>
-<span id="cb7-30">black_patch <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> mpatches.Patch(color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"black"</span>, label<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2023"</span>)</span>
-<span id="cb7-31">red_patch <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> mpatches.Patch(color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"red"</span>, label<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2024"</span>)</span>
-<span id="cb7-32">plt.legend(handles<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>[black_patch, red_patch])</span>
-<span id="cb7-33">ax.set_title(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Max Daily Temperatures Recorded in the Austin-Bergstrom Airport Area"</span>)</span>
-<span id="cb7-34">plt.xticks(rotation<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">45</span>)</span>
-<span id="cb7-35"></span>
-<span id="cb7-36">plt.show()</span></code></pre></div></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/index_files/figure-html/cell-5-output-1.svg" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>So that’s pretty cool. Most of 2024 has tracked 2023 for daily high temperatures. But not July. July has been weirdly cooler than last year. Or last year was weirdly hotter than normal.</p>
-<p>Actually, let’s see if we can tease that out. Let’s grab the past 10 years.</p>
-<div id="45f5264e" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> time</span>
-<span id="cb8-2"></span>
-<span id="cb8-3"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Create a dictionary of year:DataFrame</span></span>
-<span id="cb8-4">year_dfs <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> {}</span>
-<span id="cb8-5"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> year <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">range</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2014</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2024</span>):</span>
-<span id="cb8-6">    year_dfs[year] <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> to_df(get_max_temps(year))</span>
-<span id="cb8-7">    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Be a nice internet citizen and wait between requests</span></span>
-<span id="cb8-8">    time.sleep(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>)</span>
-<span id="cb8-9"></span>
-<span id="cb8-10"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Adjust pre-2024 dates to match the 2024 index</span></span>
-<span id="cb8-11"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># This is how we shift the graph to overlap</span></span>
-<span id="cb8-12"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># If you don't do this, 2024 comes after, not on top of, 2023</span></span>
-<span id="cb8-13"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> df <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> year_dfs.values():</span>
-<span id="cb8-14">    df.index <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> df.index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">map</span>(<span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">lambda</span> x: x.replace(year<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2024</span>))</span>
-<span id="cb8-15"></span>
-<span id="cb8-16"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Plot the data</span></span>
-<span id="cb8-17">fig, ax <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> plt.subplots(figsize<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">6</span>))</span>
-<span id="cb8-18"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> year, df <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> year_dfs.items():</span>
-<span id="cb8-19">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">if</span> year <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2023</span>:</span>
-<span id="cb8-20">         df.plot(ax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>ax, label<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2023"</span>, color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"gold"</span>)</span>
-<span id="cb8-21">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">else</span>:</span>
-<span id="cb8-22">        df.plot(ax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>ax, color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"gray"</span>)</span>
-<span id="cb8-23">df_2024.plot(ax<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>ax, label<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2024"</span>, color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"red"</span>)</span>
-<span id="cb8-24"></span>
-<span id="cb8-25"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Sett x-axis to display month labels</span></span>
-<span id="cb8-26">ax.set_xticks(</span>
-<span id="cb8-27">    pd.date_range(</span>
-<span id="cb8-28">        start<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>year_dfs[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2023</span>].index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">min</span>(),</span>
-<span id="cb8-29">        end<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>year_dfs[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2023</span>].index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">max</span>(),</span>
-<span id="cb8-30">        freq<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'MS'</span></span>
-<span id="cb8-31">    )</span>
-<span id="cb8-32">)</span>
-<span id="cb8-33">ax.set_xticklabels(</span>
-<span id="cb8-34">    pd.date_range(</span>
-<span id="cb8-35">        start<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>year_dfs[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2023</span>].index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">min</span>(),</span>
-<span id="cb8-36">        end<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>year_dfs[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2023</span>].index.<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">max</span>(),</span>
-<span id="cb8-37">        freq<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'MS'</span>,</span>
-<span id="cb8-38">    ).strftime(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'%B'</span>)</span>
-<span id="cb8-39">)</span>
-<span id="cb8-40"></span>
-<span id="cb8-41"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Formatting</span></span>
-<span id="cb8-42">ax.set_title(</span>
-<span id="cb8-43">    <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"Max Daily Temperatures Recorded in the Austin-Bergstrom Airport Area 2014 - 2024"</span></span>
-<span id="cb8-44">)</span>
-<span id="cb8-45">plt.xticks(rotation<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">45</span>)</span>
-<span id="cb8-46">gold_patch <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> mpatches.Patch(color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"gold"</span>, label<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2023"</span>)</span>
-<span id="cb8-47">red_patch <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> mpatches.Patch(color<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"red"</span>, label<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"2024"</span>)</span>
-<span id="cb8-48">plt.legend(handles<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>[gold_patch, red_patch])</span>
-<span id="cb8-49"></span>
-<span id="cb8-50">plt.show()</span></code></pre></div></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/index_files/figure-html/cell-6-output-1.svg" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Seems like Austin’s 2023 summer was on the hotter side, and so far the 2024 summer is on the cooler side.</p>
-<p>And was I correct that we haven’t cracked 100 yet this year?</p>
-<div id="f253dff4" class="cell" data-execution_count="6">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(df_2024[df_2024[<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"max_temp"</span>] <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">100</span>])</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>            max_temp
-date                
-2024-07-02     100.0
-2024-07-05     100.0</code></pre>
-</div>
-</div>
-<p>Computers!</p>
-
-
-
- ]]></description>
-  <guid>https://matthodges.com/posts/2024-07-30-austin-hot-or-not/</guid>
-  <pubDate>Tue, 30 Jul 2024 05:00:00 GMT</pubDate>
-  <media:content url="https://matthodges.com/posts/2024-07-30-austin-hot-or-not/austin-temperatures-2014-2024.png" medium="image" type="image/png" height="94" width="144"/>
 </item>
 </channel>
 </rss>
