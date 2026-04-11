@@ -8,6 +8,7 @@ project:
   post-render:
     - "python generate-llms-txt.py"
     - "python generate-ai-links.py"
+    - "python fix-sitemap-urls.py"
 
 website:
   title: "Matt Hodges"
