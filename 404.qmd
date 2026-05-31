@@ -1,0 +1,12 @@
+---
+title: "Page not found"
+pagetitle: "Page not found"
+description: "The page you were looking for doesn't exist."
+search: false
+format-links: false
+---
+
+The page you were looking for doesn't exist. It may have moved, or the link may be broken.
+
+- [Home](/)
+- [Posts](/posts.html)

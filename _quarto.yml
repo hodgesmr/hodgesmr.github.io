@@ -5,9 +5,13 @@ project:
     - "*.qmd"
     - "*.ipynb"
     - "!CLAUDE.md"
+  resources:
+    - "site.webmanifest"
   post-render:
     - "python generate-llms-txt.py"
     - "python generate-ai-links.py"
+    - "python generate-structured-data.py"
+    - "python generate-security-txt.py"
     - "python fix-sitemap-urls.py"
 
 website:
@@ -44,6 +48,8 @@ format:
       - cosmo
       - styles.scss
     header-includes: |
+      <link rel="manifest" href="/site.webmanifest">
+      <meta name="theme-color" content="#FFFFFF">
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">

@@ -1,0 +1,4 @@
+Contact: mailto:matt@iliumstrategies.com
+Expires: 2027-05-31T09:16:05.000Z
+Preferred-Languages: en
+Canonical: https://matthodges.com/.well-known/security.txt
