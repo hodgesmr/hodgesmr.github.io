@@ -26,14 +26,40 @@ import os
 import re
 from pathlib import Path
 
+import yaml
+
 OUTPUT_DIR = Path(os.environ.get("QUARTO_PROJECT_OUTPUT_DIR", "docs"))
 
-SITE_URL = "https://matthodges.com"
-AUTHOR_NAME = "Matt Hodges"
-SAME_AS = [
-    "https://www.linkedin.com/in/hodgesmr",
-    "https://github.com/hodgesmr",
-]
+
+def load_site_config() -> dict:
+    """Pull site identity from _quarto.yml so nothing is duplicated here.
+
+    - url     <- website.site-url
+    - name    <- website.title
+    - sameAs  <- the external (http) links in the navbar (LinkedIn, GitHub)
+    """
+    config = yaml.safe_load(Path("_quarto.yml").read_text(encoding="utf-8"))
+    website = config.get("website", {})
+
+    same_as = []
+    navbar = website.get("navbar", {}) or {}
+    for section in ("left", "right"):
+        for item in navbar.get(section, []) or []:
+            href = (item or {}).get("href", "")
+            if href.startswith("http"):
+                same_as.append(href)
+
+    return {
+        "url": website.get("site-url", "").rstrip("/"),
+        "name": website.get("title", ""),
+        "same_as": same_as,
+    }
+
+
+_SITE = load_site_config()
+SITE_URL = _SITE["url"]
+AUTHOR_NAME = _SITE["name"]
+SAME_AS = _SITE["same_as"]
 
 CANONICAL_RE = r'<link\s+rel="canonical"\s+href="([^"]+)"'
 OG_TITLE_RE = r'<meta\s+property="og:title"\s+content="([^"]*)"'

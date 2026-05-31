@@ -11,7 +11,6 @@ project:
     - "python generate-llms-txt.py"
     - "python generate-ai-links.py"
     - "python generate-structured-data.py"
-    - "python generate-security-txt.py"
     - "python fix-sitemap-urls.py"
 
 website:
