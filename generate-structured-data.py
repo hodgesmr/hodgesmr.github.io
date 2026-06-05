@@ -93,6 +93,32 @@ def is_post(html_text: str, canonical: str) -> bool:
     return "/posts/" in canonical and re.search(DATE_RE, html_text) is not None
 
 
+def is_listing(canonical: str) -> bool:
+    return canonical.rstrip("/") in (f"{SITE_URL}/posts", f"{SITE_URL}/posts.html")
+
+
+def collect_posts() -> list[dict]:
+    """Gather BlogPosting nodes (newest first) from the rendered post pages,
+    for the Blog listing's blogPost array."""
+    posts = []
+    for path in (OUTPUT_DIR / "posts").glob("*/index.html"):
+        text = path.read_text(encoding="utf-8")
+        canonical = meta(text, CANONICAL_RE)
+        date = meta(text, DATE_RE)
+        if not canonical or not date:
+            continue
+        posts.append(
+            {
+                "@type": "BlogPosting",
+                "headline": meta(text, OG_TITLE_RE),
+                "url": canonical,
+                "datePublished": date,
+            }
+        )
+    posts.sort(key=lambda p: p["datePublished"], reverse=True)
+    return posts
+
+
 def build_jsonld(html_text: str, canonical: str) -> dict | None:
     """Build the schema.org node appropriate for this page, or None."""
     title = meta(html_text, OG_TITLE_RE)
@@ -125,6 +151,16 @@ def build_jsonld(html_text: str, canonical: str) -> dict | None:
         if image:
             node["image"] = image
         return node
+
+    if is_listing(canonical):
+        return {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "name": title,
+            "url": canonical,
+            "author": person_node(),
+            "blogPost": collect_posts(),
+        }
 
     return None
 
