@@ -4,14 +4,16 @@
 ## Work
 
 I am a **Political Technologist** and founder of
-<span class="color-accent">Ilium Strategies</span> working to help
-Democrats build, scale, and innovate with tech. Drawing on over a decade
-of experience at the intersection of Democratic politics and software
-engineering, I partner with organizations, campaigns, and investors to
-amplify their impact. My focusses include product and engineering
-vision, go-to-market technical strategy, donor advising and technical
-diligence, political tech market navigation, ecosystem coordination, and
-AI strategy. I’m particularly interested in developing sustainable,
+<span class="color-accent">Ilium Strategies</span>, where I provide
+senior technical and strategic advising to Democrats building, scaling,
+and innovating with technology. Drawing on over fifteen years of
+experience at the intersection of Democratic politics and software
+engineering, I work with leaders, campaigns, mission-driven
+organizations, donors, and investors. My focus areas include AI strategy
+and adoption, product and engineering vision, go-to-market technical
+strategy, donor advising and technical due diligence, technical
+leadership for core ecosystem infrastructure, and political tech market
+navigation. I’m particularly interested in developing sustainable,
 scalable models for long-term impact in the political tech sector.
 
 I sit on the **Advisory Board** of <span class="color-accent">Higher

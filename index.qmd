@@ -1,7 +1,7 @@
 ---
 title: "About"
 pagetitle: "Matt Hodges - About"
-description: "Matt Hodges is a political technologist and founder of Ilium Strategies, helping Democrats build and innovate with technology. Former Director of Engineering for Biden 2020. Featured in The New York Times, Wired, The Washington Post, and The Economist."
+description: "Matt Hodges is a political technologist and founder of Ilium Strategies, a consulting practice helping Democrats build, scale, and innovate with technology and AI. Former Director of Engineering for Biden 2020. Featured in The New York Times, Wired, The Washington Post, and The Economist."
 about:
   template: trestles
   image: ./img/photo.jpg
@@ -16,7 +16,7 @@ format-links:
 
 ## Work
 
-I am a **Political Technologist** and founder of [Ilium Strategies]{.color-accent} working to help Democrats build, scale, and innovate with tech. Drawing on over a decade of experience at the intersection of Democratic politics and software engineering, I partner with organizations, campaigns, and investors to amplify their impact. My focusses include product and engineering vision, go-to-market technical strategy, donor advising and technical diligence, political tech market navigation, ecosystem coordination, and AI strategy. I'm particularly interested in developing sustainable, scalable models for long-term impact in the political tech sector.
+I am a **Political Technologist** and founder of [Ilium Strategies]{.color-accent}, where I provide senior technical and strategic advising to Democrats building, scaling, and innovating with technology. Drawing on over fifteen years of experience at the intersection of Democratic politics and software engineering, I work with leaders, campaigns, mission-driven organizations, donors, and investors. My focus areas include AI strategy and adoption, product and engineering vision, go-to-market technical strategy, donor advising and technical due diligence, technical leadership for core ecosystem infrastructure, and political tech market navigation. I'm particularly interested in developing sustainable, scalable models for long-term impact in the political tech sector.
 
 I sit on the **Advisory Board** of [Higher Ground Labs]{.color-accent}, an accelerator that invests in early-stage political tech companies. In this capacity, I contribute strategic guidance to the Higher Ground Labs leadership team, and provide both political and technical advice to investment cohort companies.
 
