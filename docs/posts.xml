@@ -15,7 +15,183 @@
 <link>https://matthodges.com/posts.html</link>
 </image>
 <generator>quarto-1.9.36</generator>
-<lastBuildDate>Sun, 12 Jul 2026 05:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 19 Aug 2026 05:00:00 GMT</lastBuildDate>
+<item>
+  <title>Bongard problems</title>
+  <dc:creator>Matt Hodges</dc:creator>
+  <link>https://matthodges.com/posts/2026-08-19-bongard-problems/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>Bongard problems are interesting puzzles; they’re sort of like <a href="https://en.wikipedia.org/wiki/Spot_the_difference">Spot The Difference</a> meets <a href="https://en.wikipedia.org/wiki/Raven%27s_Progressive_Matrices">Raven’s Progressive Matrices</a>. When presented with two sets of images, the challenge is to identify the latent property that is shared by everything on the left but absent (or different) from everything on the right.</p>
+<p>Here’s a simple Bongard problem, created by <a href="https://www.foundalis.com/res/Mikhail_Moiseevich_Bongard.html">Mikhail Moiseevich Bongard</a>:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2026-08-19-bongard-problems/bongard-problem-10.png" class="img-fluid figure-img"></p>
+<figcaption><a href="https://oebp.org/present.php?bp=10">Bongard problem 10</a>, by Mikhail Moiseevich Bongard</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reveal Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Solution:</strong> Shapes on the left form approximately triangular outlines, while shapes on the right form approximately quadrilateral outlines.</p>
+</div>
+</div>
+</div>
+<p>And here’s a trickier Bongard problem, created by <a href="https://en.wikipedia.org/wiki/Douglas_Hofstadter">Douglas Hofstadter</a>:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2026-08-19-bongard-problems/bongard-problem-155.png" class="img-fluid figure-img"></p>
+<figcaption><a href="https://oebp.org/present.php?bp=155">Bongard problem 155</a>, by Douglas Hofstadter</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reveal Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Solution:</strong> On the left, curves are longer than straight lines, while on the right, curves are shorter than straight lines.</p>
+</div>
+</div>
+</div>
+<p>I first learned about Bongard problems while reading <a href="https://en.wikipedia.org/wiki/G%C3%B6del,_Escher,_Bach">Gödel, Escher, Bach</a>, when Hofstadter introduced them in his chapter <em>Artificial Intelligence: Prospects</em>. <a href="https://matthodges.com/posts/2025-04-21-openai-o4-mini-high-mu-puzzle/">I’ve returned to Hofstadter’s puzzles before</a>, but Bongard problems are especially interesting because he used them to imagine, in 1979, what a visual reasoning program might look like:</p>
+<p>First, he imagined a <strong>preprocessing</strong> stage that detects salient features that map to a mini-vocabulary of known concept terms like, <em>line segment</em>, or <em>curve</em>, or <em>horizontal</em>. From there, preprocessing applies its knowledge of elementary shapes to get to terms like, <em>circle</em>, or <em>right angle</em>, or <em>vertex</em>. There’s a resemblance here to what we now call <a href="https://en.wikipedia.org/wiki/Representation_learning">representation learning</a>. In <a href="https://matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/">image classifiers built as convolutional networks</a>, the network learns internal representations useful for discriminating images, though as distributed numerical representations rather than as tidy vocabulary of named concepts. And <a href="https://en.wikipedia.org/wiki/Contrastive_Language%E2%80%93Image_Pre-training">CLIP</a> is an especially interesting modern comparison because it learns image and text representations in a shared space, allowing natural-language descriptions to refer to learned visual concepts.</p>
+<p>At this point in Hofstadter’s imaginary program, the picture is “understood” at the basic level of mapping input images to labels. The next stage is a search for <strong>high-level descriptions</strong> about the features. The program “looks around” to spot descriptors like <em>to the right of</em>, or <em>perpendicular to</em>, or <em>evenly spaced</em>. It can also build <strong>descriptions of descriptions</strong>, looking for regularities across the ways individual images have been described. There’s a resemblance here to modern work on <a href="https://deepmind.google/blog/a-neural-approach-to-relational-reasoning/">relational reasoning</a>, where models try to represent not only the objects in an image but also the relationships among them.</p>
+<p>But simply generating more descriptions doesn’t solve a Bongard problem. The program also has to decide where to <strong>focus</strong> and which kinds of properties to <strong>filter</strong> for. A description can be perfectly true and still be useless for distinguishing the two sides. The right abstraction may only become visible after comparing several images, changing what seems important, and returning to an earlier description with a different idea of what to look for.</p>
+<p>Hofstadter suggested various approaches and heuristics for making that search less brittle. He imagined <strong>templates and sameness-detectors</strong> that could trigger when several examples began to converge on the same description. There’s a loose modern parallel in <a href="https://en.wikipedia.org/wiki/Meta-learning_%28computer_science%29#Prototypical_Networks">some approaches to meta-learning</a>, where models learn a space in which examples can be classified by their distance from a common prototype. He also suggested a <strong>semantic net</strong> in which <em>“all the known nouns, adjectives, etc., are linked in ways which indicate their interrelations.”</em> That sounds a lot like <a href="https://en.wikipedia.org/wiki/Word_embedding">word embeddings</a>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2026-08-19-bongard-problems/geb-concept-network.jpg" class="img-fluid figure-img"></p>
+<figcaption>A portion of Hofstadter’s proposed concept network for a Bongard problem-solving program</figcaption>
+</figure>
+</div>
+<p>Importantly, Hofstadter didn’t want early concepts or hypotheses to be rigid. An idea that didn’t quite fit might be weakened, modified, or allowed to <strong>slip</strong> toward a related concept rather than simply discarded. A shape might be treated as a rough instance of something it doesn’t satisfy exactly, or a group of objects might become a single higher-level object once the problem suggests looking at it that way. There’s a connection here to <a href="https://en.wikipedia.org/wiki/Analogy">analogical reasoning</a>, where representations of relationships need to be flexible enough to map across different situations. More broadly, Hofstadter’s program depends on representations remaining <strong>tentative</strong> enough that higher-level hypotheses can change how the underlying images are described.</p>
+<p>The chapter continues to dig into more layers of what this Bongard problem-solving program might require, and how it maps to various forms of recognition, grouping, filtering, and focusing. It’s not the only place in GEB where Hofstadter’s ideas <a href="https://matthodges.com/posts/2025-08-26-music-to-break-models-by/">map strangely well onto modern AI</a>, but here he keeps circling two important assertions:</p>
+<blockquote class="blockquote">
+<p>These fascinating problems are intended for pattern-recognizers, whether human or machine.</p>
+</blockquote>
+<p>and</p>
+<blockquote class="blockquote">
+<p>the skill of solving Bongard problems lies very close to the core of “pure” intelligence, if there is such a thing.</p>
+</blockquote>
+<p>One of the most common dismissals of modern AI is that these systems are “only” statistical pattern matchers, with pattern recognition placed on one side of a line and genuine reasoning or intelligence on the other. That distinction remains very much alive in <a href="https://www.quantamagazine.org/is-ai-reasoning-right-for-the-wrong-reasons-20260731/">arguments over what today’s “reasoning” models are actually doing.</a> But Hofstadter was describing pattern recognition while simultaneously placing it near the core of intelligence.</p>
+<p>Hofstadter was clear about what he meant by a “pattern-recognizer.” His pattern-recognizer has to decide what in an image matters, describe relationships among its parts, compare examples, discard true but irrelevant observations, form tentative hypotheses, and sometimes revise the concepts it is using when they don’t quite fit. Eventually it has to find a pattern that isn’t contained in any one image, but exists across the collection.</p>
+<p>Taken this way, “pattern matching” doesn’t tell us very much about whether a machine is intelligent. It describes a family of computations whose limits depend on what kinds of patterns can be found, how abstract those patterns can become, and whether they can be recognized in situations unlike the ones that came before. By the time you assemble everything his Bongard problem-solving program is supposed to do, it becomes surprisingly difficult to say where pattern recognition ends and reasoning begins. <a href="https://arxiv.org/abs/2602.03038">Researchers are still using Bongard problems to probe this boundary</a>.</p>
+<p>Today’s frontier models are not perfect at solving Bongard problems (neither are humans), but they’re also capable of finding unintended solutions.</p>
+<p>I gave BP 155 (above) to GPT-5.6 Sol (High), and it quickly offered a solution:</p>
+<div class="long-quote">
+<p>The rule is <strong>right angles</strong>.</p>
+<ul>
+<li><strong>Left:</strong> none of the figures contains two straight line segments meeting at 90°.</li>
+<li><strong>Right:</strong> every figure contains at least one right angle, usually an L-, T-, or rectangular corner.</li>
+</ul>
+<p>The curls, loops, circles, and overall “curvy vs.&nbsp;angular” appearance are mostly distraction. The first figure on the right is the sneakiest: the little inward notch beneath the triangular part contains the right angle.</p>
+</div>
+<p>This, of course, is not Hofstadter’s intended solution, but it appears to be a valid solution nonetheless. One is global and quantitative, the other local and categorical. The examples in the problem don’t distinguish between them.</p>
+<p>I also gave the problem to Claude Fable 5 (Max), and it produced two incorrect answers:</p>
+<div class="long-quote">
+<p>Every left panel could be traced without ever producing a straight edge or an angle, and every right panel contains at least one ruler-straight stroke. The small circles attached to some of the right figures don’t break the rule, since what separates the sides is whether the figure contains any straight, angular strokes, and none of the left ones do.</p>
+<p>There is a second regularity that happens to hold as well, in case it’s the intended one for this particular puzzle: each right panel consists of two separate pieces of ink (a main glyph plus a detached dot or second mark), while each left figure is a single connected doodle, even where its strokes cross themselves. The curved-versus-angular reading is the more visually fundamental of the two, so that’s my answer.</p>
+</div>
+<p>Both of Fable’s answers are plainly false. There are clear angles among the left set, and the left set contains counterexamples with disconnected strokes. In Hofstadter’s terms, the error is at the preprocessing stage; its descriptions of the images contain features that simply aren’t there. His architecture invites top-down pressure on those descriptions, since restructuring and slippage depend on it. But that makes it important to keep checking revised descriptions against the image itself, or a bad early description can turn into fabricated evidence.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2026-08-19-bongard-problems/bongard-problem-155-counterexample.png" class="img-fluid figure-img"></p>
+<figcaption>Counterexample from the Bongard problem 155 Left set, showing angles and disconnected strokes</figcaption>
+</figure>
+</div>
+<p>I expected both models to regurgitate a “known” answer from pretraining, and it was interesting that neither did. But I still wanted a test I could be certain hadn’t appeared in their training data, so I made a brand new Bongard problem by hand:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://matthodges.com/posts/2026-08-19-bongard-problems/hodges-custom-bongard.jpeg" class="img-fluid figure-img"></p>
+<figcaption>My hand-drawn custom Bongard problem</figcaption>
+</figure>
+</div>
+<p>Can you solve it?</p>
+<p>GPT-5.6 Sol (High) spun for about three and a half minutes and found the solution. Claude Fable 5 (Max) worked for about fifteen minutes and also got it right.</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reveal Sol’s Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="long-quote">
+<p>Got it. The line divides the dots into <strong>two groups whose sizes are consecutive Fibonacci numbers</strong>.</p>
+<p>The six left-hand examples are exactly the first six adjacent Fibonacci pairs, in scrambled order:</p>
+<ul>
+<li>Top left: <strong>0 + 1</strong></li>
+<li>Bottom left: <strong>1 + 1</strong></li>
+<li>Middle left: <strong>1 + 2</strong></li>
+<li>Bottom right: <strong>2 + 3</strong></li>
+<li>Middle right: <strong>3 + 5</strong></li>
+<li>Top right: <strong>5 + 8</strong></li>
+</ul>
+<p>So they walk through</p>
+<p><strong>0, 1, 1, 2, 3, 5, 8</strong></p>
+<p>with each box depicting one neighboring pair.</p>
+<p>The right-hand boxes deliberately give non-Fibonacci-adjacent partitions such as <strong>2+4, 2+2, 0+3, 2+5, 3+3, 4+5</strong>.</p>
+<p>That’s a lovely one because the line initially screams “geometry,” but its position only matters because it partitions the dots into two counts.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reveal Fable’s Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="long-quote">
+<p>In each of the six left boxes, the line splits the dots into two consecutive Fibonacci numbers. Reading across the rows, the splits are 0|1, 5|8, 1|2, 3|5, 1|1, and 2|3, which makes the totals 1, 13, 3, 8, 2, and 5. So the left side contains exactly the Fibonacci numbers 1, 2, 3, 5, 8, 13, and each box is a little picture of the recurrence itself, with the two previous terms sitting on either side of the line and adding up to the total.</p>
+<p>The right boxes never do this. Their splits are 2|4, 2|2, 0|3, 2|5, 3|3, and 4|5, and none of those is a pair of neighboring Fibonacci numbers. Several are constructed as near misses, which is what makes the problem hard. The 2|5 box uses two Fibonacci numbers that aren’t adjacent in the sequence, the 3|3 box repeats a term instead of pairing neighbors, and the box with 3 dots has a Fibonacci total but puts all three on one side, so its split is 0|3 rather than the 1|2 it would need.</p>
+</div>
+</div>
+</div>
+</div>
+<p>Sol picked up that the lines suggest a geometric rule, but ultimately that the relevant description is numerical. A solver has to count the dots on either side, compare those counts across the examples, and notice the relation shared by the left set. That looks a lot like the process Hofstadter was describing. It has to generate possible descriptions, decide which information matters, and revise the representation until the distinction becomes visible.</p>
+<p>Both models solved my new problem, but I don’t think that settles whether Sol or Fable is reasoning. Nor do their earlier results rule it out. Fable’s answer to BP155 builds a coherent argument on a visual description that is simply false. Sol’s answer was unexpected, but may not be an error at all. Neither outcome tells us that reasoning was absent.</p>
+<p>Still, “only a pattern matcher” starts to feel like a weak dismissal. In my problem, recognizing the pattern required choosing what to attend to, moving from geometry to number, comparing examples as a set, and finding a relation in a problem the models had never seen. If all of that falls under pattern matching, then the phrase leaves open much of what we care about when we ask whether a system is intelligent.</p>
+<p>If you want to try more Bongard problems yourself, Harry Foundalis maintains a wonderful <a href="https://www.foundalis.com/res/bps/bpidx.htm">Index of Bongard problems</a>, with hundreds collected from Bongard, Hofstadter, Foundalis, and others. There’s also the sprawling <a href="https://oebp.org/">On-Line Encyclopedia of Bongard problems</a>.</p>
+<p>Bongard problems are a fascinating way to investigate how much abstraction and reasoning can fit inside what we call “pattern recognition,” and how little agreement we have about where those categories begin and end.</p>
+
+
+
+ ]]></description>
+  <guid>https://matthodges.com/posts/2026-08-19-bongard-problems/</guid>
+  <pubDate>Wed, 19 Aug 2026 05:00:00 GMT</pubDate>
+  <media:content url="https://matthodges.com/posts/2026-08-19-bongard-problems/godel-escher-bach-hume-bongard.jpeg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>A Magazine With One Subscriber</title>
   <dc:creator>Matt Hodges</dc:creator>
@@ -5725,916 +5901,6 @@ Below Average: 137</code></pre>
   <guid>https://matthodges.com/posts/2024-08-25-actblue-isnt-selling-your-data/</guid>
   <pubDate>Sun, 25 Aug 2024 05:00:00 GMT</pubDate>
   <media:content url="https://matthodges.com/posts/2024-08-25-actblue-isnt-selling-your-data/fec-list-purchase.jpeg" medium="image" type="image/jpeg"/>
-</item>
-<item>
-  <title>CSVs Are Kinda Bad. DSVs Are Kinda Good.</title>
-  <dc:creator>Matt Hodges</dc:creator>
-  <link>https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<p>CSVs are kinda bad. We know this, but sometimes it’s helpful to remember why they’re kinda bad. Maybe you need to work with CSVs and you’re using Python, because Python is kinda good. And someone else somewhere wrote a CSV:</p>
-<div id="cell-2" class="cell" data-execution_count="209">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> csv</span>
-<span id="cb1-2"></span>
-<span id="cb1-3">data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> [</span>
-<span id="cb1-4">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Comment'</span>],</span>
-<span id="cb1-5">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'She said, "Hello" and waved.'</span>],</span>
-<span id="cb1-6">]</span>
-<span id="cb1-7"></span>
-<span id="cb1-8"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">''</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb1-9">    writer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>csv.QUOTE_MINIMAL)</span>
-<span id="cb1-10">    writer.writerows(data)</span></code></pre></div></div>
-</div>
-<p>And you read the CSV:</p>
-<div id="cell-4" class="cell" data-execution_count="210">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'r'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb2-2">    reader <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>csv.QUOTE_NONE)</span>
-<span id="cb2-3">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> reader:</span>
-<span id="cb2-4">        <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(row)</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>['Name', 'Comment']
-['Alice', '"She said', ' ""Hello"" and waved."']</code></pre>
-</div>
-</div>
-<p>Oh darn, the data had a <code>"</code> character inside the comment field and it was escaped by doubling it <code>""</code> which is one way to do that but you didn’t know so your reader is broken.</p>
-<p>Or maybe they wrote it this way:</p>
-<div id="cell-6" class="cell" data-execution_count="211">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> [</span>
-<span id="cb4-2">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Comment'</span>],</span>
-<span id="cb4-3">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'She said, "Hello" and waved.'</span>],</span>
-<span id="cb4-4">]</span>
-<span id="cb4-5"></span>
-<span id="cb4-6"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">''</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb4-7">    writer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>csv.QUOTE_NONE, escapechar<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\\</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>)</span>
-<span id="cb4-8">    writer.writerows(data)</span></code></pre></div></div>
-</div>
-<p>And you read the CSV:</p>
-<div id="cell-8" class="cell" data-execution_count="212">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'r'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb5-2">    reader <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>csv.QUOTE_NONE,)</span>
-<span id="cb5-3">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> reader:</span>
-<span id="cb5-4">        <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(row)</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>['Name', 'Comment']
-['Alice', 'She said\\', ' \\"Hello\\" and waved.']</code></pre>
-</div>
-</div>
-<p>Oh darn, you didn’t get the escape character correct so now your’ve got a bunch of malformed data.</p>
-<p>Or maybe they wrote this CSV with a <code>|</code> delimiter because people don’t type <code>|</code> very often:</p>
-<div id="cell-10" class="cell" data-execution_count="213">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1">data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> [</span>
-<span id="cb7-2">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Score'</span>],</span>
-<span id="cb7-3">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'100'</span>]</span>
-<span id="cb7-4">]</span>
-<span id="cb7-5"></span>
-<span id="cb7-6"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">''</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb7-7">    writer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>, delimiter<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'|'</span>)</span>
-<span id="cb7-8">    writer.writerows(data)</span></code></pre></div></div>
-</div>
-<p>And you read the CSV:</p>
-<div id="cell-12" class="cell" data-execution_count="214">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'r'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb8-2">    reader <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>, delimiter<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">','</span>)</span>
-<span id="cb8-3">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> reader:</span>
-<span id="cb8-4">        <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(row)</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>['Name|Score']
-['Alice|100']</code></pre>
-</div>
-</div>
-<p>Oh darn, you didn’t know they were being clever with the delimiter so it didn’t break up the fields at all.</p>
-<p>Or maybe you got a CSV from someone who uses a Windows machine and so they tend to use <code>\r\n</code> for newlines:</p>
-<div id="cell-14" class="cell" data-execution_count="215">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1">data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> [</span>
-<span id="cb10-2">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Score'</span>],</span>
-<span id="cb10-3">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'100'</span>]</span>
-<span id="cb10-4">]</span>
-<span id="cb10-5"></span>
-<span id="cb10-6"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb10-7">    writer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>)</span>
-<span id="cb10-8">    writer.writerows(data)</span></code></pre></div></div>
-</div>
-<p>And you, on a not-Windows machine, read the CSV:</p>
-<div id="cell-16" class="cell" data-execution_count="216">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb11-2">    reader <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>)</span>
-<span id="cb11-3">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> reader:</span>
-<span id="cb11-4">        <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(row)</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>['Name', 'Score']
-[]
-['Alice', '100']
-[]</code></pre>
-</div>
-</div>
-<p>Oh darn, you didn’t anticipate that newlines might be different across platforms, so now every other line in your data is blank.</p>
-<p>But then maybe you figure that out and you anticipate the <code>\r\n</code>, but then some newlines find their way into the input data:</p>
-<div id="cell-18" class="cell" data-execution_count="217">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1">data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> [</span>
-<span id="cb13-2">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Comment'</span>],</span>
-<span id="cb13-3">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Bob'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'This is a multi-line comment</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">spanning two lines.'</span>]</span>
-<span id="cb13-4">]</span>
-<span id="cb13-5"></span>
-<span id="cb13-6"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'w'</span>, newline<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb13-7">    writer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.writer(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>csv.QUOTE_NONE, escapechar<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\\</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>)</span>
-<span id="cb13-8">    writer.writerows(data)</span></code></pre></div></div>
-</div>
-<p>And you read the CSV:</p>
-<div id="cell-20" class="cell" data-execution_count="218">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.csv'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'r'</span>, newline<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb14-2">    reader <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> csv.reader(<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>, quoting<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span>csv.QUOTE_NONE, escapechar<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\\</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span>)</span>
-<span id="cb14-3">    <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> reader:</span>
-<span id="cb14-4">        <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>(row)</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>['Name', 'Comment']
-['Bob', 'This is a multi-line comment\r\r']
-['spanning two lines.']</code></pre>
-</div>
-</div>
-<p>Oh darn, you’ve got <code>CR</code> and line breaks and it’s all a mess.</p>
-<p>But then maybe you find the Python documentation <a href="https://docs.python.org/3/library/csv.html#id4">says</a> there’s this one weird trick to handle newlines:</p>
-<blockquote class="blockquote">
-<p>If <code>newline=''</code> is not specified, newlines embedded inside quoted fields will not be interpreted correctly, and on platforms that use <code>\r\n</code> linendings on write an extra <code>\r</code> will be added. It should always be safe to specify <code>newline='</code>’, since the csv module does its own (universal) newline handling.</p>
-</blockquote>
-<p>And then you go look up what <a href="https://docs.python.org/3/glossary.html#term-universal-newlines">universal newlines</a> are.</p>
-<p>And then you find out that there are different <a href="https://docs.python.org/3/library/csv.html#csv.Dialect">Dialects</a> of CSVs.</p>
-<p>And then you learn that Python has a <a href="https://docs.python.org/3/library/csv.html#csv.Sniffer">Sniffer</a> that claims it can deduce the CSV format for you.</p>
-<p>And then you realize that the data format needs its format deduced and so now you have to become The Joker.</p>
-<p>The uninitiated reader might say, “hah, Python is kinda bad!” but actually Python is kinda good! The standard <code>csv</code> module <em>has</em> to handle all these formatting options because CSVs are all one big edge case. And CSVs are all one big edge case because the decision to use commas and tabs and pipes and quotes and newlines to structure the data directly conflict with possible values of the data itself. And so we have to do escaping nonsense and quoting nonsense and line terminator nonsense.</p>
-<p>We could skip all of this if we just used a proper delimiter. ASCII has this! Go pop open any ASCII character table and you’ll find these <a href="https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text">gems</a>:</p>
-<ul>
-<li><strong>28</strong> (FS) : file separator</li>
-<li><strong>29</strong> (GS) : group separator</li>
-<li><strong>30</strong> (RS) : record separator</li>
-<li><strong>31</strong> (US) : unit separator</li>
-</ul>
-<p>And we don’t even need all four of them. If we used <code>31</code> as a field delimiter and <code>30</code> instead of newlines, we solve every single edge case from above. Why? Because these are non-printing characters that should never appear in a text-stream data set.</p>
-<p>Let’s try it out. Writing delimiter-separated values (I made up that name and file extension) data is very easy:</p>
-<div id="cell-22" class="cell" data-execution_count="219">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">from</span> dataclasses <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">import</span> dataclass</span>
-<span id="cb16-2"></span>
-<span id="cb16-3"></span>
-<span id="cb16-4"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">class</span> DSV():</span>
-<span id="cb16-5">    <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">@property</span></span>
-<span id="cb16-6">    <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> delimiter(cls) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">bytes</span>:</span>
-<span id="cb16-7">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">b'</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\x1F</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span></span>
-<span id="cb16-8">    </span>
-<span id="cb16-9">    <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">@property</span></span>
-<span id="cb16-10">    <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> record_separator(cls) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">bytes</span>:</span>
-<span id="cb16-11">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">b'</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\x1E</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'</span></span>
-<span id="cb16-12">    </span>
-<span id="cb16-13">    <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">@property</span></span>
-<span id="cb16-14">    <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> encoding(cls) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">str</span>:</span>
-<span id="cb16-15">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">return</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'utf-8'</span></span>
-<span id="cb16-16"></span>
-<span id="cb16-17"></span>
-<span id="cb16-18"><span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">@dataclass</span></span>
-<span id="cb16-19"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">class</span> DSVWriter(DSV):</span>
-<span id="cb16-20">    output_file: <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">str</span></span>
-<span id="cb16-21"></span>
-<span id="cb16-22">    <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> write(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>, data: <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">list</span>[<span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">list</span>]) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-&gt;</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">None</span>:</span>
-<span id="cb16-23">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.output_file, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'wb'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb16-24">            <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> row <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> data:</span>
-<span id="cb16-25">                encoded_row <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.delimiter.join(</span>
-<span id="cb16-26">                    field.encode(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.encoding) <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> field <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> row</span>
-<span id="cb16-27">                )</span>
-<span id="cb16-28">                <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>.write(encoded_row <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.record_separator)</span>
-<span id="cb16-29"></span></code></pre></div></div>
-</div>
-<p>The reader takes a bit more work to implement, since we need to buffer our input and split on our control characters:</p>
-<div id="cell-24" class="cell" data-execution_count="220">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">@dataclass</span></span>
-<span id="cb17-2"><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">class</span> DSVReader(DSV):</span>
-<span id="cb17-3">    input_file: <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">str</span></span>
-<span id="cb17-4">    chunk_size : <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1024</span></span>
-<span id="cb17-5">    _buffer: <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">bytes</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">b""</span></span>
-<span id="cb17-6"></span>
-<span id="cb17-7">    <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">def</span> read(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-&gt;</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">None</span>:</span>
-<span id="cb17-8">        <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">with</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">open</span>(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.input_file, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'rb'</span>) <span class="im" style="color: #00769E;
-background-color: null;
-font-style: inherit;">as</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>:</span>
-<span id="cb17-9">            chunk <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>.read(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.chunk_size)</span>
-<span id="cb17-10">            </span>
-<span id="cb17-11">            <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">while</span> chunk:</span>
-<span id="cb17-12">                <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>._buffer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+=</span> chunk</span>
-<span id="cb17-13"></span>
-<span id="cb17-14">                <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Process complete records in the buffer</span></span>
-<span id="cb17-15">                <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">while</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.record_separator <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>._buffer:</span>
-<span id="cb17-16">                    record, <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>._buffer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>._buffer.split(</span>
-<span id="cb17-17">                        <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.record_separator,</span>
-<span id="cb17-18">                        <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>,</span>
-<span id="cb17-19">                    )</span>
-<span id="cb17-20">                    fields <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> record.split(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.delimiter)</span>
-<span id="cb17-21">                    <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>([field.decode(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.encoding) <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> field <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> fields])</span>
-<span id="cb17-22">                </span>
-<span id="cb17-23">                chunk <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">file</span>.read(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.chunk_size)</span>
-<span id="cb17-24"></span>
-<span id="cb17-25">            <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Process any remaining data in the buffer</span></span>
-<span id="cb17-26">            <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">if</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>._buffer:</span>
-<span id="cb17-27">                fields <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>._buffer.split(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.delimiter)</span>
-<span id="cb17-28">                <span class="bu" style="color: null;
-background-color: null;
-font-style: inherit;">print</span>([field.decode(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">self</span>.encoding) <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> field <span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> fields])</span></code></pre></div></div>
-</div>
-<p>And now we can interface by simply writing and reading the data. We don’t have to think about the delimiter because we’ve got a standard, non-conflicting delimiter. We don’t have to think about newlines because we aren’t using those for control characters. We also don’t have to think about quotes because we also aren’t using those for control characters. And we don’t have to think about escaping delimiters or newlines or quotes for all those same reasons.</p>
-<p>Writing:</p>
-<div id="cell-26" class="cell" data-execution_count="221">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1">data <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> [</span>
-<span id="cb18-2">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Name'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Comment'</span>],</span>
-<span id="cb18-3">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Alice'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'She said, "Hello" and waved.'</span>],</span>
-<span id="cb18-4">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Bob'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'This is a multi-line comment</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\r\n</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">spanning two lines.'</span>],</span>
-<span id="cb18-5">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Charlie'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'More fun with</span><span class="ch" style="color: #20794D;
-background-color: null;
-font-style: inherit;">\n</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">two lines.'</span>],</span>
-<span id="cb18-6">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Diana'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'How about some UTF-8: café, naïve, résumé. 📝'</span>],</span>
-<span id="cb18-7">    [<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Edward'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'アップル'</span>],</span>
-<span id="cb18-8">]</span>
-<span id="cb18-9"></span>
-<span id="cb18-10">writer <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> DSVWriter(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.dsv'</span>)</span>
-<span id="cb18-11">writer.write(data)</span></code></pre></div></div>
-</div>
-<p>And reading:</p>
-<div id="cell-28" class="cell" data-execution_count="222">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1">reader <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> DSVReader(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'/tmp/data.dsv'</span>)</span>
-<span id="cb19-2">reader.read()</span></code></pre></div></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>['Name', 'Comment']
-['Alice', 'She said, "Hello" and waved.']
-['Bob', 'This is a multi-line comment\r\nspanning two lines.']
-['Charlie', 'More fun with\ntwo lines.']
-['Diana', 'How about some UTF-8: café, naïve, résumé. 📝']
-['Edward', 'アップル']</code></pre>
-</div>
-</div>
-<p>🎉 And just like that, we’ve got data going in and out of our writer and reader that has a bunch of weird stuff like quotes and newlines and carriage returns and we don’t need to care! We didn’t have to escape anything because we don’t have any printable characters that would conflict with our control characters.</p>
-<p>You might have some different ideas about reader/writer functionality, or character encodings (as long as they’re supersets of ASCII) or why I should be morally scolded for not implementing this in Rust, but the point is you don’t have to think about the fagility of CSVs to go work on those ideas!</p>
-<p>💡 <strong>Quick aside:</strong> I first learned about these ASCII delimiters while <a href="https://www.fec.gov/help-candidates-and-committees/filing-reports/fecfile-software/">working with <code>.fec</code> files</a>. For whatever reason, the Federal Election Commission in the United States also decided that they needed to ditch the comma, but they landed on using ASCII character <code>28</code> which is supposed to be used as a file separator not a field saparator. I have no idea why they picked that one when <code>31</code> was right there. Anyway, the FEC also has a <a href="https://www.fec.gov/help-candidates-and-committees/filing-reports/data-conversion-tools/">tool called <code>fs2comma.exe</code></a> that turns it back into a CSV format, and a couple of years I filed a FOIA request and <a href="https://github.com/hodgesmr/fs2comma">got the source code</a>.</p>
-<p>So what’s the downside? This custom FEC tooling might give you a hint.</p>
-<p>For starters, it’s rather unreadable when opened in a text editor. But I bet you don’t really do that with your CSVs all that often anyway!</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/dsv-vim.png" class="img-fluid figure-img"></p>
-<figcaption>I opened a .dsv file in Vim</figcaption>
-</figure>
-</div>
-<p>And Google Sheets hates the <code>.dsv</code> file extension, but remember I made that up.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/dsv-google-sheets.png" class="img-fluid figure-img"></p>
-<figcaption>I tried to open a .dsv file in Google Sheets</figcaption>
-</figure>
-</div>
-<p>And if you change it to <code>.csv</code> but tell Google Sheets to “detect automatically” the delimiter, it can’t.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/dsv-fake-csv-google-sheets.png" class="img-fluid figure-img"></p>
-<figcaption>I tricked Google Sheets by changing the file extension</figcaption>
-</figure>
-</div>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/dsv-google-sheets-bad-parse.png" class="img-fluid figure-img"></p>
-<figcaption>Google Sheets couldn’t parse it</figcaption>
-</figure>
-</div>
-<p>And if you try to specify the delimiter yourself on the Google Sheets import it’s not entirely clear how you would type a non-printable character into the textbox.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/google-sheets-custom-separator.png" class="img-fluid figure-img"></p>
-<figcaption>How do I type ASCII code 31 here?</figcaption>
-</figure>
-</div>
-<p>And if you want to use Python’s <code>csv</code> module but just swap around the control characters, you can’t because opinions were <a href="https://docs.python.org/3/library/csv.html#csv.Dialect.lineterminator">hardcoded</a>:</p>
-<blockquote class="blockquote">
-<p><strong>Note:</strong> The reader is hard-coded to recognise either <code>'\r'</code> or <code>'\n'</code> as end-of-line, and ignores lineterminator. This behavior may change in the future.</p>
-</blockquote>
-<p>And all this is to say that the major downside is we have decades of tools built around handling the weirdness of CSVs but not so many tools built around using the delimiters the creators of ASCII gave us and so depending on what you’re doing it might be easier to just use the tools we have.</p>
-<p>But sometimes you’re writing software that produces data on one side and consumes data on the other side and sometimes that data comes from users who are hostile, intoxicated, or both, and you just want to pass that around and not think about it and maybe the beauty of a standard from the 1960s is a better choice.</p>
-<p>Data!</p>
-
-
-
- ]]></description>
-  <guid>https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/</guid>
-  <pubDate>Tue, 13 Aug 2024 05:00:00 GMT</pubDate>
-  <media:content url="https://matthodges.com/posts/2024-08-12-csv-bad-dsv-good/csvs-are-kinda-bad.png" medium="image" type="image/png" height="82" width="144"/>
 </item>
 </channel>
 </rss>

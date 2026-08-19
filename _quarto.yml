@@ -68,5 +68,5 @@ format:
     fig-format: svg
 language: 
   search-box-placeholder: "Search"
-  related-formats-title: "For LLMs:"
+  related-formats-title: ""
 canonical-url: true
