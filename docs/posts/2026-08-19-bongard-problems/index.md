@@ -1,4 +1,4 @@
-# Bongard problems
+# Bongard Problems
 Matt Hodges
 2026-08-19
 

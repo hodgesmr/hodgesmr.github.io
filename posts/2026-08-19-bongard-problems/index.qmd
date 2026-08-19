@@ -1,8 +1,8 @@
 ---
 author: "Matt Hodges"
-title: "Bongard problems"
-pagetitle: "Bongard problems"
-subtitle: "Pattern recognition, reasoning, and the blurry line between them."
+title: "Bongard Problems"
+pagetitle: "Bongard Problems"
+subtitle: "There's a blurry line between pattern matching and reasoning."
 image: "godel-escher-bach-hume-bongard.jpeg"
 date: 2026-08-19
 format:

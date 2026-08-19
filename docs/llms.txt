@@ -33,4 +33,4 @@
 - [The Feed Framed the Last Election and AI Answers Will Frame the Next](https://matthodges.com/posts/2026-03-20-democrats-answer-layer/index.md): Democrats need to start building for the AI answer layer.
 - [Surviving Hallucinations: AI Fault Tolerance for Campaigns](https://matthodges.com/posts/2026-04-10-ai-politics-fault-tolerance/index.md): Building AI workflows that campaigns can trust under pressure
 - [A Magazine With One Subscriber](https://matthodges.com/posts/2026-07-12-personal-magazine-claude-codex/index.md): How three AI agents turn the articles I save into a real printed magazine.
-- [Bongard problems](https://matthodges.com/posts/2026-08-19-bongard-problems/index.md): Pattern recognition, reasoning, and the blurry line between them.
+- [Bongard Problems](https://matthodges.com/posts/2026-08-19-bongard-problems/index.md): There's a blurry line between pattern matching and reasoning.
