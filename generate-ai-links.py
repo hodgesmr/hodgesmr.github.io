@@ -55,7 +55,7 @@ def build_mobile_block(links_html: str) -> str:
     """Build a standalone mobile-only alternate-formats block."""
     return (
         '<div class="quarto-alternate-formats quarto-alternate-formats-mobile">'
-        '<h2>For LLMs:</h2><ul>'
+        '<ul>'
         '<li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li>'
         f'{links_html}</ul></div>'
     )
