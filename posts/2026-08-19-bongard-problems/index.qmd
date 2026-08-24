@@ -155,6 +155,14 @@ Both models solved my new problem, but I don't think that settles whether Sol or
 
 Still, "only a pattern matcher" starts to feel like a weak dismissal. In my problem, recognizing the pattern required choosing what to attend to, moving from geometry to number, comparing examples as a set, and finding a relation in a problem the models had never seen. If all of that falls under pattern matching, then the phrase leaves open much of what we care about when we ask whether a system is intelligent.
 
+::: {.callout-note}
+
+## Now in the Bongard Encyclopedia
+
+Since publishing this, my problem has been accepted into the [On-Line Encyclopedia of Bongard Problems as BP1293](https://oebp.org/BP1293). The entry includes the solution, so spoilers ahead.
+
+:::
+
 If you want to try more Bongard problems yourself, Harry Foundalis maintains a wonderful [Index of Bongard problems](https://www.foundalis.com/res/bps/bpidx.htm), with hundreds collected from Bongard, Hofstadter, Foundalis, and others. There's also the sprawling [On-Line Encyclopedia of Bongard problems](https://oebp.org/).
 
 Bongard problems are a fascinating way to investigate how much abstraction and reasoning can fit inside what we call "pattern recognition," and how little agreement we have about where those categories begin and end.

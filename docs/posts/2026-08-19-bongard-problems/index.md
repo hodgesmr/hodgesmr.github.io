@@ -306,6 +306,14 @@ a relation in a problem the models had never seen. If all of that falls
 under pattern matching, then the phrase leaves open much of what we care
 about when we ask whether a system is intelligent.
 
+> [!NOTE]
+>
+> ### Now in the Bongard Encyclopedia
+>
+> Since publishing this, my problem has been accepted into the [On-Line
+> Encyclopedia of Bongard Problems as BP1293](https://oebp.org/BP1293).
+> The entry includes the solution, so spoilers ahead.
+
 If you want to try more Bongard problems yourself, Harry Foundalis
 maintains a wonderful [Index of Bongard
 problems](https://www.foundalis.com/res/bps/bpidx.htm), with hundreds
