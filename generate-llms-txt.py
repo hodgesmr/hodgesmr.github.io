@@ -125,6 +125,27 @@ def get_post_metadata(md_path: Path, site_url: str) -> dict:
     return metadata
 
 
+def extract_about_section(site_url: str) -> list[str]:
+    """Pull the Work bio out of the rendered homepage markdown so llms.txt
+    carries who the author is, not just what they wrote."""
+    md_path = OUTPUT_DIR / "index.md"
+    if not md_path.exists():
+        return []
+    text = md_path.read_text(encoding="utf-8")
+    match = re.search(r"^## Work\s*\n(.*?)(?=^## )", text, re.M | re.S)
+    if not match:
+        return []
+    body = re.sub(r"</?span[^>]*>", "", match.group(1)).strip()
+    return [
+        "## About",
+        "",
+        body,
+        "",
+        f"[Full bio, media, and appearances]({site_url}/index.md)",
+        "",
+    ]
+
+
 def parse_date(date_val) -> datetime:
     """Parse various date formats from frontmatter."""
     if isinstance(date_val, datetime):
@@ -173,6 +194,7 @@ def main():
     if site_description:
         lines.append(f"> {site_description}")
         lines.append("")
+    lines.extend(extract_about_section(site_url))
     lines.append("## Posts")
     lines.append("")
 

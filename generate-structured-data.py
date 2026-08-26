@@ -5,12 +5,15 @@ Quarto post-render script that injects schema.org JSON-LD structured data
 and the missing og:type / og:url Open Graph tags into each rendered HTML
 page.
 
-All values are read from tags Quarto already emits in the <head>
-(canonical, og:title/description/image, author, dcterms.date), so nothing
-is duplicated by hand and the structured data can never drift from the
-page metadata.
+Values are read from tags Quarto already emits in the <head> (canonical,
+og:title/description/image, author, dcterms.date) or parsed from the
+rendered page body (the homepage press list), so the structured data
+cannot drift from the page content. The only hand-maintained values are
+the PERSON_FACTS block below -- biographical facts that appear nowhere
+in machine-readable form.
 
-  - Home page    -> Person + WebSite  (@graph)
+  - Home page    -> ProfilePage (mainEntity: Person, incl. press
+                    coverage as subjectOf) + WebSite  (@graph)
   - Blog posts   -> BlogPosting
   - Other pages  -> og:type / og:url only
 
@@ -61,6 +64,38 @@ SITE_URL = _SITE["url"]
 AUTHOR_NAME = _SITE["name"]
 SAME_AS = _SITE["same_as"]
 
+# Biographical facts for the Person entity that exist nowhere in the
+# rendered metadata. Everything else (name, url, sameAs, description,
+# press coverage) is derived; edit here only when the biography changes.
+PERSON_FACTS = {
+    "jobTitle": "Political Technologist",
+    "disambiguatingDescription": (
+        "American political technologist; founder of Ilium Strategies "
+        "and former Director of Engineering for Biden for President 2020."
+    ),
+    "image": f"{SITE_URL}/img/photo.jpg",
+    "worksFor": {
+        "@type": "Organization",
+        "@id": "https://iliumstrategies.com/#organization",
+        "name": "Ilium Strategies",
+        "url": "https://iliumstrategies.com/",
+        "founder": {"@id": f"{SITE_URL}/#person"},
+    },
+    "alumniOf": {
+        "@type": "CollegeOrUniversity",
+        "name": "Miami University",
+    },
+    "knowsAbout": [
+        "Political technology",
+        "AI strategy",
+        "Political strategy",
+        "Software engineering",
+        "Campaign cybersecurity",
+        "Democratic campaign infrastructure",
+        "Democratic party politics",
+    ],
+}
+
 CANONICAL_RE = r'<link\s+rel="canonical"\s+href="([^"]+)"'
 OG_TITLE_RE = r'<meta\s+property="og:title"\s+content="([^"]*)"'
 OG_DESC_RE = r'<meta\s+property="og:description"\s+content="([^"]*)"'
@@ -79,10 +114,41 @@ def meta(html_text: str, pattern: str) -> str | None:
 def person_node() -> dict:
     return {
         "@type": "Person",
+        "@id": f"{SITE_URL}/#person",
         "name": AUTHOR_NAME,
         "url": f"{SITE_URL}/",
         "sameAs": SAME_AS,
+        **PERSON_FACTS,
     }
+
+
+MEDIA_SECTION_RE = r'<section id="media-appearances".*?</section>'
+MEDIA_ITEM_RE = r'<dt><a href="([^"]+)">(.*?)</a></dt>\s*<dd>\s*(.*?)\s*</dd>'
+
+
+def strip_tags(fragment: str) -> str:
+    return html.unescape(re.sub(r"<[^>]+>", "", fragment)).strip()
+
+
+def collect_press(html_text: str) -> list[dict]:
+    """Parse the homepage Media & Appearances list into CreativeWork
+    nodes, so the press coverage in the graph always matches the page."""
+    section = re.search(MEDIA_SECTION_RE, html_text, re.S)
+    if not section:
+        return []
+    works = []
+    for url, title, byline in re.findall(MEDIA_ITEM_RE, section.group(0), re.S):
+        work = {
+            "@type": "CreativeWork",
+            "name": strip_tags(title),
+            "url": html.unescape(url),
+        }
+        m = re.match(r"(.+),\s*(\d{4})$", strip_tags(byline))
+        if m:
+            work["publisher"] = {"@type": "Organization", "name": m.group(1).strip()}
+            work["datePublished"] = m.group(2)
+        works.append(work)
+    return works
 
 
 def is_home(canonical: str) -> bool:
@@ -110,6 +176,7 @@ def collect_posts() -> list[dict]:
         posts.append(
             {
                 "@type": "BlogPosting",
+                "@id": f"{canonical}#article",
                 "headline": meta(text, OG_TITLE_RE),
                 "url": canonical,
                 "datePublished": date,
@@ -129,17 +196,29 @@ def build_jsonld(html_text: str, canonical: str) -> dict | None:
         person = person_node()
         if desc:
             person["description"] = desc
+        press = collect_press(html_text)
+        if press:
+            person["subjectOf"] = press
         website = {
             "@type": "WebSite",
+            "@id": f"{SITE_URL}/#website",
             "name": AUTHOR_NAME,
             "url": f"{SITE_URL}/",
         }
-        return {"@context": "https://schema.org", "@graph": [person, website]}
+        profile = {
+            "@type": "ProfilePage",
+            "@id": f"{SITE_URL}/#profilepage",
+            "url": f"{SITE_URL}/",
+            "isPartOf": {"@id": f"{SITE_URL}/#website"},
+            "mainEntity": person,
+        }
+        return {"@context": "https://schema.org", "@graph": [profile, website]}
 
     if is_post(html_text, canonical):
         node = {
             "@context": "https://schema.org",
             "@type": "BlogPosting",
+            "@id": f"{canonical}#article",
             "headline": title,
             "url": canonical,
             "mainEntityOfPage": canonical,

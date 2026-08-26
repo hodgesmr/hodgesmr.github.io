@@ -2,6 +2,109 @@
 
 > Matt Hodges is a political technologist and founder of Ilium Strategies, a consulting practice helping Democrats build, scale, and innovate with technology and AI. Former Director of Engineering for Biden 2020. Featured in The New York Times, Wired, The Washington Post, and The Economist.
 
+## About
+
+I am a **Political Technologist** and founder of
+Ilium Strategies, where I provide
+senior technical and strategic advising to Democrats building, scaling,
+and innovating with technology. Drawing on over fifteen years of
+experience at the intersection of Democratic politics and software
+engineering, I work with leaders, campaigns, mission-driven
+organizations, donors, and investors. My focus areas include AI strategy
+and adoption, product and engineering vision, go-to-market technical
+strategy, donor advising and technical due diligence, technical
+leadership for core ecosystem infrastructure, and political tech market
+navigation. I’m particularly interested in developing sustainable,
+scalable models for long-term impact in the political tech sector.
+
+I sit on the **Advisory Board** of Higher
+Ground Labs, an accelerator that invests in early-stage political
+tech companies. In this capacity, I contribute strategic guidance to the
+Higher Ground Labs leadership team, and provide both political and
+technical advice to investment cohort companies.
+
+I was the **Executive Director** of Zinc
+Labs, a political innovation lab at **Zinc Collective** that
+houses the organization’s strategic work in Democratic technology and
+pilot programs. Through a network of campaigns, committees, vendors,
+donors, and subject matter experts, Zinc Labs incubates and invests in
+innovative new programs across the ecosystem. I prioritized investing in
+technology and people to enable collaborative experimentation, technical
+execution, and hypothesis testing.
+
+I was on the **Advisory Board** of
+Quiller, an Artificial Intelligence
+copilot that helps Democrats draft and deploy high quality, effective
+fundraising content. In this capacity, I contributed product,
+technology, and political guidance to the Quiller leadership team.
+Quiller was acquired in 2025.
+
+I was the **Director of Engineering** for
+President Joe Biden on his 2020
+presidential campaign. I joined the campaign in July of 2019, and served
+in that role through the duration of the primary and general election
+cycles. I led a team of software, infrastructure, and security
+engineers, which was charged with delivering innovative new campaign
+tech for headquarters and states programs. We shipped dozens of internal
+and voter-facing products, including an in-house peer-to-peer texter, a
+relational organizing app, a real-time debate transcription service, a
+document and media ingestion and indexing library, a live donation
+tracking web service, a distributed soft-reporting platform, the
+JoeBiden.com web property, hundreds of ETL pipelines, and a cross-region
+data warehouse.
+
+I was a **Senior Software Engineer** on **The Groundwork** platform,
+which served as the application and infrastructure system that powered
+the 2016 presidential campaign of Secretary
+Hillary Clinton. Beginning in 2015, I was the primary engineer
+for multiple campaign-enabling web services for event signups,
+single-click donations, and peer-to-peer fundraising.
+
+I was an **Infrastructure Engineer** at
+Datadog where I architected and
+implemented the internal platform for Incident Response management. This
+tool eventually joined the suite of observability offerings available to
+customers. My team also implemented the organization’s first templated
+deployment pipeline for the organization’s global transition to
+Kubernetes.
+
+I was a **Senior Mobile Engineer** at
+LISNR, where I developed the product’s
+first iOS SDK for the ultrasonic data transport protocol. In 2014 the
+team joined the TechStars accelerator. This toolchain was originally
+designed to allow musicians to embed inaudbile data streams into their
+media. Over time, it became a location-aware second screen immersion
+platform for music festivals, professional sporting events, and feature
+films. It now serves as a payment protocol in partnership with VISA.
+
+I was a **Senior Mobile Engineer** and **Scrum Master** at
+Cardinal Solutions, with the team that
+built Vantiv Accept - a mobile credit card processing application.
+Envisioned as a competitor to Square, the application was deployed to
+retail and grocery point-of-sale systems across the country.
+
+I am a **Named Inventor** on an Augmented
+Reality Patent Application (US20140092241A1) for a “device and
+method for scanning of books and other items for order and inventory
+control”. We created a mobile application that scanned a shelf of books
+in real-time as a user viewed it through the screen. If it identified
+any items out of order, it overlayed the user’s view of the item with a
+red X to indicate a misplacement, and then povided directional guidance
+of where it should be moved.
+
+I have been an **Election Night Reporter** for
+Decision Desk HQ. I gathered live
+results from New Mexico and Ohio Boards of Elections offices to report
+real-time data as they were delivered from precincts. These results were
+featured on Vox and BuzzFeed election night coverage.
+
+I have been a frequent **Open Source Contributor** to
+OpenElections, which is creating the
+first free, comprehensive, standardized, linked set of election results
+data for the United States.
+
+[Full bio, media, and appearances](https://matthodges.com/index.md)
+
 ## Posts
 
 - [Thank you.](https://matthodges.com/posts/2020-11-10-thank-you/index.md): Working on the Biden Campaign was the opportunity of a lifetime.
