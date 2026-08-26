@@ -79,6 +79,7 @@ PERSON_FACTS = {
         "@id": "https://iliumstrategies.com/#organization",
         "name": "Ilium Strategies",
         "url": "https://iliumstrategies.com/",
+        "sameAs": ["https://www.linkedin.com/company/iliumstrategies"],
         "founder": {"@id": f"{SITE_URL}/#person"},
     },
     "alumniOf": {
