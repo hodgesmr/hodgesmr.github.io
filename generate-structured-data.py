@@ -64,6 +64,13 @@ SITE_URL = _SITE["url"]
 AUTHOR_NAME = _SITE["name"]
 SAME_AS = _SITE["same_as"]
 
+# Identity links beyond the navbar profiles. Navbar links are collected
+# automatically into sameAs; links that shouldn't appear in the navbar
+# belong here.
+EXTRA_SAME_AS = [
+    "https://www.wikidata.org/wiki/Q141186912",
+]
+
 # Biographical facts for the Person entity that exist nowhere in the
 # rendered metadata. Everything else (name, url, sameAs, description,
 # press coverage) is derived; edit here only when the biography changes.
@@ -118,7 +125,7 @@ def person_node() -> dict:
         "@id": f"{SITE_URL}/#person",
         "name": AUTHOR_NAME,
         "url": f"{SITE_URL}/",
-        "sameAs": SAME_AS,
+        "sameAs": SAME_AS + EXTRA_SAME_AS,
         **PERSON_FACTS,
     }
 
