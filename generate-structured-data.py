@@ -101,6 +101,11 @@ PERSON_FACTS = {
         "Campaign cybersecurity",
         "Democratic campaign infrastructure",
         "Democratic party politics",
+        "Large language models",
+        "AI agents",
+        "Campaign finance",
+        "Data analysis",
+        "Data privacy",
     ],
 }
 
