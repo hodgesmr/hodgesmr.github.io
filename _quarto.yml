@@ -7,6 +7,15 @@ project:
     - "!CLAUDE.md"
   resources:
     - "site.webmanifest"
+    - "favicon.ico"
+    - "apple-touch-icon.png"
+    - "img/favicon.svg"
+    - "img/favicon-96x96.png"
+    - "img/icon-192.png"
+    - "img/icon-512.png"
+    - "img/icon-maskable-512.png"
+  pre-render:
+    - "python generate-favicons.py --if-changed"
   post-render:
     - "python generate-llms-txt.py"
     - "python generate-ai-links.py"
@@ -17,7 +26,6 @@ website:
   title: "Matt Hodges"
   description: "Matt Hodges is a political technologist and founder of Ilium Strategies, a consulting practice helping Democrats build, scale, and innovate with technology and AI. Former Director of Engineering for Biden 2020. Featured in The New York Times, Wired, The Washington Post, and The Economist."
   image: "img/social.jpg"
-  favicon: "img/favicon.svg"
   twitter-card: true
   site-url: https://matthodges.com
   open-graph: true
@@ -47,6 +55,10 @@ format:
       - cosmo
       - styles.scss
     header-includes: |
+      <link rel="icon" href="/favicon.ico" sizes="32x32">
+      <link rel="icon" href="/img/favicon-96x96.png" type="image/png" sizes="96x96">
+      <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png">
       <link rel="manifest" href="/site.webmanifest">
       <meta name="theme-color" content="#FFFFFF">
       <link rel="preconnect" href="https://fonts.googleapis.com">

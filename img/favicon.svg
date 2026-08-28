@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="4" fill="#111827"/>
-  <text x="16" y="23" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="400" font-size="20" fill="#FFFFFF" letter-spacing="-0.5">MH</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!-- generate-favicons.py inputs sha256:c11d867aed718ea05d6f576a412bd4156098a2b4823f8006cb12927d73008010 --><style>@media (prefers-color-scheme: dark){.bg{fill:#F9FAFB}.fg{fill:#111827}}</style><circle class="bg" cx="256" cy="256" r="256" fill="#111827"/><path class="fg" fill="#FFFFFF" d="M181.6 151.9 104.7 362.9 129.7 374.4 127.2 382.6H48.2L50.7 374.4L82.6 362.7L161.8 149L136.1 136.1L138.5 128.1H228.9L244.1 344.2L226.3 350.4L377.2 128.1H397.8L396.5 134.7L226.3 383.9H191.6L173.9 156.7ZM381.1 128.1H463.8L461.4 136.1L432.1 146.8L382.6 365.1L406.3 374.6L403.9 382.6H295.7L298.1 374.6L327.1 364.2Z"/></svg>

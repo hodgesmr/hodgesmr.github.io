@@ -33,7 +33,8 @@ Canonical URLs are handled natively via `canonical-url: true` in `_quarto.yml`.
 - `posts/_code-license.qmd` -- BSD license partial included in code-heavy posts
 - `docs/` -- rendered output (committed to git, served by GitHub Pages)
 - `_freeze/` -- Quarto freeze directory storing cached computation results from notebooks
-- `img/` -- site-wide images (photo, favicon SVG, social card)
+- `img/` -- site-wide images (photo, social card, favicon SVG and PNG icons)
+- `generate-favicons.py` -- builds the favicon set (`img/favicon*.{svg,png}`, `img/icon-*.png`, `favicon.ico`, `apple-touch-icon.png`) from the Newsreader Italic "M" glyph and mirrors it into `docs/`. Runs as a pre-render hook with `--if-changed`, which compares a SHA-256 stamp inside `img/favicon.svg` against the script source and parameters and exits immediately when nothing changed. The font is pinned to a google/fonts commit and cached in `.cache/fonts/` (gitignored).
 
 ## Post Conventions
 
@@ -64,11 +65,13 @@ All interactive elements (links, navbar, TOC, cards) use `$transition-speed: 0.1
 
 `_quarto.yml` explicitly renders `*.qmd` and `*.ipynb` files, and excludes `CLAUDE.md`. Both file types must be included since several posts are Jupyter notebooks.
 
-## Post-Render Scripts
+## Pre- and Post-Render Scripts
 
-Two post-render scripts run automatically (configured in `_quarto.yml`):
+One pre-render script runs first: `generate-favicons.py --if-changed` (see above). Then post-render scripts run automatically (configured in `_quarto.yml`):
 1. `generate-llms-txt.py` -- generates `docs/llms.txt` from rendered markdown files for LLM consumption
 2. `generate-ai-links.py` -- injects static "Open in ChatGPT" and "Open in Claude" links into the `.quarto-alternate-formats` section of each rendered HTML page, using the canonical URL
+3. `generate-structured-data.py` -- injects JSON-LD structured data and Open Graph tags into each rendered HTML page
+4. `fix-sitemap-urls.py` -- strips `index.html` suffixes from `docs/sitemap.xml` URLs
 
 ## Deployment
 
