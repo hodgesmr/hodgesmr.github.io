@@ -73,6 +73,8 @@ One pre-render script runs first: `generate-favicons.py --if-changed` (see above
 3. `generate-structured-data.py` -- injects JSON-LD structured data and Open Graph tags into each rendered HTML page
 4. `fix-sitemap-urls.py` -- strips `index.html` suffixes from `docs/sitemap.xml` URLs
 
+Post-render scripts must be idempotent. A single-document render or `quarto preview` regenerates only that document but still runs every post-render script over all of `docs/`, so a script that appends without checking will stack duplicates on every other page.
+
 ## Deployment
 
 The site is deployed to GitHub Pages. The `CNAME` file maps to `matthodges.com`. The `docs/` directory is the publish source. The `.nojekyll` file disables Jekyll processing on GitHub Pages.

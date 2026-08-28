@@ -29,6 +29,21 @@ CLOSE_UL_RE = re.compile(
     re.DOTALL,
 )
 
+# Markup this script injected on an earlier run. A full `quarto render`
+# regenerates every page, but a single-document render or `quarto preview`
+# (which the VS Code extension runs) regenerates only that document while
+# still running post-render scripts over every file in docs/. Without
+# stripping these first, each such pass would append another pair of links
+# and another mobile block to every page that wasn't regenerated.
+INJECTED_LINKS_RE = re.compile(
+    r'<li><a href="https://chatgpt\.com/\?q=[^"]*"[^>]*><i class="bi bi-openai"></i>Open in ChatGPT</a></li>'
+    r'<li><a href="https://claude\.ai/new\?q=[^"]*"[^>]*><i class="bi bi-claude"></i>Open in Claude</a></li>'
+)
+MOBILE_BLOCK_RE = re.compile(
+    r'<div class="quarto-alternate-formats quarto-alternate-formats-mobile">.*?</ul></div>',
+    re.DOTALL,
+)
+
 # Match the closing </header> of the title block. The first </header>
 # after id="title-block-header" is the correct one (headers don't nest).
 # This replicates where the old JS inserted:
@@ -61,12 +76,22 @@ def build_mobile_block(links_html: str) -> str:
     )
 
 
+def strip_injected(html: str) -> str:
+    """Remove anything a previous run injected, so injecting again yields exactly one set."""
+    html = MOBILE_BLOCK_RE.sub("", html)
+    html = INJECTED_LINKS_RE.sub("", html)
+    return html
+
+
 def inject_links(html: str) -> str | None:
-    """Inject AI links into the alternate-formats list and add a mobile duplicate."""
+    """Inject AI links into the alternate-formats list and add a mobile duplicate.
+
+    Idempotent: previously injected markup is stripped first."""
     canonical_match = CANONICAL_RE.search(html)
     if not canonical_match:
         return None
 
+    html = strip_injected(html)
     canonical_url = canonical_match.group(1)
     links_html = build_links_html(canonical_url)
 
@@ -98,7 +123,7 @@ def main():
             continue
 
         result = inject_links(content)
-        if result:
+        if result and result != content:
             html_path.write_text(result, encoding="utf-8")
             modified += 1
 
