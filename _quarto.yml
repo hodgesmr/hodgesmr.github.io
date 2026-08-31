@@ -16,6 +16,7 @@ project:
     - "img/icon-maskable-512.png"
   pre-render:
     - "python generate-favicons.py --if-changed"
+    - "python generate-social-card.py --if-changed"
   post-render:
     - "python generate-llms-txt.py"
     - "python generate-ai-links.py"

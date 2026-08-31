@@ -35,6 +35,7 @@ Canonical URLs are handled natively via `canonical-url: true` in `_quarto.yml`.
 - `_freeze/` -- Quarto freeze directory storing cached computation results from notebooks
 - `img/` -- site-wide images (photo, social card, favicon SVG and PNG icons)
 - `generate-favicons.py` -- builds the favicon set (`img/favicon*.{svg,png}`, `img/icon-*.png`, `favicon.ico`, `apple-touch-icon.png`) from the Newsreader Italic "M" glyph and mirrors it into `docs/`. Runs as a pre-render hook with `--if-changed`, which compares a SHA-256 stamp inside `img/favicon.svg` against the script source and parameters and exits immediately when nothing changed. The font is pinned to a google/fonts commit and cached in `.cache/fonts/` (gitignored).
+- `generate-social-card.py` -- builds the sitewide social preview card `img/social.jpg` (1200x630 og:image / twitter:image) and mirrors it into `docs/`. Same conventions as the favicon build: pre-render hook with `--if-changed`, fonts (Newsreader Italic, DM Mono) pinned to google/fonts commits and cached in `.cache/fonts/`, and a SHA-256 stamp of the script source plus `img/photo.jpg` carried in the JPEG's COM segment for change detection. Rebuilding needs Pillow (in `.venv`); the fast path is standard library only. When editing: Pillow's `set_variation_by_axes` takes values in the font's fvar order, which for Newsreader is (wght, opsz).
 
 ## Post Conventions
 
@@ -67,7 +68,7 @@ All interactive elements (links, navbar, TOC, cards) use `$transition-speed: 0.1
 
 ## Pre- and Post-Render Scripts
 
-One pre-render script runs first: `generate-favicons.py --if-changed` (see above). Then post-render scripts run automatically (configured in `_quarto.yml`):
+Two pre-render scripts run first: `generate-favicons.py --if-changed` and `generate-social-card.py --if-changed` (see above). Then post-render scripts run automatically (configured in `_quarto.yml`):
 1. `generate-llms-txt.py` -- generates `docs/llms.txt` from rendered markdown files for LLM consumption
 2. `generate-ai-links.py` -- injects static "Open in ChatGPT" and "Open in Claude" links into the `.quarto-alternate-formats` section of each rendered HTML page, using the canonical URL
 3. `generate-structured-data.py` -- injects JSON-LD structured data and Open Graph tags into each rendered HTML page
