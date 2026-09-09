@@ -72,7 +72,7 @@ Two pre-render scripts run first: `generate-favicons.py --if-changed` and `gener
 1. `generate-llms-txt.py` -- generates `docs/llms.txt` from rendered markdown files for LLM consumption
 2. `generate-ai-links.py` -- injects static "Open in ChatGPT" and "Open in Claude" links into the `.quarto-alternate-formats` section of each rendered HTML page, using the canonical URL
 3. `generate-structured-data.py` -- injects JSON-LD structured data and Open Graph tags into each rendered HTML page
-4. `fix-sitemap-urls.py` -- strips `index.html` suffixes from `docs/sitemap.xml` URLs
+4. `fix-sitemap-urls.py` -- strips `index.html` suffixes from `docs/sitemap.xml` URLs and collapses duplicate entries, keeping the newest `lastmod`. Quarto's incremental sitemap update matches entries by the raw `index.html` path, so after the suffix is stripped a single-document render appends a fresh entry instead of updating the existing one.
 
 Post-render scripts must be idempotent. A single-document render or `quarto preview` regenerates only that document but still runs every post-render script over all of `docs/`, so a script that appends without checking will stack duplicates on every other page.
 
