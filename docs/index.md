@@ -104,6 +104,10 @@ data for the United States.
 
 ## Media & Appearances
 
+- [Talk: Three Eras of AI in Campaigns and the Shift to Agentic AI](https://aicampaignstack.org/open-mic)  
+  AI Open Mic \| Higher Ground Institute, Analyst Institute & Research
+  Collaborative, 2026
+
 - [Deepfakes Are Everywhere, and Many Campaigns Aren’t Prepared](https://www.notus.org/technology/deepfakes-campaigns)  
   NOTUS, 2025
 

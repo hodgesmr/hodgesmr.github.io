@@ -41,6 +41,8 @@ I have been an **Election Night Reporter** for [Decision Desk HQ]{.color-accent}
 I have been a frequent **Open Source Contributor** to [OpenElections]{.color-accent}, which is creating the first free, comprehensive, standardized, linked set of election results data for the United States. 
 
 ## Media & Appearances
+*   [Talk: Three Eras of AI in Campaigns and the Shift to Agentic AI](https://aicampaignstack.org/open-mic)
+    :   AI Open Mic | Higher Ground Institute, Analyst Institute & Research Collaborative, 2026
 *   [Deepfakes Are Everywhere, and Many Campaigns Aren’t Prepared](https://www.notus.org/technology/deepfakes-campaigns)
     :   NOTUS, 2025
     :   [Archive](https://web.archive.org/web/20250922113311/https://www.notus.org/technology/deepfakes-campaigns)
