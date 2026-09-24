@@ -282,7 +282,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#training-the-neural-network" id="toc-training-the-neural-network" class="nav-link" data-scroll-target="#training-the-neural-network">Training the Neural Network</a></li>
   <li><a href="#training-our-model" id="toc-training-our-model" class="nav-link" data-scroll-target="#training-our-model">Training Our Model</a></li>
   <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
-  <li><a href="#license" id="toc-license" class="nav-link" data-scroll-target="#license">License</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2></h2><ul><li><a href="index.md"><i class="bi bi-file-code"></i>Markdown</a></li><li><a href="https://chatgpt.com/?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/" target="_blank" rel="noopener noreferrer"><i class="bi bi-openai"></i>Open in ChatGPT</a></li><li><a href="https://claude.ai/new?q=I%27d%20like%20to%20discuss%20the%20content%20from%20https%3A//matthodges.com/posts/2022-08-06-neural-network-from-scratch-python-numpy/" target="_blank" rel="noopener noreferrer"><i class="bi bi-claude"></i>Open in Claude</a></li></ul></div></nav>
     </div>
@@ -293,20 +292,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<p>This post is adapted from a Jupyter <a href="https://github.com/hodgesmr/neural_network_from_scratch">Notebook found on GitHub</a>.</p>
-<p>The goal of this post is to give a hands-on explanation of how Artificial Neural Networks work. I intentionally avoided frameworks like PyTorch or Tensoflow because I wanted to build a better understanding of what Machine Learning models actually are, what Neural Networks actually are, and how they can be made. This post is a collection of information I wish I had when I began this journey. It touches on a little bit of the math, but I don’t deeply re-explain the math. I try to link out to more explanatory sources where I think it’s valuable. Note: I am not a Machine Learning engineer, nor am I a Data Scientist. I’m a Software Engineer that turned into a political operative (lol). I wrote this for an audience of Software Engineers. Also: I don’t have a GPU and I don’t want to spend a bunch of money renting one from Amazon. This model can be trained and deployed on a modern CPU in a matter of minutes.</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Updated September 2026
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The original version of this post had three bugs in its code:</p>
+<ul>
+<li><code>back_prop</code> divided by the number of entries in <code>one_hot_output</code> instead of the number of images, which made every gradient ten times too small.</li>
+<li>The bias gradients summed over the whole matrix, so every neuron in a layer got the same bias update, and <code>biases_2</code> never learned.</li>
+<li><code>init_params</code> created <code>weights_2</code> with its dimensions swapped. It only worked because the hidden layer and the output layer both have ten nodes.</li>
+</ul>
+<p>With the gradients fixed, a learning rate of 0.5 over-shoots, so the post now uses 0.1. I also made <code>softmax</code> numerically stable, set a random seed so the results are reproducible, corrected which layers the activation functions belong to, and fixed a bunch of typos. The outputs below are from a fresh run with Python 3.13 and NumPy 2.3. The model now reaches 90% training accuracy in 489 iterations, down from 1,037.</p>
+</div>
+</div>
+</div>
+<p>The goal of this post is to give a hands-on explanation of how Artificial Neural Networks work. I intentionally avoided frameworks like PyTorch or TensorFlow because I wanted to build a better understanding of what Machine Learning models actually are, what Neural Networks actually are, and how they can be made. This post is a collection of information I wish I had when I began this journey. It touches on a little bit of the math, but I don’t deeply re-explain the math. I try to link out to more explanatory sources where I think it’s valuable. Note: I am not a Machine Learning engineer, nor am I a Data Scientist. I’m a Software Engineer that turned into a political operative (lol). I wrote this for an audience of Software Engineers. Also: I don’t have a GPU and I don’t want to spend a bunch of money renting one from Amazon. This model can be trained and deployed on a modern CPU in a matter of minutes.</p>
 <section id="what-well-be-doing" class="level3">
 <h3 class="anchored" data-anchor-id="what-well-be-doing">What We’ll Be Doing</h3>
-<p>We’re going to build a Neural Network for multi-class classification. All that means is we’re going to make a model takes in images and attempts to label them from a set of options. In our case, we’re going to create a Neural Network that works with the <a href="https://yann.lecun.com/exdb/mnist/">MNIST database of handwritten digits</a>. This database contains 70,000 images of handwritten digits, 0 - 9, and corresponding labels of which digit the handwritten image is. We’ll use 60,000 of the images to train our Neural Network, and 10,000 to test its accuracy. The rest of this post assumes you have the data downloaded to a local <code>data/</code> directory.</p>
+<p>We’re going to build a Neural Network for multi-class classification. All that means is we’re going to make a model that takes in images and attempts to label them from a set of options. In our case, we’re going to create a Neural Network that works with the <a href="https://web.archive.org/web/20220805193554/http://yann.lecun.com/exdb/mnist/">MNIST database of handwritten digits</a>. This database contains 70,000 images of handwritten digits, 0 - 9, and corresponding labels of which digit the handwritten image is. We’ll use 60,000 of the images to train our Neural Network, and 10,000 to test its accuracy. The rest of this post assumes you have the data downloaded to a local <code>data/</code> directory.</p>
 <p>Neural Networks are particularly handy for image classification tasks. There are many other types of Machine Learning out there, but we won’t spend any attention on those.</p>
 </section>
 <section id="background-concepts" class="level3">
 <h3 class="anchored" data-anchor-id="background-concepts">Background Concepts</h3>
 <section id="shape-of-a-neural-network" class="level4">
 <h4 class="anchored" data-anchor-id="shape-of-a-neural-network">Shape of a Neural Network</h4>
-<p>First of all, let’s demystify one thing: Neural Networks are just graphs. Just nodes and edges. If you’ve studied any Computer Science or have a background in Software Engineering, this is probably a familiar conecpet to you. The exact shape of any given Neural Network is dependant on how you build it, but that’s something we get to decide. The graph has an <strong>input layer</strong> that is usually one node per input feature. In our case, <strong>a pixel of an image is a feature</strong>. Next, there are one or more <strong>hidden layers</strong>. Hidden layers are simply nodes in the graph that are in the middle. They take inputs from other nodes, and the give outputs to other nodes. This is the part that makes it Deep Learning. The presence of one or more hidden layers is the “deep” in Deep Learning. There’s no standard rule for the size of a hidden layer, or how many you should have. Finally, there’s an <strong>output layer</strong>. Each node in the output layer corresponds to one label. For example, if a possible label to an image is “cat” then one node in the output layer represents “cat”. We’re going to make a Neural Network that has a bunch of input layer nodes, a single hidden layer with ten nodes, and an output layer with ten nodes, one for each digit 0 - 9.</p>
-<p>Each Nueron (node) has a unique <strong>Weight</strong> and <strong>Bias</strong>, and each layer has an <strong>Activation Function</strong>. The Activation Function defines the output of a neuron given its inputs, and does not change. We’ll talk more about Activation Functions below. As we train our model, we adjust the Weights and Biases.</p>
-<p>Here’s are drawing of a Neural Network with three input nodes, a hidden layer with four nodes, and an output layer with two nodes. This might be how you’d construct a Neural Network that does binary classification: a model that tries to label inputs to one of two options for outputs.</p>
+<p>First of all, let’s demystify one thing: Neural Networks are just graphs. Just nodes and edges. If you’ve studied any Computer Science or have a background in Software Engineering, this is probably a familiar concept to you. The exact shape of any given Neural Network is dependent on how you build it, but that’s something we get to decide. The graph has an <strong>input layer</strong> that is usually one node per input feature. In our case, <strong>a pixel of an image is a feature</strong>. Next, there are one or more <strong>hidden layers</strong>. Hidden layers are simply nodes in the graph that are in the middle. They take inputs from other nodes, and they give outputs to other nodes. This is the part that makes it Deep Learning. The presence of one or more hidden layers is the “deep” in Deep Learning. There’s no standard rule for the size of a hidden layer, or how many you should have. Finally, there’s an <strong>output layer</strong>. Each node in the output layer corresponds to one label. For example, if a possible label to an image is “cat” then one node in the output layer represents “cat”. We’re going to make a Neural Network that has a bunch of input layer nodes, a single hidden layer with ten nodes, and an output layer with ten nodes, one for each digit 0 - 9.</p>
+<p>Each connection between neurons has a <strong>Weight</strong>, each neuron (node) has a <strong>Bias</strong>, and each layer has an <strong>Activation Function</strong>. The Activation Function defines the output of a neuron given its inputs, and does not change. We’ll talk more about Activation Functions below. As we train our model, we adjust the Weights and Biases.</p>
+<p>Here’s a drawing of a Neural Network with three input nodes, a hidden layer with four nodes, and an output layer with two nodes. This might be how you’d construct a Neural Network that does binary classification: a model that tries to label inputs to one of two options for outputs.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -330,18 +350,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="back-propagation" class="level5">
 <h5 class="anchored" data-anchor-id="back-propagation">Back Propagation</h5>
-<p>Think of this step as showing the Neural Network how right or wrong its answers were. We take all its answers to, “what did you see?” and come up with a measure of how wrong it was. We assign a numeric value to the “how wrong was it?” question with a <a href="https://www.simplilearn.com/tutorials/machine-learning-tutorial/cost-function-in-machine-learning">cost function</a>. From that numerica value, we can work backwards on all the neurons (nodes) to tell them, “you were X wrong, and this specific neuron contributed to Y amount of that error; adjust this neuron’s Weights and Biases by Z amount and try again.”</p>
-<p>3Blue1Brown has another excellent video on the conecepts of Back Propagation: “<a href="https://www.3blue1brown.com/lessons/backpropagation">What is backpropagation really doing?</a>” It’s got some great visuals to show how Forward Propagation pushes data forward through the Neural Network, and how Back Propagation pushes error measures backwards thrrough the Neural Network.</p>
+<p>Think of this step as showing the Neural Network how right or wrong its answers were. We take all its answers to, “what did you see?” and come up with a measure of how wrong it was. We assign a numeric value to the “how wrong was it?” question with a <a href="https://www.simplilearn.com/tutorials/machine-learning-tutorial/cost-function-in-machine-learning">cost function</a>. From that numerical value, we can work backwards on all the neurons (nodes) to tell them, “you were X wrong, and this specific neuron contributed to Y amount of that error; adjust this neuron’s Weights and Biases by Z amount and try again.”</p>
+<p>3Blue1Brown has another excellent video on the concepts of Back Propagation: “<a href="https://www.3blue1brown.com/lessons/backpropagation">What is backpropagation really doing?</a>” It’s got some great visuals to show how Forward Propagation pushes data forward through the Neural Network, and how Back Propagation pushes error measures backwards through the Neural Network.</p>
 </section>
 <section id="training" class="level5">
 <h5 class="anchored" data-anchor-id="training">Training</h5>
-<p>And that’s it! Our Neural Network learns by repeatedly making guesses, seeing how wrong it was, and adjusting its Weights and Biases. We repeat this over and over until it is good at the task! This is a lot like how people learn. Show a small child pictures of various farm animals over and over and ask them to name the animals. At first they’re very bad at it, but over time they get very good at it. There’s a lot of research out there that our artifical Neural Network is structured and operates like human brain neurons.</p>
+<p>And that’s it! Our Neural Network learns by repeatedly making guesses, seeing how wrong it was, and adjusting its Weights and Biases. We repeat this over and over until it is good at the task! This is a lot like how people learn. Show a small child pictures of various farm animals over and over and ask them to name the animals. At first they’re very bad at it, but over time they get very good at it. There’s a lot of research out there that our artificial Neural Network is structured and operates like human brain neurons.</p>
 </section>
 </section>
 <section id="gradient-descent" class="level4">
 <h4 class="anchored" data-anchor-id="gradient-descent">Gradient Descent</h4>
 <p>Gradient Descent is the most math-y piece of all this. Again, 3Blue1Brown has a great video: “<a href="https://www.3blue1brown.com/lessons/gradient-descent">Gradient descent, how neural networks learn</a>”. This is the piece that is the most <em>choose-your-own-adventure</em> for how much you want to actually understand. I recommend diving in at least a little bit.</p>
-<p>Imagine being at a point graph and you want to find which step to take to get to the minimum value. If you’ve taken any calculus before, you know that you can take the slope at the current point to tell you which way the graph is trending, and by how much. If you do this over and over, with small steps, you will approach a local minimum. That’s a 1-dimensional gradient descent. Our plan is to work with lots of repeated steps to get to a minumum of our <a href="https://www.simplilearn.com/tutorials/machine-learning-tutorial/cost-function-in-machine-learning">cost function</a> — the function telling us how bad our predictions are.</p>
+<p>Imagine being at a point on a graph and you want to find which step to take to get to the minimum value. If you’ve taken any calculus before, you know that you can take the slope at the current point to tell you which way the graph is trending, and by how much. If you do this over and over, with small steps, you will approach a local minimum. That’s a 1-dimensional gradient descent. Our plan is to work with lots of repeated steps to get to a minimum of our <a href="https://www.simplilearn.com/tutorials/machine-learning-tutorial/cost-function-in-machine-learning">cost function</a> — the function telling us how bad our predictions are.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -354,7 +374,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>You can do this in two and three domensions as well. In fact, you can do it in as many dimensions as you need, which is very handy, because image classification has lots of dimensions. Imagine a color image. Its obvious dimensions are the pixel’s X value, Y value, Red value, Green value, Blue value, alpha value, and probably many more.</p>
+<p>You can do this in two and three dimensions as well. In fact, you can do it in as many dimensions as you need, which is very handy, because image classification has lots of dimensions. Imagine a color image. Its obvious dimensions are the pixel’s X value, Y value, Red value, Green value, Blue value, alpha value, and probably many more.</p>
 <p>Quick aside: <strong>a “tensor” is just a matrix with a high-order of dimensions</strong>.</p>
 <table class="caption-top table">
 <thead>
@@ -377,7 +397,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>It’s also worth pointing out that I’m developing this in Python 3.10. Other versions of Python 3 probably work, too.</p>
 <div id="d4d686c5" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">7</span>)  <span class="co"># So our results are reproducible</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="our-data" class="level3">
@@ -385,12 +407,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>As mentioned, we’re going to be working with the MNIST database of handwritten digits. This is a very handy beginner’s data set because it’s done a lot of the upfront work for us. First of all, the data is normalized: <strong>all images are 28 x 28</strong> and <strong>grayscale</strong>. The standard size is particularly helpful because we’re going to need that to set up the input layer of our Neural Network. In other situations, you’d have to crop or squash or letterbox your images to make them a standard size. This is mostly boilerplate, but some details of the file format that you may wish to know:</p>
 <ul>
 <li>The images are encoded in the <a href="https://www.fon.hum.uva.nl/praat/manual/IDX_file_format.html">IDX file format</a>, which looks for the presence of some magic numbers</li>
-<li>There’s a <a href="http://yann.lecun.com/exdb/mnist/">documented structure</a> to this data set, but that website is often behind HTTP basic auth because people like to script against it; here’s a <a href="https://webcache.googleusercontent.com/search?q=cache:yann.lecun.com/exdb/mnist/">Google cache</a></li>
+<li>There’s a <a href="http://yann.lecun.com/exdb/mnist/">documented structure</a> to this data set, but that website is often behind HTTP basic auth because people like to script against it; here’s an <a href="https://web.archive.org/web/20220805193554/http://yann.lecun.com/exdb/mnist/">archived copy</a></li>
 <li>The images are gzip’d</li>
 <li>The pixel values are 0 - 255, but we’re going to divide them into floats 0 - 1</li>
 </ul>
 <p>Here, we read in all the training data. We want to structure it into a matrix where each pixel is a row (this will line up with our input layer), and each image is a column. This gives us a matrix with 784 rows (28 x 28) and 60,000 columns.</p>
-<p>This is the least intersting bit of code in the entire post.</p>
+<p>This is the least interesting bit of code in the entire post.</p>
 <div id="f92d65fc" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gzip</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -452,7 +474,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>            image_data <span class="op">=</span> np.frombuffer(<span class="bu">buffer</span>, dtype<span class="op">=</span>np.uint8).astype(np.float64) <span class="op">/</span> <span class="dv">255</span></span>
 <span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Reshape it to a matrix such that each column is the pixels of the image</span></span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>            <span class="co"># So, we end up with a matrix with `image_width*image_height` rows and `number_of_images` colums</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>            <span class="co"># So, we end up with a matrix with `image_width*image_height` rows and `number_of_images` columns</span></span>
 <span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>            image_data <span class="op">=</span> image_data.reshape(</span>
 <span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>                number_of_images, image_width <span class="op">*</span> image_height</span>
 <span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>            ).T</span>
@@ -474,7 +496,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-4-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-5-output-2.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -486,33 +508,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="initializing-weights-and-biases">Initializing Weights and Biases</h4>
 <p>The first step in creating our Neural Network is to build out Forward Propagation. Since our Neural Network will have an input layer, one hidden layer, and an output layer, we’ll need:</p>
 <ul>
-<li>A set of Weights and Biases on the input layer</li>
-<li>An Activation Function on the input layer</li>
-<li>A set of Weights and Biases on the hidden layer</li>
+<li>A set of Weights and Biases between the input layer and the hidden layer</li>
 <li>An Activation Function on the hidden layer</li>
+<li>A set of Weights and Biases between the hidden layer and the output layer</li>
+<li>An Activation Function on the output layer</li>
 </ul>
-<p>As mentioned, the Weights and Biases are variable and are determined in the model’s training process. But our model needs to start somewhere. There are a variety of strategies for initializing Weights and Biases. You could initialize to random values, but we’re going to use the <a href="https://towardsdatascience.com/coding-neural-network-parameters-initialization-f7c2d770e874">He method</a> to initialize random Weights, and the <a href="https://cs231n.github.io/neural-networks-2/">common recommendation of Biases initialized to zero</a>.</p>
+<p>As mentioned, the Weights and Biases are variable and are determined in the model’s training process. But our model needs to start somewhere. There are a variety of strategies for initializing Weights and Biases. You could initialize to random values, but we’re going to use the <a href="https://web.archive.org/web/20250207022225/https://medium.com/towards-data-science/coding-neural-network-parameters-initialization-f7c2d770e874">He method</a> to initialize random Weights, and the <a href="https://cs231n.github.io/neural-networks-2/">common recommendation of Biases initialized to zero</a>.</p>
 <div id="896d9690" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># weights_1 is the matrix of Weights between our input nodes and the first hidden layer</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># it has the shape num_labels x image_size</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># it has the shape hidden_layer_size x input_layer_size</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># biases_1 is the matrix of Biases between our input nodes and the first hidden layer</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># it has the shape num_labels x 1</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># biases_1 is the matrix of Biases for the first hidden layer</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># it has the shape hidden_layer_size x 1</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># weights_2 is the matrix of Weights between our hidden layer and our output layer</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># it has the shape num_labels x num_labels</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># it has the shape output_layer_size x hidden_layer_size</span></span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># biases_2 is the matrix of biases between our hidden layer and our output layer</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># it has the shape num_labels x 1</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># biases_2 is the matrix of Biases for our output layer</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># it has the shape output_layer_size x 1</span></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> init_params(input_layer_size, hidden_layer_size, output_layer_size):</span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    weights_1 <span class="op">=</span> np.random.randn(</span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        hidden_layer_size,</span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        input_layer_size,</span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">*</span> np.sqrt(<span class="dv">2</span> <span class="op">/</span> input_layer_size)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    weights_2 <span class="op">=</span> np.random.randn(</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        hidden_layer_size,</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        output_layer_size,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        output_layer_size,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        hidden_layer_size,</span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">*</span> np.sqrt(<span class="dv">2</span> <span class="op">/</span> hidden_layer_size)</span>
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    biases_1 <span class="op">=</span> np.zeros((hidden_layer_size, <span class="dv">1</span>))</span>
@@ -521,29 +543,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> weights_1, biases_1, weights_2, biases_2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="input-layer-activation-function" class="level4">
-<h4 class="anchored" data-anchor-id="input-layer-activation-function">Input Layer Activation Function</h4>
-<p>Next we need to select an activation function on our input layer. Common options are <a href="https://en.wikipedia.org/wiki/Sigmoid_function">sigmoid</a> and <a href="https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29">ReLU</a>. ReLU is very effective and is a very common choice in computer vision models. Also, it’s incredibly simple to implement, so we’ll go with that.</p>
+<section id="hidden-layer-activation-function" class="level4">
+<h4 class="anchored" data-anchor-id="hidden-layer-activation-function">Hidden Layer Activation Function</h4>
+<p>Next we need to select an activation function for our hidden layer. Common options are <a href="https://en.wikipedia.org/wiki/Sigmoid_function">sigmoid</a> and <a href="https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29">ReLU</a>. ReLU is very effective and is a very common choice in computer vision models. Also, it’s incredibly simple to implement, so we’ll go with that.</p>
 <p>All it does is take a value as input, and if the value is less than 0, return 0; if the value is greater than 0, return that value. That’s it! <a href="https://www.aitude.com/comparison-of-sigmoid-tanh-and-relu-activation-functions/">Here’s a handy post comparing ReLU to other activation functions</a>.</p>
 <div id="527eed8a" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> relu(value):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.maximum(value, <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="hidden-layer-activation-function" class="level4">
-<h4 class="anchored" data-anchor-id="hidden-layer-activation-function">Hidden Layer Activation Function</h4>
-<p>The last piece we need for our Forward Propagation is an Activation Function on the hidden layer. Remember: this Activation Function is feeding to our output layer, so we need something that generates ten prediction values. A good way to do this is to take our unactivated hidden layer and normalize it such that it outputs “prediction odds” to our output layer. Put another way, if the model is 91% sure an input is the number 5, it should activate the 5’s output node to 0.91, and the sum of all the other predictions should come to 0.09.</p>
-<p>What we’ve just described is called the <a href="https://en.wikipedia.org/wiki/Softmax_function">Softmax function</a>. The mast might look a little strange (<a href="https://towardsdatascience.com/softmax-activation-function-explained-a7e1bc3ad60">here’s a good explainer</a>), but all it’s doing is taking in a set of numbers and normalizing them to be 0 - 1, with a sum of 1.</p>
+<section id="output-layer-activation-function" class="level4">
+<h4 class="anchored" data-anchor-id="output-layer-activation-function">Output Layer Activation Function</h4>
+<p>The last piece we need for our Forward Propagation is an Activation Function on the output layer. Remember: this Activation Function produces our output layer, so we need something that generates ten prediction values. A good way to do this is to take our unactivated output layer and normalize it such that it outputs “prediction odds” to our output layer. Put another way, if the model is 91% sure an input is the number 5, it should activate the 5’s output node to 0.91, and the sum of all the other predictions should come to 0.09.</p>
+<p>What we’ve just described is called the <a href="https://en.wikipedia.org/wiki/Softmax_function">Softmax function</a>. The math might look a little strange (<a href="https://towardsdatascience.com/softmax-activation-function-explained-a7e1bc3ad60">here’s a good explainer</a>), but all it’s doing is taking in a set of numbers and normalizing them to be 0 - 1, with a sum of 1.</p>
 <div id="66a326c3" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(inputs):</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    exponentiated <span class="op">=</span> np.exp(inputs)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    probabilities <span class="op">=</span> exponentiated <span class="op">/</span> np.<span class="bu">sum</span>(exponentiated, axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> probabilities</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Subtracting the max doesn't change the result, but keeps np.exp from overflowing</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    exponentiated <span class="op">=</span> np.exp(inputs <span class="op">-</span> np.<span class="bu">max</span>(inputs, axis<span class="op">=</span><span class="dv">0</span>, keepdims<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    probabilities <span class="op">=</span> exponentiated <span class="op">/</span> np.<span class="bu">sum</span>(exponentiated, axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> probabilities</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="forward-propagation-1" class="level4">
 <h4 class="anchored" data-anchor-id="forward-propagation-1">Forward Propagation</h4>
-<p>We can now combine our initialized Weights and Biases and our Activation Functions to define Forward Propagation. You’ll notice some matrix math in here. Since our features (pixels) are arranged in a matrix, this is much more efficient that piping every pixel through functions one at a time. This becomes particularly true when you’re working with Neural Networks of higher dimensions. <a href="https://www.youtube.com/watch?v=87_7YVCnAOw">Here’s a refresher on matrix dot product</a>. But you can basically think of it as multiplying the neurons in a layer by their weights.</p>
+<p>We can now combine our initialized Weights and Biases and our Activation Functions to define Forward Propagation. You’ll notice some matrix math in here. Since our features (pixels) are arranged in a matrix, this is much more efficient than piping every pixel through functions one at a time. This becomes particularly true when you’re working with Neural Networks of higher dimensions. <a href="https://www.youtube.com/watch?v=87_7YVCnAOw">Here’s a refresher on matrix dot product</a>. But you can basically think of it as multiplying the neurons in a layer by their weights.</p>
 <div id="33feb5fa" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> forward_prop(weights_1, biases_1, weights_2, biases_2, input_layer):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># First, calculate the unactivated values of the neurons in the first hidden layer</span></span>
@@ -560,7 +583,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> unactivated_hidden_layer, activated_hidden_layer, unactivated_output_layer, output_layer</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>This is actually all we need to do to have our model make a prediction. If we pass in a matrix of images, it’ll give an <code>output_layer</code> of predicted labels. But remember, we haven’t actually trained it yet, so it’ll make <strong>very bad predictions</strong>. The two types of variables we have, the Weights and Biases, are set to random values. So this thing is going to perform with roughly 10% accuracy (randomly picking one of our ten digits). Let’s see that.</p>
+<p>This is actually all we need to do to have our model make a prediction. If we pass in a matrix of images, it’ll give an <code>output_layer</code> of predicted labels. But remember, we haven’t actually trained it yet, so it’ll make <strong>very bad predictions</strong>. The two types of variables we have, the Weights and Biases, are set to random values and zeros, respectively. So this thing is going to perform with roughly 10% accuracy (randomly picking one of our ten digits). Let’s see that.</p>
 <p>We can define a measure of accuracy by dividing the number of correct predictions (the labels with the highest value in <code>output_layer</code>) by total number of predictions.</p>
 <div id="6f060dab" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_predictions(output_layer):</span>
@@ -598,14 +621,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Accuracy: </span><span class="sc">{</span>accuracy<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 8.22%</code></pre>
+<pre><code>Accuracy: 8.14%</code></pre>
 </div>
 </div>
 </section>
 </section>
 <section id="training-the-neural-network" class="level3">
 <h3 class="anchored" data-anchor-id="training-the-neural-network">Training the Neural Network</h3>
-<p>Now that we have a stupid Neural Network, let’s train it so it can become a smart Neural Network. As mentioned before, Back Propagation is the proces in which we take the predictions from Forward Propagation, measure the error, and adjust our Weights and Biases through Gradient Descent.</p>
+<p>Now that we have a stupid Neural Network, let’s train it so it can become a smart Neural Network. As mentioned before, Back Propagation is the process in which we take the predictions from Forward Propagation, measure the error, and adjust our Weights and Biases through Gradient Descent.</p>
 <p>Before we begin, we need one more helper function. We want to compare our known labels to all our predictions, and we can do that with a matrix with values of 1 (100%) at the correct index and 0 (0%) at all the incorrect indexes. We do this with <a href="https://en.wikipedia.org/wiki/One-hot">One-hot encoding</a>.</p>
 <div id="4814221a" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> one_hot(num_labels, labels):</span>
@@ -622,14 +645,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="back-propagation-1" class="level4">
 <h4 class="anchored" data-anchor-id="back-propagation-1">Back Propagation</h4>
-<p>This is where we actually do our Gradient Descent. It contains a little bit of calculus, and I highly adivse you pause here and watch these three videos:</p>
+<p>This is where we actually do our Gradient Descent. It contains a little bit of calculus, and I highly advise you pause here and watch these three videos:</p>
 <ul>
 <li><a href="https://www.3blue1brown.com/lessons/backpropagation">What is backpropagation really doing?</a></li>
 <li><a href="https://www.3blue1brown.com/lessons/backpropagation-calculus">Backpropagation Calculus</a></li>
 <li><a href="https://www.youtube.com/watch?v=f-nW8cSa_Ec">Backpropagation for Softmax and Multi-Class Classification | Complete Mathematical Derivation</a></li>
 </ul>
-<p>It’s actually not all that imporant to master the calculus in these videos, but it’s very helpful to see what math is happening. From a high-level: we take the derivatives of our activation functions, and we reverse our matrix multiplication. It’s actually not too daunting. In the end, it gives is a measurement of error, and we use that error to adjust our Weights and Biases.</p>
-<p>Speaking of derivatives, we’re gonna need the derivated of our ReLU Activation Function:</p>
+<p>It’s actually not all that important to master the calculus in these videos, but it’s very helpful to see what math is happening. From a high-level: we take the derivatives of our activation functions, and we reverse our matrix multiplication. It’s actually not too daunting. In the end, it gives us a measurement of error, and we use that error to adjust our Weights and Biases.</p>
+<p>Speaking of derivatives, we’re gonna need the derivative of our ReLU Activation Function:</p>
 <div id="69a64a23" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rectified_linear_unit only ever has a slope of 0 (negative X), or 1 (positive X)</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> derivative_rectified_linear_unit(Z):</span>
@@ -638,31 +661,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>And now we just go backwards through the Neural Network:</p>
 <div id="a6b7cd01" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> back_prop(unactivated_hidden_layer, activated_hidden_layer, weights_2, output_layer, one_hot_output, training_image_data):</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    num_images <span class="op">=</span> one_hot_output.size</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The difference between the predictions and the actual labels</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    d_predictions <span class="op">=</span> output_layer <span class="op">-</span> one_hot_output</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Take that d_predictions and cary back to the activated hidden layer</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># And then average over all the neurons</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    d_weights_2 <span class="op">=</span> (<span class="dv">1</span> <span class="op">/</span> num_images) <span class="op">*</span> d_predictions.dot(activated_hidden_layer.T)</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Derivative of biases_ 2 is acutally just an average of the abosolute error</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    d_biases_2 <span class="op">=</span> (<span class="dv">1</span> <span class="op">/</span> num_images) <span class="op">*</span> np.<span class="bu">sum</span>(d_predictions)</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Derivative of unactived hidden layer</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Transpose the 2nd layer weights and dot on the known d_predictions</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># And multiply that by the derivative of the activation function</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    d_hidden_layer <span class="op">=</span> weights_2.T.dot(d_predictions) <span class="op">*</span> derivative_rectified_linear_unit(unactivated_hidden_layer)</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Again, take our current derivative and cary it back to the input layer</span></span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># And average it over all the neurons</span></span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    d_weights_1 <span class="op">=</span> (<span class="dv">1</span> <span class="op">/</span> num_images) <span class="op">*</span> d_hidden_layer.dot(training_image_data.T)</span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Derivative of biases_1 is like biases_2, but it's a simple average of the abolute error from the hiddle layer</span></span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    d_biases_1 <span class="op">=</span> (<span class="dv">1</span> <span class="op">/</span> num_images) <span class="op">*</span> np.<span class="bu">sum</span>(d_hidden_layer)</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d_weights_1, d_biases_1, d_weights_2, d_biases_2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># one_hot_output has one column per image</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    num_images <span class="op">=</span> one_hot_output.shape[<span class="dv">1</span>]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The difference between the predictions and the actual labels</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    d_predictions <span class="op">=</span> output_layer <span class="op">-</span> one_hot_output</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Take that d_predictions and carry back to the activated hidden layer</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># And then average over all the images</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    d_weights_2 <span class="op">=</span> (<span class="dv">1</span> <span class="op">/</span> num_images) <span class="op">*</span> d_predictions.dot(activated_hidden_layer.T)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Derivative of biases_2 is the average error for each output neuron</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    d_biases_2 <span class="op">=</span> (<span class="dv">1</span> <span class="op">/</span> num_images) <span class="op">*</span> np.<span class="bu">sum</span>(d_predictions, axis<span class="op">=</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Derivative of unactivated hidden layer</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Transpose the 2nd layer weights and dot on the known d_predictions</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># And multiply that by the derivative of the activation function</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    d_hidden_layer <span class="op">=</span> weights_2.T.dot(d_predictions) <span class="op">*</span> derivative_rectified_linear_unit(unactivated_hidden_layer)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Again, take our current derivative and carry it back to the input layer</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># And average it over all the images</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    d_weights_1 <span class="op">=</span> (<span class="dv">1</span> <span class="op">/</span> num_images) <span class="op">*</span> d_hidden_layer.dot(training_image_data.T)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Derivative of biases_1 is like biases_2: the average error for each hidden neuron</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    d_biases_1 <span class="op">=</span> (<span class="dv">1</span> <span class="op">/</span> num_images) <span class="op">*</span> np.<span class="bu">sum</span>(d_hidden_layer, axis<span class="op">=</span><span class="dv">1</span>, keepdims<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> d_weights_1, d_biases_1, d_weights_2, d_biases_2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -670,11 +694,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="training-our-model">Training Our Model</h3>
 <section id="learning-rate" class="level4">
 <h4 class="anchored" data-anchor-id="learning-rate">Learning Rate</h4>
-<p>We’re almost ready to train our model. The last piece here is to actually update our Weights and Biases after Back Propagation. You may be tempted to simply subracts the differences returned by <code>back_prop</code> but it’s not quite so simple. Remember, our Gradient Descent is good at telling us the slope at our current location, but it’s very unlikely to be a straight line. Instead, we’re going to want to take smaller steps so that we don’t over-shoot.</p>
+<p>We’re almost ready to train our model. The last piece here is to actually update our Weights and Biases after Back Propagation. You may be tempted to simply subtract the differences returned by <code>back_prop</code> but it’s not quite so simple. Remember, our Gradient Descent is good at telling us the slope at our current location, but it’s very unlikely to be a straight line. Instead, we’re going to want to take smaller steps so that we don’t over-shoot.</p>
 <p>We need to introduce a variable called <code>learning_rate</code>, sometimes called <strong>alpha</strong>. This is a <a href="https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning)">hyperparameter</a>, which simply means that our model can’t learn the correct value through training; we have to set it ourselves. There are techniques to make this process more efficient, but usually it’s a bit of guess and check. If your model has a very bad time improving, you should try adjusting your learning rate. Common learning rates are between 0.01 and 1. If you’d like to read more about picking a learning rate, <a href="https://www.jeremyjordan.me/nn-learning-rate/">this is a good post</a>.</p>
-<p>Through some trial and error, I found that a learning rate of 0.5 worked pretty well for this model.</p>
+<p>Through some trial and error, I found that a learning rate of 0.1 worked pretty well for this model.</p>
 <div id="928e16c7" class="cell" data-execution_count="15">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>learning_rate <span class="op">=</span> <span class="fl">0.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>learning_rate <span class="op">=</span> <span class="fl">0.1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can use this to update our Weights and Biases:</p>
 <div id="00d851bb" class="cell" data-execution_count="16">
@@ -690,7 +714,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="training-1" class="level4">
 <h4 class="anchored" data-anchor-id="training-1">Training</h4>
 <p>Now let’s train our model! You might recall that it’ll take many iterations of Forward Propagation and Back Propagation for our model to get smart. But how many iterations? I don’t actually know! Let’s decide right now that we want our model to be at least 90% accurate on the training data. We’ve already got a function to tell us accuracy, so let’s let it train until that reaches 90%.</p>
-<p>This is the slow part, and the part that often benefits from GPUs. But, as you’ll see, this Neural Network trains surpisingly quickly! On my laptop with no GPU and a 2.6 GHz 6-Core Intel Core i7, the model rechease 90% accuracy on the training data in under two minutes!</p>
+<p>This is the slow part, and the part that often benefits from GPUs. But, as you’ll see, this Neural Network trains surprisingly quickly! On my laptop with no GPU and a 2.6 GHz 6-Core Intel Core i7, the model reaches 90% accuracy on the training data in under two minutes!</p>
 <div id="b0f215b0" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>image_size <span class="op">=</span> training_image_data.shape[<span class="dv">0</span>]</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>num_labels <span class="op">=</span> <span class="bu">len</span>(np.unique(training_labels))</span>
@@ -755,7 +779,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>    accuracy_measurements.append(accuracy)</span>
 <span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Print out upadtes as we go</span></span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Print out updates as we go</span></span>
 <span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> iteration <span class="op">==</span> <span class="dv">1</span> <span class="kw">or</span> iteration <span class="op">%</span> <span class="dv">100</span> <span class="op">==</span> <span class="dv">0</span>:  </span>
 <span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'Iteration: </span><span class="sc">{</span>iteration<span class="sc">}</span><span class="ss"> | Accuracy: </span><span class="sc">{</span>accuracy<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%'</span>)</span>
 <span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a></span>
@@ -768,28 +792,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="dv">0</span>, <span class="dv">1</span>)</span>
 <span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Iteration: 1 | Accuracy: 9.41%
-Iteration: 100 | Accuracy: 72.68%
-Iteration: 200 | Accuracy: 82.50%
-Iteration: 300 | Accuracy: 85.56%
-Iteration: 400 | Accuracy: 87.01%
-Iteration: 500 | Accuracy: 87.85%
-Iteration: 600 | Accuracy: 88.51%
-Iteration: 700 | Accuracy: 88.97%
-Iteration: 800 | Accuracy: 89.37%
-Iteration: 900 | Accuracy: 89.66%
-Iteration: 1000 | Accuracy: 89.90%
-Achieved 90.00% accuracy after 1037 iterations!</code></pre>
+<pre><code>Iteration: 1 | Accuracy: 13.45%
+Iteration: 100 | Accuracy: 83.98%
+Iteration: 200 | Accuracy: 87.50%
+Iteration: 300 | Accuracy: 88.84%
+Iteration: 400 | Accuracy: 89.59%
+Achieved 90.00% accuracy after 489 iterations!</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-17-output-2.png" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-18-output-2.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Now we have the Weights and Biases for our Neural Network to achieve 90% accuracy against our training data. That’s pretty cool, but the real test to to run images through the model that it’s never seen before. If we overfit the model, it might only be good at recognizing the images it was trained on (kindof like cramming for a test and memorizing the answers without actually learning anything). Let’s run it against our 10,000 test images. At this point we only need to run it through <code>forward_prop</code> because we’re no longer training. This is very fast!</p>
+<p>Now we have the Weights and Biases for our Neural Network to achieve 90% accuracy against our training data. That’s pretty cool, but the real test is to run images through the model that it’s never seen before. If we overfit the model, it might only be good at recognizing the images it was trained on (kind of like cramming for a test and memorizing the answers without actually learning anything). Let’s run it against our 10,000 test images. At this point we only need to run it through <code>forward_prop</code> because we’re no longer training. This is very fast!</p>
 <div id="d6773362" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>test_image_data, test_labels <span class="op">=</span> load_images_and_labels(TEST_IMAGE_FILE_PATH, TEST_LABEL_FILE_PATH)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>_, _, _, test_output_layer <span class="op">=</span> forward_prop(</span>
@@ -803,7 +821,7 @@ Achieved 90.00% accuracy after 1037 iterations!</code></pre>
 <span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>test_accuracy <span class="op">=</span> get_accuracy(test_predictions, test_labels)</span>
 <span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Test Data Set Accuracy: </span><span class="sc">{</span>test_accuracy<span class="op">*</span><span class="dv">100</span><span class="sc">:.2f}</span><span class="ss">%'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Test Data Set Accuracy: 90.32%</code></pre>
+<pre><code>Test Data Set Accuracy: 90.30%</code></pre>
 </div>
 </div>
 <p>That’s great! And let’s look at a sample of 10 test images and how they were labeled:</p>
@@ -824,49 +842,18 @@ Achieved 90.00% accuracy after 1037 iterations!</code></pre>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="index_files/figure-html/cell-20-output-1.svg" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Very impressive!</p>
-<p>We’ve successfully built a computer vision Machine Learning model using nothing but NumPy. Hopefully this demystified some of the some of the concepts of Neural Networks!</p>
+<p>We’ve successfully built a computer vision Machine Learning model using nothing but NumPy. Hopefully this demystified some of the concepts of Neural Networks!</p>
 </section>
 </section>
 <section id="acknowledgements" class="level3">
 <h3 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h3>
 <p>My first pass at tackling this topic began with Samson Zhang’s “<a href="https://www.youtube.com/watch?v=w8yWXqWQYmU">Building a neural network FROM SCRATCH (no Tensorflow/Pytorch, just numpy &amp; math)</a>”. This post looks a lot like his work, though I hit a number of implementation errors while following along. After digging into the articles and videos linked in this post, I made a number of adjustments to the model’s training to get to this final output.</p>
-</section>
-<section id="license" class="level3">
-<h3 class="anchored" data-anchor-id="license">License</h3>
-<pre><code>Copyright (c) 2022, Matt Hodges
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of Building a Neural Network From Scratch with NumPy nor the names of its
-  contributors may be used to endorse or promote products derived from
-  this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</code></pre>
 
 
 </section>

@@ -2,35 +2,57 @@
 Matt Hodges
 2022-08-06
 
-This post is adapted from a Jupyter [Notebook found on
-GitHub](https://github.com/hodgesmr/neural_network_from_scratch).
+> [!NOTE]
+>
+> ### Updated September 2026
+>
+> The original version of this post had three bugs in its code:
+>
+> - `back_prop` divided by the number of entries in `one_hot_output`
+>   instead of the number of images, which made every gradient ten times
+>   too small.
+> - The bias gradients summed over the whole matrix, so every neuron in
+>   a layer got the same bias update, and `biases_2` never learned.
+> - `init_params` created `weights_2` with its dimensions swapped. It
+>   only worked because the hidden layer and the output layer both have
+>   ten nodes.
+>
+> With the gradients fixed, a learning rate of 0.5 over-shoots, so the
+> post now uses 0.1. I also made `softmax` numerically stable, set a
+> random seed so the results are reproducible, corrected which layers
+> the activation functions belong to, and fixed a bunch of typos. The
+> outputs below are from a fresh run with Python 3.13 and NumPy 2.3. The
+> model now reaches 90% training accuracy in 489 iterations, down from
+> 1,037.
 
 The goal of this post is to give a hands-on explanation of how
 Artificial Neural Networks work. I intentionally avoided frameworks like
-PyTorch or Tensoflow because I wanted to build a better understanding of
-what Machine Learning models actually are, what Neural Networks actually
-are, and how they can be made. This post is a collection of information
-I wish I had when I began this journey. It touches on a little bit of
-the math, but I don’t deeply re-explain the math. I try to link out to
-more explanatory sources where I think it’s valuable. Note: I am not a
-Machine Learning engineer, nor am I a Data Scientist. I’m a Software
-Engineer that turned into a political operative (lol). I wrote this for
-an audience of Software Engineers. Also: I don’t have a GPU and I don’t
-want to spend a bunch of money renting one from Amazon. This model can
-be trained and deployed on a modern CPU in a matter of minutes.
+PyTorch or TensorFlow because I wanted to build a better understanding
+of what Machine Learning models actually are, what Neural Networks
+actually are, and how they can be made. This post is a collection of
+information I wish I had when I began this journey. It touches on a
+little bit of the math, but I don’t deeply re-explain the math. I try to
+link out to more explanatory sources where I think it’s valuable. Note:
+I am not a Machine Learning engineer, nor am I a Data Scientist. I’m a
+Software Engineer that turned into a political operative (lol). I wrote
+this for an audience of Software Engineers. Also: I don’t have a GPU and
+I don’t want to spend a bunch of money renting one from Amazon. This
+model can be trained and deployed on a modern CPU in a matter of
+minutes.
 
 ### What We’ll Be Doing
 
 We’re going to build a Neural Network for multi-class classification.
-All that means is we’re going to make a model takes in images and
+All that means is we’re going to make a model that takes in images and
 attempts to label them from a set of options. In our case, we’re going
 to create a Neural Network that works with the [MNIST database of
-handwritten digits](https://yann.lecun.com/exdb/mnist/). This database
-contains 70,000 images of handwritten digits, 0 - 9, and corresponding
-labels of which digit the handwritten image is. We’ll use 60,000 of the
-images to train our Neural Network, and 10,000 to test its accuracy. The
-rest of this post assumes you have the data downloaded to a local
-`data/` directory.
+handwritten
+digits](https://web.archive.org/web/20220805193554/http://yann.lecun.com/exdb/mnist/).
+This database contains 70,000 images of handwritten digits, 0 - 9, and
+corresponding labels of which digit the handwritten image is. We’ll use
+60,000 of the images to train our Neural Network, and 10,000 to test its
+accuracy. The rest of this post assumes you have the data downloaded to
+a local `data/` directory.
 
 Neural Networks are particularly handy for image classification tasks.
 There are many other types of Machine Learning out there, but we won’t
@@ -43,29 +65,29 @@ spend any attention on those.
 First of all, let’s demystify one thing: Neural Networks are just
 graphs. Just nodes and edges. If you’ve studied any Computer Science or
 have a background in Software Engineering, this is probably a familiar
-conecpet to you. The exact shape of any given Neural Network is
-dependant on how you build it, but that’s something we get to decide.
-The graph has an **input layer** that is usually one node per input
-feature. In our case, **a pixel of an image is a feature**. Next, there
-are one or more **hidden layers**. Hidden layers are simply nodes in the
-graph that are in the middle. They take inputs from other nodes, and the
-give outputs to other nodes. This is the part that makes it Deep
-Learning. The presence of one or more hidden layers is the “deep” in
-Deep Learning. There’s no standard rule for the size of a hidden layer,
-or how many you should have. Finally, there’s an **output layer**. Each
+concept to you. The exact shape of any given Neural Network is dependent
+on how you build it, but that’s something we get to decide. The graph
+has an **input layer** that is usually one node per input feature. In
+our case, **a pixel of an image is a feature**. Next, there are one or
+more **hidden layers**. Hidden layers are simply nodes in the graph that
+are in the middle. They take inputs from other nodes, and they give
+outputs to other nodes. This is the part that makes it Deep Learning.
+The presence of one or more hidden layers is the “deep” in Deep
+Learning. There’s no standard rule for the size of a hidden layer, or
+how many you should have. Finally, there’s an **output layer**. Each
 node in the output layer corresponds to one label. For example, if a
 possible label to an image is “cat” then one node in the output layer
 represents “cat”. We’re going to make a Neural Network that has a bunch
 of input layer nodes, a single hidden layer with ten nodes, and an
 output layer with ten nodes, one for each digit 0 - 9.
 
-Each Nueron (node) has a unique **Weight** and **Bias**, and each layer
-has an **Activation Function**. The Activation Function defines the
-output of a neuron given its inputs, and does not change. We’ll talk
-more about Activation Functions below. As we train our model, we adjust
-the Weights and Biases.
+Each connection between neurons has a **Weight**, each neuron (node) has
+a **Bias**, and each layer has an **Activation Function**. The
+Activation Function defines the output of a neuron given its inputs, and
+does not change. We’ll talk more about Activation Functions below. As we
+train our model, we adjust the Weights and Biases.
 
-Here’s are drawing of a Neural Network with three input nodes, a hidden
+Here’s a drawing of a Neural Network with three input nodes, a hidden
 layer with four nodes, and an output layer with two nodes. This might be
 how you’d construct a Neural Network that does binary classification: a
 model that tries to label inputs to one of two options for outputs.
@@ -103,17 +125,17 @@ answers were. We take all its answers to, “what did you see?” and come
 up with a measure of how wrong it was. We assign a numeric value to the
 “how wrong was it?” question with a [cost
 function](https://www.simplilearn.com/tutorials/machine-learning-tutorial/cost-function-in-machine-learning).
-From that numerica value, we can work backwards on all the neurons
+From that numerical value, we can work backwards on all the neurons
 (nodes) to tell them, “you were X wrong, and this specific neuron
 contributed to Y amount of that error; adjust this neuron’s Weights and
 Biases by Z amount and try again.”
 
-3Blue1Brown has another excellent video on the conecepts of Back
+3Blue1Brown has another excellent video on the concepts of Back
 Propagation: “[What is backpropagation really
 doing?](https://www.3blue1brown.com/lessons/backpropagation)” It’s got
 some great visuals to show how Forward Propagation pushes data forward
 through the Neural Network, and how Back Propagation pushes error
-measures backwards thrrough the Neural Network.
+measures backwards through the Neural Network.
 
 ##### Training
 
@@ -123,7 +145,7 @@ this over and over until it is good at the task! This is a lot like how
 people learn. Show a small child pictures of various farm animals over
 and over and ask them to name the animals. At first they’re very bad at
 it, but over time they get very good at it. There’s a lot of research
-out there that our artifical Neural Network is structured and operates
+out there that our artificial Neural Network is structured and operates
 like human brain neurons.
 
 #### Gradient Descent
@@ -135,13 +157,13 @@ the piece that is the most *choose-your-own-adventure* for how much you
 want to actually understand. I recommend diving in at least a little
 bit.
 
-Imagine being at a point graph and you want to find which step to take
-to get to the minimum value. If you’ve taken any calculus before, you
-know that you can take the slope at the current point to tell you which
-way the graph is trending, and by how much. If you do this over and
-over, with small steps, you will approach a local minimum. That’s a
+Imagine being at a point on a graph and you want to find which step to
+take to get to the minimum value. If you’ve taken any calculus before,
+you know that you can take the slope at the current point to tell you
+which way the graph is trending, and by how much. If you do this over
+and over, with small steps, you will approach a local minimum. That’s a
 1-dimensional gradient descent. Our plan is to work with lots of
-repeated steps to get to a minumum of our [cost
+repeated steps to get to a minimum of our [cost
 function](https://www.simplilearn.com/tutorials/machine-learning-tutorial/cost-function-in-machine-learning)
 — the function telling us how bad our predictions are.
 
@@ -149,7 +171,7 @@ function](https://www.simplilearn.com/tutorials/machine-learning-tutorial/cost-f
 |:--:|
 | Reducing Loss: Gradient Descent, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), via [Google Developers](https://developers.google.com/machine-learning/crash-course/reducing-loss/gradient-descent) |
 
-You can do this in two and three domensions as well. In fact, you can do
+You can do this in two and three dimensions as well. In fact, you can do
 it in as many dimensions as you need, which is very handy, because image
 classification has lots of dimensions. Imagine a color image. Its
 obvious dimensions are the pixel’s X value, Y value, Red value, Green
@@ -179,6 +201,8 @@ Other versions of Python 3 probably work, too.
 ``` python
 import matplotlib.pyplot as plt
 import numpy as np
+
+np.random.seed(7)  # So our results are reproducible
 ```
 
 ### Our Data
@@ -198,8 +222,8 @@ may wish to know:
   which looks for the presence of some magic numbers
 - There’s a [documented structure](http://yann.lecun.com/exdb/mnist/) to
   this data set, but that website is often behind HTTP basic auth
-  because people like to script against it; here’s a [Google
-  cache](https://webcache.googleusercontent.com/search?q=cache:yann.lecun.com/exdb/mnist/)
+  because people like to script against it; here’s an [archived
+  copy](https://web.archive.org/web/20220805193554/http://yann.lecun.com/exdb/mnist/)
 - The images are gzip’d
 - The pixel values are 0 - 255, but we’re going to divide them into
   floats 0 - 1
@@ -209,7 +233,7 @@ matrix where each pixel is a row (this will line up with our input
 layer), and each image is a column. This gives us a matrix with 784 rows
 (28 x 28) and 60,000 columns.
 
-This is the least intersting bit of code in the entire post.
+This is the least interesting bit of code in the entire post.
 
 ``` python
 import gzip
@@ -272,7 +296,7 @@ def load_images_and_labels(image_file_path, label_file_path):
             image_data = np.frombuffer(buffer, dtype=np.uint8).astype(np.float64) / 255
 
             # Reshape it to a matrix such that each column is the pixels of the image
-            # So, we end up with a matrix with `image_width*image_height` rows and `number_of_images` colums
+            # So, we end up with a matrix with `image_width*image_height` rows and `number_of_images` columns
             image_data = image_data.reshape(
                 number_of_images, image_width * image_height
             ).T
@@ -294,7 +318,7 @@ plt.show()
 
     Label: 5
 
-![](index_files/figure-commonmark/cell-4-output-2.png)
+![](index_files/figure-commonmark/cell-5-output-2.svg)
 
 ### An Untrained Neural Network
 
@@ -304,40 +328,42 @@ The first step in creating our Neural Network is to build out Forward
 Propagation. Since our Neural Network will have an input layer, one
 hidden layer, and an output layer, we’ll need:
 
-- A set of Weights and Biases on the input layer
-- An Activation Function on the input layer
-- A set of Weights and Biases on the hidden layer
+- A set of Weights and Biases between the input layer and the hidden
+  layer
 - An Activation Function on the hidden layer
+- A set of Weights and Biases between the hidden layer and the output
+  layer
+- An Activation Function on the output layer
 
 As mentioned, the Weights and Biases are variable and are determined in
 the model’s training process. But our model needs to start somewhere.
 There are a variety of strategies for initializing Weights and Biases.
 You could initialize to random values, but we’re going to use the [He
-method](https://towardsdatascience.com/coding-neural-network-parameters-initialization-f7c2d770e874)
+method](https://web.archive.org/web/20250207022225/https://medium.com/towards-data-science/coding-neural-network-parameters-initialization-f7c2d770e874)
 to initialize random Weights, and the [common recommendation of Biases
 initialized to zero](https://cs231n.github.io/neural-networks-2/).
 
 ``` python
 # weights_1 is the matrix of Weights between our input nodes and the first hidden layer
-# it has the shape num_labels x image_size
+# it has the shape hidden_layer_size x input_layer_size
 #
-# biases_1 is the matrix of Biases between our input nodes and the first hidden layer
-# it has the shape num_labels x 1
+# biases_1 is the matrix of Biases for the first hidden layer
+# it has the shape hidden_layer_size x 1
 #
 # weights_2 is the matrix of Weights between our hidden layer and our output layer
-# it has the shape num_labels x num_labels
+# it has the shape output_layer_size x hidden_layer_size
 #
-# biases_2 is the matrix of biases between our hidden layer and our output layer
-# it has the shape num_labels x 1
+# biases_2 is the matrix of Biases for our output layer
+# it has the shape output_layer_size x 1
 def init_params(input_layer_size, hidden_layer_size, output_layer_size):
     weights_1 = np.random.randn(
         hidden_layer_size,
         input_layer_size,
     ) * np.sqrt(2 / input_layer_size)
-    
+
     weights_2 = np.random.randn(
-        hidden_layer_size,
         output_layer_size,
+        hidden_layer_size,
     ) * np.sqrt(2 / hidden_layer_size)
 
     biases_1 = np.zeros((hidden_layer_size, 1))
@@ -346,11 +372,11 @@ def init_params(input_layer_size, hidden_layer_size, output_layer_size):
     return weights_1, biases_1, weights_2, biases_2
 ```
 
-#### Input Layer Activation Function
+#### Hidden Layer Activation Function
 
-Next we need to select an activation function on our input layer. Common
-options are [sigmoid](https://en.wikipedia.org/wiki/Sigmoid_function)
-and
+Next we need to select an activation function for our hidden layer.
+Common options are
+[sigmoid](https://en.wikipedia.org/wiki/Sigmoid_function) and
 [ReLU](https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29).
 ReLU is very effective and is a very common choice in computer vision
 models. Also, it’s incredibly simple to implement, so we’ll go with
@@ -366,19 +392,19 @@ def relu(value):
     return np.maximum(value, 0)
 ```
 
-#### Hidden Layer Activation Function
+#### Output Layer Activation Function
 
 The last piece we need for our Forward Propagation is an Activation
-Function on the hidden layer. Remember: this Activation Function is
-feeding to our output layer, so we need something that generates ten
+Function on the output layer. Remember: this Activation Function
+produces our output layer, so we need something that generates ten
 prediction values. A good way to do this is to take our unactivated
-hidden layer and normalize it such that it outputs “prediction odds” to
+output layer and normalize it such that it outputs “prediction odds” to
 our output layer. Put another way, if the model is 91% sure an input is
 the number 5, it should activate the 5’s output node to 0.91, and the
 sum of all the other predictions should come to 0.09.
 
 What we’ve just described is called the [Softmax
-function](https://en.wikipedia.org/wiki/Softmax_function). The mast
+function](https://en.wikipedia.org/wiki/Softmax_function). The math
 might look a little strange ([here’s a good
 explainer](https://towardsdatascience.com/softmax-activation-function-explained-a7e1bc3ad60)),
 but all it’s doing is taking in a set of numbers and normalizing them to
@@ -386,7 +412,8 @@ be 0 - 1, with a sum of 1.
 
 ``` python
 def softmax(inputs):
-    exponentiated = np.exp(inputs)
+    # Subtracting the max doesn't change the result, but keeps np.exp from overflowing
+    exponentiated = np.exp(inputs - np.max(inputs, axis=0, keepdims=True))
     probabilities = exponentiated / np.sum(exponentiated, axis=0)
     return probabilities
 ```
@@ -396,7 +423,7 @@ def softmax(inputs):
 We can now combine our initialized Weights and Biases and our Activation
 Functions to define Forward Propagation. You’ll notice some matrix math
 in here. Since our features (pixels) are arranged in a matrix, this is
-much more efficient that piping every pixel through functions one at a
+much more efficient than piping every pixel through functions one at a
 time. This becomes particularly true when you’re working with Neural
 Networks of higher dimensions. [Here’s a refresher on matrix dot
 product](https://www.youtube.com/watch?v=87_7YVCnAOw). But you can
@@ -424,9 +451,9 @@ This is actually all we need to do to have our model make a prediction.
 If we pass in a matrix of images, it’ll give an `output_layer` of
 predicted labels. But remember, we haven’t actually trained it yet, so
 it’ll make **very bad predictions**. The two types of variables we have,
-the Weights and Biases, are set to random values. So this thing is going
-to perform with roughly 10% accuracy (randomly picking one of our ten
-digits). Let’s see that.
+the Weights and Biases, are set to random values and zeros,
+respectively. So this thing is going to perform with roughly 10%
+accuracy (randomly picking one of our ten digits). Let’s see that.
 
 We can define a measure of accuracy by dividing the number of correct
 predictions (the labels with the highest value in `output_layer`) by
@@ -471,13 +498,13 @@ accuracy = get_accuracy(predictions, training_labels)
 print(f'Accuracy: {accuracy*100:.2f}%')
 ```
 
-    Accuracy: 8.22%
+    Accuracy: 8.14%
 
 ### Training the Neural Network
 
 Now that we have a stupid Neural Network, let’s train it so it can
 become a smart Neural Network. As mentioned before, Back Propagation is
-the proces in which we take the predictions from Forward Propagation,
+the process in which we take the predictions from Forward Propagation,
 measure the error, and adjust our Weights and Biases through Gradient
 Descent.
 
@@ -505,7 +532,7 @@ one_hot_output = one_hot(num_labels, training_labels)
 #### Back Propagation
 
 This is where we actually do our Gradient Descent. It contains a little
-bit of calculus, and I highly adivse you pause here and watch these
+bit of calculus, and I highly advise you pause here and watch these
 three videos:
 
 - [What is backpropagation really
@@ -516,14 +543,14 @@ three videos:
   Complete Mathematical
   Derivation](https://www.youtube.com/watch?v=f-nW8cSa_Ec)
 
-It’s actually not all that imporant to master the calculus in these
+It’s actually not all that important to master the calculus in these
 videos, but it’s very helpful to see what math is happening. From a
 high-level: we take the derivatives of our activation functions, and we
 reverse our matrix multiplication. It’s actually not too daunting. In
-the end, it gives is a measurement of error, and we use that error to
+the end, it gives us a measurement of error, and we use that error to
 adjust our Weights and Biases.
 
-Speaking of derivatives, we’re gonna need the derivated of our ReLU
+Speaking of derivatives, we’re gonna need the derivative of our ReLU
 Activation Function:
 
 ``` python
@@ -536,29 +563,30 @@ And now we just go backwards through the Neural Network:
 
 ``` python
 def back_prop(unactivated_hidden_layer, activated_hidden_layer, weights_2, output_layer, one_hot_output, training_image_data):
-    num_images = one_hot_output.size
+    # one_hot_output has one column per image
+    num_images = one_hot_output.shape[1]
 
     # The difference between the predictions and the actual labels
     d_predictions = output_layer - one_hot_output
 
-    # Take that d_predictions and cary back to the activated hidden layer
-    # And then average over all the neurons
+    # Take that d_predictions and carry back to the activated hidden layer
+    # And then average over all the images
     d_weights_2 = (1 / num_images) * d_predictions.dot(activated_hidden_layer.T)
 
-    # Derivative of biases_ 2 is acutally just an average of the abosolute error
-    d_biases_2 = (1 / num_images) * np.sum(d_predictions)
+    # Derivative of biases_2 is the average error for each output neuron
+    d_biases_2 = (1 / num_images) * np.sum(d_predictions, axis=1, keepdims=True)
 
-    # Derivative of unactived hidden layer
+    # Derivative of unactivated hidden layer
     # Transpose the 2nd layer weights and dot on the known d_predictions
     # And multiply that by the derivative of the activation function
     d_hidden_layer = weights_2.T.dot(d_predictions) * derivative_rectified_linear_unit(unactivated_hidden_layer)
 
-    # Again, take our current derivative and cary it back to the input layer
-    # And average it over all the neurons
+    # Again, take our current derivative and carry it back to the input layer
+    # And average it over all the images
     d_weights_1 = (1 / num_images) * d_hidden_layer.dot(training_image_data.T)
-    
-    # Derivative of biases_1 is like biases_2, but it's a simple average of the abolute error from the hiddle layer
-    d_biases_1 = (1 / num_images) * np.sum(d_hidden_layer)
+
+    # Derivative of biases_1 is like biases_2: the average error for each hidden neuron
+    d_biases_1 = (1 / num_images) * np.sum(d_hidden_layer, axis=1, keepdims=True)
 
     return d_weights_1, d_biases_1, d_weights_2, d_biases_2
 ```
@@ -569,7 +597,7 @@ def back_prop(unactivated_hidden_layer, activated_hidden_layer, weights_2, outpu
 
 We’re almost ready to train our model. The last piece here is to
 actually update our Weights and Biases after Back Propagation. You may
-be tempted to simply subracts the differences returned by `back_prop`
+be tempted to simply subtract the differences returned by `back_prop`
 but it’s not quite so simple. Remember, our Gradient Descent is good at
 telling us the slope at our current location, but it’s very unlikely to
 be a straight line. Instead, we’re going to want to take smaller steps
@@ -586,11 +614,11 @@ learning rate. Common learning rates are between 0.01 and 1. If you’d
 like to read more about picking a learning rate, [this is a good
 post](https://www.jeremyjordan.me/nn-learning-rate/).
 
-Through some trial and error, I found that a learning rate of 0.5 worked
+Through some trial and error, I found that a learning rate of 0.1 worked
 pretty well for this model.
 
 ``` python
-learning_rate = 0.5
+learning_rate = 0.1
 ```
 
 We can use this to update our Weights and Biases:
@@ -615,9 +643,9 @@ training data. We’ve already got a function to tell us accuracy, so
 let’s let it train until that reaches 90%.
 
 This is the slow part, and the part that often benefits from GPUs. But,
-as you’ll see, this Neural Network trains surpisingly quickly! On my
-laptop with no GPU and a 2.6 GHz 6-Core Intel Core i7, the model
-rechease 90% accuracy on the training data in under two minutes!
+as you’ll see, this Neural Network trains surprisingly quickly! On my
+laptop with no GPU and a 2.6 GHz 6-Core Intel Core i7, the model reaches
+90% accuracy on the training data in under two minutes!
 
 ``` python
 image_size = training_image_data.shape[0]
@@ -683,7 +711,7 @@ while accuracy < 0.9:
 
     accuracy_measurements.append(accuracy)
 
-    # Print out upadtes as we go
+    # Print out updates as we go
     if iteration == 1 or iteration % 100 == 0:  
         print(f'Iteration: {iteration} | Accuracy: {accuracy*100:.2f}%')
 
@@ -697,26 +725,20 @@ plt.ylim(0, 1)
 plt.show()
 ```
 
-    Iteration: 1 | Accuracy: 9.41%
-    Iteration: 100 | Accuracy: 72.68%
-    Iteration: 200 | Accuracy: 82.50%
-    Iteration: 300 | Accuracy: 85.56%
-    Iteration: 400 | Accuracy: 87.01%
-    Iteration: 500 | Accuracy: 87.85%
-    Iteration: 600 | Accuracy: 88.51%
-    Iteration: 700 | Accuracy: 88.97%
-    Iteration: 800 | Accuracy: 89.37%
-    Iteration: 900 | Accuracy: 89.66%
-    Iteration: 1000 | Accuracy: 89.90%
-    Achieved 90.00% accuracy after 1037 iterations!
+    Iteration: 1 | Accuracy: 13.45%
+    Iteration: 100 | Accuracy: 83.98%
+    Iteration: 200 | Accuracy: 87.50%
+    Iteration: 300 | Accuracy: 88.84%
+    Iteration: 400 | Accuracy: 89.59%
+    Achieved 90.00% accuracy after 489 iterations!
 
-![](index_files/figure-commonmark/cell-17-output-2.png)
+![](index_files/figure-commonmark/cell-18-output-2.svg)
 
 Now we have the Weights and Biases for our Neural Network to achieve 90%
 accuracy against our training data. That’s pretty cool, but the real
-test to to run images through the model that it’s never seen before. If
+test is to run images through the model that it’s never seen before. If
 we overfit the model, it might only be good at recognizing the images it
-was trained on (kindof like cramming for a test and memorizing the
+was trained on (kind of like cramming for a test and memorizing the
 answers without actually learning anything). Let’s run it against our
 10,000 test images. At this point we only need to run it through
 `forward_prop` because we’re no longer training. This is very fast!
@@ -735,7 +757,7 @@ test_accuracy = get_accuracy(test_predictions, test_labels)
 print(f'Test Data Set Accuracy: {test_accuracy*100:.2f}%')
 ```
 
-    Test Data Set Accuracy: 90.32%
+    Test Data Set Accuracy: 90.30%
 
 That’s great! And let’s look at a sample of 10 test images and how they
 were labeled:
@@ -756,13 +778,13 @@ plt.tight_layout()
 plt.show()
 ```
 
-![](index_files/figure-commonmark/cell-19-output-1.png)
+![](index_files/figure-commonmark/cell-20-output-1.svg)
 
 Very impressive!
 
 We’ve successfully built a computer vision Machine Learning model using
-nothing but NumPy. Hopefully this demystified some of the some of the
-concepts of Neural Networks!
+nothing but NumPy. Hopefully this demystified some of the concepts of
+Neural Networks!
 
 ### Acknowledgements
 
@@ -773,34 +795,3 @@ looks a lot like his work, though I hit a number of implementation
 errors while following along. After digging into the articles and videos
 linked in this post, I made a number of adjustments to the model’s
 training to get to this final output.
-
-### License
-
-    Copyright (c) 2022, Matt Hodges
-
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice, this
-      list of conditions and the following disclaimer.
-
-    * Redistributions in binary form must reproduce the above copyright notice,
-      this list of conditions and the following disclaimer in the documentation
-      and/or other materials provided with the distribution.
-
-    * Neither the name of Building a Neural Network From Scratch with NumPy nor the names of its
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
